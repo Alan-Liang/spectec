@@ -191,6 +191,7 @@ let context_names = [
   "FRAME_";
   "LABEL_";
   "HANDLER_";
+  "HANDLE";
 ]
 
 (* Destruct *)
