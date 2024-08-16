@@ -14,6 +14,7 @@ syntax hostaddr hint(desc "host address") = addr
 syntax structaddr hint(desc "structure address") = addr
 syntax arrayaddr hint(desc "array address") = addr
 syntax exnaddr hint(desc "exception address") = addr
+syntax contaddr hint(desc "continuation address") = addr
 
 syntax externaddr hint(desc "external address") hint(macro "%" "XA%") =
   | FUNC funcaddr | GLOBAL globaladdr | TABLE tableaddr | MEM memaddr | TAG tagaddr
@@ -38,6 +39,7 @@ syntax addrref hint(desc "address value") =
   | REF.ARRAY_ADDR arrayaddr             hint(show REF.ARRAY %%)  hint(macro "%ADDR")
   | REF.FUNC_ADDR funcaddr               hint(show REF.FUNC %%)   hint(macro "%ADDR")
   | REF.EXN_ADDR exnaddr                 hint(show REF.EXN %%)    hint(macro "%ADDR")
+  | REF.CONT_ADDR contaddr               hint(show REF.CONT %%)   hint(macro "%ADDR")
   | REF.HOST_ADDR hostaddr               hint(show REF.HOST %%)   hint(macro "%ADDR")
   | REF.EXTERN addrref
 syntax ref hint(desc "reference value")  hint(macro "reff") =
@@ -90,6 +92,9 @@ syntax arrayinst hint(desc "array instance") hint(macro "%" "AI%") =
   { TYPE deftype, FIELDS fieldval* }
 syntax exninst hint(desc "exception instance") hint(macro "%" "EI%") =
   { TAG tagaddr, FIELDS val* }
+syntax hctx
+syntax continst hint(desc "continuation instance") hint(macro "%" "KI%") =
+  { CTXT hctx, ARITY nat }
 
 
 syntax moduleinst hint(desc "module instance") hint(macro "%" "MI%") =
@@ -131,7 +136,8 @@ syntax store hint(desc "store") hint(macro "%" "S%") =
     DATAS datainst*,
     STRUCTS structinst*,
     ARRAYS arrayinst*,
-    EXNS exninst* }
+    EXNS exninst*,
+    CONTS continst?* }
 
 syntax frame hint(desc "frame") hint(macro "%" "A%") =
   { LOCALS (val?)*, MODULE moduleinst }
@@ -148,15 +154,38 @@ var z : state
 ;; Administrative Instructions
 ;;
 
+syntax handle hint(desc "administrative effect handler") =
+  tagaddr labelidx
+
+syntax handles =
+  | RESUME `{handle*}
+  | BARRIER
+
 syntax instr/admin hint(desc "administrative instruction") =
   | ...
   | addrref
   | LABEL_ n `{instr*} instr*   hint(show LABEL_%#% %%)
   | FRAME_ n `{frame} instr*    hint(show FRAME_%#% %%)
   | HANDLER_ n `{catch*} instr* hint(show HANDLER_%#% %%)
+  | HANDLE handles instr*
+  | SUSPENDING tagaddr val* hctx
   | TRAP
 
 syntax evalctx hint(desc "evaluation context") =
   | LABEL_ n `{instr*}   hint(show LABEL_%#%)
   | FRAME_ n `{frame}    hint(show FRAME_%#%)
   | HANDLER_ n `{catch*} hint(show HANDLER_%#%)
+  | HANDLE handles       hint(show HANDLE#%)
+
+;;
+;; Effect Handlers
+;;
+
+syntax ctxinstr hint(desc "context instruction") =
+  | LABEL_ n `{instr*} val* instr*
+  | FRAME_ n `{frame} val* instr*
+  | HANDLER_ n `{catch*} val* instr*
+  | HANDLE handles val* instr*
+
+syntax hctx hint(desc "handler context") =
+  { CTXT ctxinstr*, STACK val*, CONT instr* }

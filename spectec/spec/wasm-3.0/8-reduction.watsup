@@ -99,6 +99,9 @@ rule Step_pure/br-label-succ:
 rule Step_pure/br-handler:
   (HANDLER_ n `{catch*} val* (BR l) instr*)  ~>  val* (BR l)
 
+rule Step_pure/br-handler:
+  (HANDLE handles val* (BR l) instr*)  ~>  val* (BR l)
+
 
 rule Step_pure/br_if-true:
   (CONST I32 c) (BR_IF l)  ~>  (BR l)
@@ -215,6 +218,9 @@ rule Step_pure/return-label:
 rule Step_pure/return-handler:
   (HANDLER_ n `{catch*} val* RETURN instr*)  ~>  val* RETURN
 
+rule Step_pure/return-handle:
+  (HANDLE handles val* RETURN)  ~>  val* RETURN
+
 
 ;; Exceptions
 
@@ -270,6 +276,112 @@ rule Step_pure/handler-vals:
   (HANDLER_ n `{catch*} val*)  ~>  val*
 
 
+;; Effect handlers
+
+rule Step/cont.new-null:
+  z; (REF.NULL ht) (CONT.NEW x)  ~>  z; TRAP
+
+rule Step/cont.new-func:
+  z; (REF.FUNC_ADDR a) (CONT.NEW y)  ~>  $add_continst(z, cont); (REF.CONT_ADDR ca)
+  ;; -- Expand: $funcinst(z)[a].TYPE ~~ FUNC (t_1^n -> t_2*)
+  ;; The following line differs from the spec
+  -- Expand: $type(z, y) ~~ CONT dt
+  -- Expand: dt ~~ FUNC (t_1^n -> t_2*)
+  -- if cont = { CTXT $hctx_from_instr((REF.FUNC_ADDR a) (CALL_REF dt)), ARITY n }
+  -- if ca = |$continst(z)|
+
+rule Step/cont.bind-null:
+  z; (REF.NULL ht) (CONT.BIND x y)  ~>  z; TRAP
+
+rule Step/cont.bind-consumed:
+  z; (REF.CONT_ADDR a) (CONT.BIND x y)  ~>  z; TRAP
+  -- if $continst_iseps($continst(z)[a])
+
+rule Step/cont.bind-cont:
+  z; val^n (REF.CONT_ADDR a) (CONT.BIND x y)  ~>  $add_continst($with_cont(z, a, eps), cont_2); (REF.CONT_ADDR ca)
+  -- if $continst(z)[a] = cont_1
+  -- Expand: $type(z, y) ~~ FUNC (t_1* -> t_2*)
+  -- if cont_1 = { CTXT ctxt_1, ARITY n_1 }
+  -- if cont_2 = { CTXT $hctx_bind(ctxt_1, val^n), ARITY $(|t_1*|) }
+  -- if n = $(n_1 - |t_1*|)
+  -- if ca = |$continst(z)|
+
+rule Step/resume-null:
+  z; (REF.NULL ht) (RESUME kx (TAG x y)*)  ~>  z; TRAP
+
+rule Step/resume-consumed:
+  z; (REF.CONT_ADDR a) (RESUME kx (TAG x y)*)  ~>  z; TRAP
+  -- if $continst_iseps($continst(z)[a])
+
+rule Step/resume-cont:
+  z; val^n (REF.CONT_ADDR a) (RESUME kx (TAG x y)*)  ~>  $with_cont(z, a, eps); (HANDLE (RESUME `{ea*}) $hctx_instantiate($hctx_bind(ctxt, val^n), eps))
+  -- if $continst(z)[a] = cont
+  -- if cont = { CTXT ctxt, ARITY n }
+  -- if (ea = $tagaddr(z)[x] y)*
+
+rule Step/resume_throw-null:
+  z; (REF.NULL ht) (RESUME_THROW kx ax (TAG x y)*)  ~>  z; TRAP
+
+rule Step/resume_throw-consumed:
+  z; (REF.CONT_ADDR a) (RESUME_THROW kx ax (TAG x y)*)  ~>  z; TRAP
+  -- if $continst_iseps($continst(z)[a])
+
+rule Step/resume_throw:
+  z; val^m (REF.CONT_ADDR a) (RESUME_THROW kx ax (TAG x y)*)  ~>  $with_cont(z, a, eps); (HANDLE (RESUME `{ea*}) $hctx_instantiate(ctxt, val^m (THROW ax)))
+  -- if $continst(z)[a] = cont
+  -- if cont = { CTXT ctxt, ARITY n }
+  -- if (ea = $tagaddr(z)[x] y)*
+  -- Expand: $taginst(z)[$tagaddr(z)[ax]].TYPE ~~ FUNC (t_1^m -> t_2*)
+
+rule Step_pure/barrier:
+  (BARRIER bt in* END)  ~>  (HANDLE BARRIER in*)
+
+rule Step_pure/handle-vals:
+  (HANDLE h val*)  ~>  val*
+
+rule Step_read/suspend:
+  z; val^n (SUSPEND x)  ~>  (SUSPENDING tagaddr val^n $empty_hctx)
+  -- if tagaddr = $tagaddr(z)[x]
+  -- Expand: $taginst(z)[tagaddr].TYPE ~~ FUNC (t_1^n -> t_2^n)
+
+rule Step/suspending-vals:
+  z; val* (SUSPENDING tagaddr val'* hctx) instr*  ~>  z; (SUSPENDING tagaddr val'* hctx')
+  -- if val* =/= eps \/ instr* =/= eps
+  -- if hctx = { CTXT ctxinstr*, STACK v*, CONT in* }
+  -- if hctx' = { CTXT ctxinstr*, STACK val* v*, CONT in* instr* }
+
+rule Step/supending-label:
+  z; (LABEL_ n `{instr'*} (SUSPENDING tagaddr val'* hctx))  ~>  z; (SUSPENDING tagaddr val'* hctx')
+  -- if hctx = { CTXT ctxinstr*, STACK v*, CONT in* }
+  -- if hctx' = { CTXT (LABEL_ n `{instr'*} v* in*) ctxinstr*, STACK eps, CONT eps }
+
+rule Step/supending-frame:
+  z; (FRAME_ n `{frame} (SUSPENDING tagaddr val'* hctx))  ~>  z; (SUSPENDING tagaddr val'* hctx')
+  -- if hctx = { CTXT ctxinstr*, STACK v*, CONT in* }
+  -- if hctx' = { CTXT (FRAME_ n `{frame} v* in*) ctxinstr*, STACK eps, CONT eps }
+
+rule Step/supending-handler:
+  z; (HANDLER_ n `{catch*} (SUSPENDING tagaddr val'* hctx))  ~>  z; (SUSPENDING tagaddr val'* hctx')
+  -- if hctx = { CTXT ctxinstr*, STACK v*, CONT in* }
+  -- if hctx' = { CTXT (HANDLER_ n `{catch*} v* in*) ctxinstr*, STACK eps, CONT eps }
+
+rule Step/suspending-handle-barrier:
+  z; (HANDLE BARRIER (SUSPENDING tagaddr val* hctx))  ~>  z; TRAP
+
+rule Step/suspending-handle-skip:
+  z; (HANDLE (RESUME `{handle*}) (SUSPENDING tagaddr val'* hctx))  ~>  z; (SUSPENDING tagaddr val'* hctx')
+  -- if $get_handler(handle*, tagaddr) = eps
+  -- if hctx = { CTXT ctxinstr*, STACK v*, CONT in* }
+  -- if hctx' = { CTXT (HANDLE (RESUME `{handle*}) v* in*) ctxinstr*, STACK eps, CONT eps }
+
+rule Step/suspending-handle:
+  z; (HANDLE (RESUME `{handle*}) (SUSPENDING tagaddr val^n hctx))  ~>  $add_continst(z, cont); val^n (REF.CONT_ADDR a) (BR l)
+  -- if $get_handler(handle*, tagaddr) = l
+  -- Expand: $taginst(z)[tagaddr].TYPE ~~ FUNC (t_1^n -> t_2^m)
+  -- if cont = { CTXT hctx, ARITY m }
+  -- if a = |$continst(z)|
+
+
 ;; Traps
 
 rule Step_pure/trap-vals:
@@ -282,6 +394,9 @@ rule Step_pure/trap-label:
 rule Step_pure/trap-frame:
   (FRAME_ n `{f} TRAP)  ~>  TRAP
 
+rule Step_pure/trap-handle:
+  (HANDLE handlers TRAP)  ~>  TRAP
+
 
 ;; Context
 
@@ -292,6 +407,10 @@ rule Step/ctxt-label:
 rule Step/ctxt-frame:
   s; f; (FRAME_ n `{f'} instr*)  ~>  s'; f; (FRAME_ n `{f'} instr'*)
   -- Step: s; f'; instr* ~> s'; f'; instr'*
+
+rule Step/ctxt-handle:
+  z; (HANDLE handlers instr*)  ~>  z'; (HANDLE handlers instr'*)
+  -- Step: z; instr* ~> z'; instr'*
 
 
 ;; Numeric instructions

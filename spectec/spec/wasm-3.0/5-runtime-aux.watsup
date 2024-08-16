@@ -96,6 +96,7 @@ def $datainst(state) : datainst*      hint(show %.DATAS)   hint(macro "Z%")
 def $structinst(state) : structinst*  hint(show %.STRUCTS) hint(macro "Z%")
 def $arrayinst(state) : arrayinst*    hint(show %.ARRAYS)  hint(macro "Z%")
 def $exninst(state) : exninst*        hint(show %.EXNS)    hint(macro "Z%")
+def $continst(state) : continst?*     hint(show %.CONTS)   hint(macro "Z%")
 
 def $moduleinst((s; f)) = f.MODULE
 def $funcinst((s; f)) = s.FUNCS
@@ -108,6 +109,7 @@ def $datainst((s; f)) = s.DATAS
 def $structinst((s; f)) = s.STRUCTS
 def $arrayinst((s; f)) = s.ARRAYS
 def $exninst((s; f)) = s.EXNS
+def $continst((s; f)) = s.CONTS
 
 def $type(state, typeidx) : deftype         hint(show %.TYPES[%])   hint(macro "Z%")
 def $func(state, funcidx) : funcinst        hint(show %.FUNCS[%])   hint(macro "Z%")
@@ -142,6 +144,7 @@ def $with_elem(state, elemidx, ref*) : state                hint(show %[.ELEMS[%
 def $with_data(state, dataidx, byte*) : state               hint(show %[.DATAS[%].BYTES = %])       hint(macro "ZD%")
 def $with_struct(state, structaddr, nat, fieldval) : state  hint(show %[.STRUCTS[%].FIELDS[%] = %]) hint(macro "ZS%")
 def $with_array(state, arrayaddr, nat, fieldval) : state    hint(show %[.ARRAYS[%].FIELDS[%] = %])  hint(macro "ZA%")
+def $with_cont(state, contaddr, continst?) : state          hint(show %[.CONTS[%] = %])             hint(macro "ZK%")
 
 def $with_local((s; f), x, v) = s; f[.LOCALS[x] = v]
 def $with_global((s; f), x, v) = s[.GLOBALS[f.MODULE.GLOBALS[x]].VALUE = v]; f
@@ -153,15 +156,18 @@ def $with_elem((s; f), x, r*) = s[.ELEMS[f.MODULE.ELEMS[x]].REFS = r*]; f
 def $with_data((s; f), x, b*) = s[.DATAS[f.MODULE.DATAS[x]].BYTES = b*]; f
 def $with_struct((s; f), a, i, fv) = s[.STRUCTS[a].FIELDS[i] = fv]; f
 def $with_array((s; f), a, i, fv) = s[.ARRAYS[a].FIELDS[i] = fv]; f
+def $with_cont((s; f), a, c) = s[.CONTS[a] = c]; f
 
 def $add_structinst(state, structinst*) : state  hint(show %[.STRUCTS =++ %]) hint(macro "Z%")
 def $add_arrayinst(state, arrayinst*) : state    hint(show %[.ARRAYS =++ %])  hint(macro "Z%")
 def $add_exninst(state, exninst*) : state        hint(show %[.EXNS =++ %])    hint(macro "Z%")
+def $add_continst(state, continst*) : state      hint(show %[.CONTS =++ %])   hint(macro "Z%")
 
 def $add_structinst((s; f), si*) = s[.STRUCTS =++ si*]; f
 def $add_arrayinst((s; f), ai*) = s[.ARRAYS =++ ai*]; f
 ;; TODO: variable name for exninst? (ei and xi are both taken)
 def $add_exninst((s; f), exn*) = s[.EXNS =++ exn*]; f
+def $add_continst((s; f), cont*) = s[.CONTS =++ cont*]; f
 
 
 ;; Growing
@@ -178,3 +184,52 @@ def $growmem(meminst, n) = meminst'
   -- if meminst = { TYPE (`[i .. j] PAGE), BYTES b* }
   -- if meminst' = { TYPE (`[i' .. j] PAGE), BYTES b* (0x00)^(n * $($(64 * $Ki))) }
   -- if $(i' = |b*| / (64 * $Ki) + n <= j)
+
+
+;; Effect handlers
+
+def $ctxinstr_wrap(ctxinstr, instr*) : instr
+def $ctxinstr_wrap(LABEL_ n `{instr'*} val* instr*, in*) =
+  LABEL_ n `{instr'*} val* in* instr*
+def $ctxinstr_wrap(FRAME_ n `{frame} val* instr*, in*) =
+  FRAME_ n `{frame} val* in* instr*
+def $ctxinstr_wrap(HANDLER_ n `{catch*} val* instr*, in*) =
+  HANDLER_ n `{catch*} val* in* instr*
+def $ctxinstr_wrap(HANDLE h val* instr*, in*) =
+  HANDLE h val* in* instr*
+
+def $ctxinstrs_wrap(ctxinstr*, instr*) : instr*
+def $ctxinstrs_wrap(eps, in*) = in*
+def $ctxinstrs_wrap(ctxinstr ctxinstr'*, in*) = $ctxinstr_wrap(ctxinstr, $ctxinstrs_wrap(ctxinstr'*, in*))
+
+def $hctx_instantiate(hctx, instr*) : instr*
+def $hctx_instantiate({ CTXT ctxinstr*, STACK val*, CONT instr* }, in*) = val* $ctxinstrs_wrap(ctxinstr*, in*) instr*
+
+def $empty_hctx : hctx
+def $empty_hctx = { CTXT eps, STACK eps, CONT eps }
+
+def $hctx_from_instr(instr*) : hctx
+def $hctx_from_instr(in*) = { CTXT eps, STACK eps, CONT in* }
+
+def $hctx_bind(hctx, val*) : hctx
+def $hctx_bind({ CTXT ctxinstr*, STACK val*, CONT instr* }, val'*) = { CTXT ctxinstr*, STACK val'* val*, CONT instr* }
+
+def $get_handler(handle*, tagaddr) : labelidx?
+def $get_handler(eps, a) = eps
+def $get_handler(handle handle'*, a) =
+  x
+  -- if handle = a x
+def $get_handler(handle handle'*, a) =
+  $get_handler(handle*, a)
+  -- otherwise
+
+;; FIXME: hack
+
+def $continst_iseps(continst?) : bool
+def $continst_iseps(eps) = true
+def $continst_iseps(continst?) = false -- otherwise
+
+def $continst_arity(continst?, nat) : bool
+def $continst_arity(eps, n) = true
+def $continst_arity(continst, n) = true -- if continst.ARITY = n
+def $continst_arity(continst?, n) = false -- otherwise

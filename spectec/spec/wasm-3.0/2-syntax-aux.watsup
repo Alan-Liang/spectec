@@ -248,6 +248,9 @@ def $free_functype(functype) : free
 def $free_functype(resulttype_1 -> resulttype_2) =
   $free_resulttype(resulttype_1) ++ $free_resulttype(resulttype_2)
 
+def $free_conttype(conttype) : free
+def $free_conttype(deftype) = $free_deftype(deftype)
+
 def $free_structtype(structtype) : free
 def $free_structtype(fieldtype*) = $free_list($free_fieldtype(fieldtype)*)
 
@@ -258,6 +261,7 @@ def $free_comptype(comptype) : free
 def $free_comptype(STRUCT structtype) = $free_structtype(structtype)
 def $free_comptype(ARRAY arraytype) = $free_arraytype(arraytype)
 def $free_comptype(FUNC functype) = $free_functype(functype)
+def $free_comptype(CONT conttype) = $free_conttype(conttype)
 
 def $free_subtype(subtype) : free
 def $free_subtype(SUB fin typeuse* comptype) =
@@ -554,6 +558,7 @@ def $subst_globaltype(globaltype, typevar*, typeuse*) : globaltype    hint(show 
 def $subst_functype(functype, typevar*, typeuse*) : functype          hint(show %#`[%:=%]) hint(macro "%subst")
 def $subst_tabletype(tabletype, typevar*, typeuse*) : tabletype       hint(show %#`[%:=%]) hint(macro "%subst")
 def $subst_memtype(memtype, typevar*, typeuse*) : memtype             hint(show %#`[%:=%]) hint(macro "%subst")
+def $subst_conttype(conttype, typevar*, typeuse*) : conttype          hint(show %#`[%:=%]) hint(macro "%subst")
 
 def $subst_externtype(externtype, typevar*, typeuse*) : externtype    hint(show %#`[%:=%]) hint(macro "%subst")
 def $subst_moduletype(moduletype, typevar*, typeuse*) : moduletype    hint(show %#`[%:=%]) hint(macro "%subst")
@@ -590,6 +595,7 @@ def $subst_fieldtype((mut zt), tv*, tu*) = mut $subst_storagetype(zt, tv*, tu*)
 def $subst_comptype((STRUCT yt*), tv*, tu*) = STRUCT $subst_fieldtype(yt, tv*, tu*)*
 def $subst_comptype((ARRAY yt), tv*, tu*) = ARRAY $subst_fieldtype(yt, tv*, tu*)
 def $subst_comptype((FUNC ft), tv*, tu*) = FUNC $subst_functype(ft, tv*, tu*)
+def $subst_comptype((CONT dt), tv*, tu*) = CONT $subst_conttype(dt, tv*, tu*)
 
 def $subst_subtype((SUB fin tu'* ct), tv*, tu*) =
   SUB fin $subst_typeuse(tu', tv*, tu*)* $subst_comptype(ct, tv*, tu*)
@@ -602,6 +608,7 @@ def $subst_globaltype((mut t), tv*, tu*) = mut $subst_valtype(t, tv*, tu*)
 def $subst_functype((t_1* -> t_2*), tv*, tu*) = $subst_valtype(t_1, tv*, tu*)* -> $subst_valtype(t_2, tv*, tu*)*
 def $subst_memtype((lim PAGE), tv*, tu*) = lim PAGE
 def $subst_tabletype((lim rt), tv*, tu*) = lim $subst_reftype(rt, tv*, tu*)
+def $subst_conttype(deftype, tv*, tu*) = $subst_deftype(deftype, tv*, tu*)
 
 def $subst_externtype((FUNC dt), tv*, tu*) = FUNC $subst_deftype(dt, tv*, tu*)
 def $subst_externtype((GLOBAL gt), tv*, tu*) = GLOBAL $subst_globaltype(gt, tv*, tu*)

@@ -222,11 +222,13 @@ syntax fieldtype  hint(desc "field type") = mut storagetype
 syntax functype   hint(desc "function type") = resulttype -> resulttype hint(macro "toF")
 syntax structtype hint(desc "structure type") = list(fieldtype)
 syntax arraytype  hint(desc "array type") = fieldtype
+syntax conttype   hint(desc "continuation type") = deftype
 
 syntax comptype hint(desc "composite type") hint(macro "%" "T%") =
   | STRUCT structtype
   | ARRAY arraytype
   | FUNC functype
+  | CONT conttype
 
 syntax subtype hint(desc "sub type") hint(macro "%" "T%") =
   | SUB fin typeuse* comptype
@@ -272,7 +274,7 @@ var ft : functype
 var gt : globaltype
 var ht : heaptype
 ;; var it : instrtype  ;; defined in typing
-;; kt : conttype       ;; future extension
+var kt : conttype
 var lt : lanetype
 var mt : memtype
 var nt : numtype
@@ -541,6 +543,18 @@ syntax catch hint(desc "catch clause") =
   | CATCH_REF tagidx labelidx
   | CATCH_ALL labelidx
   | CATCH_ALL_REF labelidx
+
+syntax handler hint(desc "effect handler") =
+  TAG tagidx labelidx
+
+syntax instr/cont hint(desc "continuation instruction") = ...
+  | CONT.NEW typeidx
+  | CONT.BIND typeidx typeidx
+  | SUSPEND tagidx
+  | RESUME typeidx handler*
+  | RESUME_THROW typeidx tagidx handler*
+  | BARRIER blocktype instr* END
+  | ...
 
 
 syntax instr/num hint(desc "numeric instruction") = ...
