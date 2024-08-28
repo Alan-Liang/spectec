@@ -239,7 +239,11 @@ $${syntax: context}
 Convention
 ..........
 
+<<<<<<< HEAD
 A type of any shape can be *closed* to bring it into :ref:`closed <type-closed>` form relative to a :ref:`context <context>` it is :ref:`valid <valid-type>` in by :ref:`substituting <notation-subst>` each :ref:`type index <syntax-typeidx>` ${:x} occurring in it with its own corresponding :ref:`defined type <syntax-deftype>` ${deftype: C.TYPES[x]}, after first closing the the types in ${deftype*: C.TYPES} themselves.
+=======
+Any form of :ref:`type <syntax-type>` can be *closed* to bring it into :ref:`closed <type-closed>` form relative to a :ref:`context <context>` it is :ref:`valid <valid-type>` in by :ref:`substituting <notation-subst>` each :ref:`type index <syntax-typeidx>` :math:`x` occurring in it with the corresponding :ref:`defined type <syntax-deftype>` :math:`C.\CTYPES[x]`, after first closing the types in :math:`C.\CTYPES` themselves.
+>>>>>>> ca746e06c514e62c22f31faa6e7c50ec6ac8f0b5
 
 $${definition: clos_valtype clos_deftypes}
 
