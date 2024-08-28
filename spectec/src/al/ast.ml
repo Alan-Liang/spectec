@@ -34,6 +34,7 @@ and value =
   | CaseV of id * value list           (* constructor *)
   | OptV of value option               (* optional value *)
   | TupV of value list                 (* tuple of values *)
+  | FnameV of id                       (* name of the first order function *)
 
 type extend_dir =                      (* direction of extension *)
   | Front                              (* extend from the front *)
@@ -124,6 +125,7 @@ and arg = arg' phrase
 and arg' =
   | ExpA of expr
   | TypA of typ
+  | DefA of id
 
 (* Instructions *)
 

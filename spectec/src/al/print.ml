@@ -70,6 +70,7 @@ and string_of_value =
   | StrV r -> string_of_record r
   | OptV (Some e) -> "?(" ^ string_of_value e ^ ")"
   | OptV None -> "?()"
+  | FnameV id -> "$" ^ id
 
 and string_of_values sep = string_of_list string_of_value sep
 
@@ -220,6 +221,7 @@ and string_of_arg arg =
   match arg.it with
   | ExpA e -> string_of_expr e
   | TypA typ -> string_of_typ typ
+  | DefA id -> "$" ^ id
 
 and string_of_args sep = string_of_list string_of_arg sep
 
@@ -378,6 +380,7 @@ let rec structured_string_of_value = function
   | StrV _r -> "StrV (TODO)"
   | OptV None -> "OptV"
   | OptV (Some e) -> "OptV (" ^ structured_string_of_value e ^ ")"
+  | FnameV id -> "FnameV (\"" ^ id ^ "\")"
 
 and structured_string_of_values vl = string_of_list structured_string_of_value ", " vl
 
@@ -527,6 +530,7 @@ and structured_string_of_arg arg =
   match arg.it with
   | ExpA e -> sprintf "ExpA (%s)" (structured_string_of_expr e)
   | TypA typ -> sprintf "TypA (%s)" (string_of_typ typ)
+  | DefA id -> sprintf "DefA (%s)" id
 
 and structured_string_of_args al = string_of_list structured_string_of_arg ", " al
 
