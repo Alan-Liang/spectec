@@ -43,6 +43,7 @@ let is_let_prem_with_rhs_type t prem =
     )
   | _ -> false
 let is_pop : prem -> bool = is_let_prem_with_rhs_type "stackT"
+let is_pop_instr : prem -> bool = is_let_prem_with_rhs_type "instrstackT"
 let is_ctxt_prem : prem -> bool = is_let_prem_with_rhs_type "contextT"
 
 let extract_context r =
@@ -55,7 +56,7 @@ let extract_pops rgroup =
   (* Helpers *)
   let rec extract_pops' acc prems premss =
     match prems with
-    | hd :: tl when is_pop hd ->
+    | hd :: tl when is_pop hd || is_pop_instr hd ->
       let partitions = List.map (List.partition (Il.Eq.eq_prem hd)) premss in
       let fsts = List.map fst partitions in
       let snds = List.map snd partitions in

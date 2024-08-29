@@ -89,6 +89,7 @@ let arg e =
 let input_vars = [
   "input";
   "stack0";
+  "instrstack0";
   "ctxt";
   "state";
   "unused";
@@ -99,10 +100,19 @@ let input_vars = [
 let encode_inner_stack context_opt stack =
   let dropped, es = stack_to_list stack |> List.rev |> drop_until is_case in
 
-  let unused_prems =
-    if List.length dropped = 0 then
-      []
-    else
+  (* HARDCODE: try to match instr* at the end *)
+  let rec real_typ typ = function
+    | SubE (e, typ, _) -> real_typ typ e.it
+    | _ -> typ
+  in
+  let instr_prems = match dropped with
+    | [] -> []
+    | [{ it = IterE (instr, (List, _)); _ } as instrs] when real_typ instr.note instr.it |> Print.string_of_typ = "instr" ->
+      let t = mk_varT "instrstackT" in
+      let rhs = CallE (mk_id "pop_instrs", [ arg (mk_varE "instrstack0" "instrstackT") ]) $$ no_region % t in
+      let lhs = { instrs with note = t } in
+      [IfPr (CmpE (EqOp, lhs, rhs) $$ instrs.at % (BoolT $ no_region)) $ instrs.at]
+    | _ ->
       let unused = TupE dropped $$ no_region % (mk_varT "unusedT") in
       [LetPr (unused, mk_varE "unused" "unusedT", free_ids unused) $ no_region]
   in
@@ -114,7 +124,7 @@ let encode_inner_stack context_opt stack =
       match context_opt with
       | None -> assert false
       | Some e ->
-        Some (LetPr (e, mk_varE "input" "inputT", free_ids e) $ e.at), unused_prems
+        Some (LetPr (e, mk_varE "input" "inputT", free_ids e) $ e.at), instr_prems
     )
   | _ ->
     (* ASSUMPTION: The top of the stack should be now the target instruction *)
@@ -136,7 +146,7 @@ let encode_inner_stack context_opt stack =
       IfPr (CmpE (EqOp, lhs, rhs) $$ e.at % (BoolT $ no_region)) $ e.at
     ) operands in
 
-    None, prem :: prems @ unused_prems
+    None, prem :: prems @ instr_prems
 
 let encode_stack stack =
   match stack.it with

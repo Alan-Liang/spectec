@@ -148,6 +148,7 @@ and instr' =
   | PushI of expr                         (* `push` expr *)
   | PopI of expr                          (* `pop` expr *)
   | PopAllI of expr                       (* `popall` expr *)
+  | PopAllInstrI of expr                  (* `popall` expr on instruction stack *)
   | LetI of expr * expr                   (* `let` expr `=` expr *)
   | TrapI                                 (* `trap` *)
   | ThrowI of expr                        (* `throw` *)

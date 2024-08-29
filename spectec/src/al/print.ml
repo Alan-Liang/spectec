@@ -320,6 +320,9 @@ let rec string_of_instr' depth instr =
   | PopAllI e ->
     sprintf " Pop_all %s"
       (string_of_expr e)
+  | PopAllInstrI e ->
+    sprintf " Pop_all_instr %s"
+      (string_of_expr e)
   | LetI (e1, e2) ->
     sprintf " Let %s = %s" (string_of_expr e1)
       (string_of_expr e2)
@@ -595,6 +598,7 @@ let rec structured_string_of_instr' depth instr =
   | PushI e -> "PushI (" ^ structured_string_of_expr e ^ ")"
   | PopI e -> "PopI (" ^ structured_string_of_expr e ^ ")"
   | PopAllI e -> "PopAllI (" ^ structured_string_of_expr e ^ ")"
+  | PopAllInstrI e -> "PopAllInstrI (" ^ structured_string_of_expr e ^ ")"
   | LetI (e1, e2) ->
     "LetI ("
     ^ structured_string_of_expr e1

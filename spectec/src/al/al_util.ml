@@ -24,6 +24,7 @@ let pushI ?(at = no) e = PushI e |> mk_instr at
 let popI ?(at = no) e = PopI e |> mk_instr at
 let popsI ?(at = no) e _ = PopI e |> mk_instr at (* TODO *)
 let popAllI ?(at = no) e = PopAllI e |> mk_instr at
+let popAllInstrI ?(at = no) e = PopAllInstrI e |> mk_instr at
 let letI ?(at = no) (e1, e2) = LetI (e1, e2) |> mk_instr at
 let trapI ?(at = no) () = TrapI |> mk_instr at
 let throwI ?(at = no) e = ThrowI e |> mk_instr at

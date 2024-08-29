@@ -48,7 +48,7 @@ let is_assign env (tag, prem, _) =
 let is_pop env row =
   is_assign env row &&
   match (unwrap row).it with
-  | LetPr (_, rhs, _) -> Il.Print.string_of_typ rhs.note = "stackT"
+  | LetPr (_, rhs, _) -> List.mem (Il.Print.string_of_typ rhs.note) ["stackT"; "instrstackT"]
   | _ -> false
 
 (* iteratively select pop, condition and assignment premises,
