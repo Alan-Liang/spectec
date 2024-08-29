@@ -321,6 +321,10 @@ module WasmContext = struct
 
   (* Instr stack *)
 
+  let pop_instr_stack () =
+    let v_ctx, vs, vs_instr = pop_context () in
+    push_context (v_ctx, vs, []); vs_instr
+
   let pop_instr () =
     let v_ctx, vs, vs_instr = pop_context () in
     match vs_instr with

@@ -310,6 +310,9 @@ let rec string_of_instr' depth instr =
   | PopAllI e ->
     sprintf "%s Pop all values %s from the top of the stack." (make_index depth)
       (string_of_expr e)
+  | PopAllInstrI e ->
+    sprintf "%s Pop all instructions %s from the top of the stack." (make_index depth)
+      (string_of_expr e)
   | LetI (e1, e2) ->
     sprintf "%s Let %s be %s." (make_index depth) (string_of_expr e1)
       (string_of_expr e2)

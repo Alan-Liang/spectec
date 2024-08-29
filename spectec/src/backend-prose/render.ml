@@ -610,6 +610,9 @@ let rec render_al_instr env algoname index depth instr =
   | Al.Ast.PopAllI e ->
     sprintf "%s Pop all values %s from the top of the stack." (render_order index depth)
       (render_expr env e)
+  | Al.Ast.PopAllInstrI e ->
+    sprintf "%s Pop all instructions %s from the top of the stack." (render_order index depth)
+      (render_expr env e)
   | Al.Ast.LetI (e, { it = Al.Ast.IterE ({ it = Al.Ast.InvCallE (id, nl, al); _ }, ids, iter); _ }) ->
     let elhs, erhs = al_invcalle_to_al_bine e id nl al in
     let ebin = Al.Al_util.binE (Al.Ast.EqOp, elhs, erhs) ~note:Al.Al_util.no_note in
