@@ -71,7 +71,7 @@ let walk_instr (walker: unit_walker) (instr: instr) : unit =
     walker.walk_expr walker e1; walker.walk_expr walker e2;
     List.iter (walker.walk_instr walker) il
   | TrapI | FailI | NopI | ReturnI None | ExitI _ | YetI _ -> ()
-  | AssertI e | ThrowI e | PushI e | PopI e | PopAllI e
+  | AssertI e | ThrowI e | PushI e | PopI e | PopAllI e | CaptureI e
   | ReturnI (Some e)| ExecuteI e | ExecuteSeqI e -> walker.walk_expr walker e
   | LetI (e1, e2) | AppendI (e1, e2) ->
     walker.walk_expr walker e1; walker.walk_expr walker e2
@@ -184,6 +184,7 @@ let walk_instr (walker: walker) (instr: instr) : instr list =
     | PushI e -> PushI (walk_expr e)
     | PopI e -> PopI (walk_expr e)
     | PopAllI e -> PopAllI (walk_expr e)
+    | CaptureI e -> CaptureI (walk_expr e)
     | LetI (e1, e2) -> LetI (walk_expr e1, walk_expr e2)
     | TrapI -> TrapI
     | FailI -> FailI
