@@ -117,7 +117,7 @@ let is_cond_assign prem =
 let is_pop env row =
   is_assign env row &&
   match (unwrap row).it with
-  | LetPr (_, {it = CallE (_, {it = ExpA n; _} :: _); note; _}, _) when Il.Print.string_of_typ note = "stackT" ->
+  | LetPr (_, {it = CallE (_, {it = ExpA n; _} :: _); note; _}, _) when List.mem (Il.Print.string_of_typ note) ["stackT"; "instrstackT"] ->
     (match n.it with
     | NumE (`Nat i) -> Z.equal i (Z.one)
     | _ -> false)

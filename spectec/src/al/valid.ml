@@ -672,6 +672,14 @@ let rec valid_instr (env: Env.t) (instr: instr) : Env.t =
     then
       error_mismatch source (get_base_typ expr.note) (varT "val");
     new_env
+  | PopAllInstrI expr ->
+    let new_env = Env.add_bound_vars expr env in
+    valid_expr new_env expr;
+    if
+      not (sub_typ (get_base_typ expr.note) (varT "instr"))
+    then
+      error_mismatch source (get_base_typ expr.note) (varT "instr");
+    new_env
   | LetI (expr1, expr2) ->
     let new_env = Env.add_subst expr1 expr2 env in
     valid_expr new_env expr1;
