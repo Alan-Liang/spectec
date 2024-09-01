@@ -156,7 +156,7 @@ def $with_elem((s; f), x, r*) = s[.ELEMS[f.MODULE.ELEMS[x]].REFS = r*]; f
 def $with_data((s; f), x, b*) = s[.DATAS[f.MODULE.DATAS[x]].BYTES = b*]; f
 def $with_struct((s; f), a, i, fv) = s[.STRUCTS[a].FIELDS[i] = fv]; f
 def $with_array((s; f), a, i, fv) = s[.ARRAYS[a].FIELDS[i] = fv]; f
-def $with_cont((s; f), a, c) = s[.CONTS[a] = c]; f
+def $with_cont((s; f), a, c?) = s[.CONTS[a] = c?]; f
 
 def $add_structinst(state, structinst*) : state  hint(show %[.STRUCTS =++ %]) hint(macro "Z%")
 def $add_arrayinst(state, arrayinst*) : state    hint(show %[.ARRAYS =++ %])  hint(macro "Z%")
@@ -188,31 +188,8 @@ def $growmem(meminst, n) = meminst'
 
 ;; Effect handlers
 
-def $ctxinstr_wrap(ctxinstr, instr*) : instr
-def $ctxinstr_wrap(LABEL_ n `{instr'*} val* instr*, in*) =
-  LABEL_ n `{instr'*} val* in* instr*
-def $ctxinstr_wrap(FRAME_ n `{frame} val* instr*, in*) =
-  FRAME_ n `{frame} val* in* instr*
-def $ctxinstr_wrap(HANDLER_ n `{catch*} val* instr*, in*) =
-  HANDLER_ n `{catch*} val* in* instr*
-def $ctxinstr_wrap(HANDLE h val* instr*, in*) =
-  HANDLE h val* in* instr*
-
-def $ctxinstrs_wrap(ctxinstr*, instr*) : instr*
-def $ctxinstrs_wrap(eps, in*) = in*
-def $ctxinstrs_wrap(ctxinstr ctxinstr'*, in*) = $ctxinstr_wrap(ctxinstr, $ctxinstrs_wrap(ctxinstr'*, in*))
-
-def $hctx_instantiate(hctx, instr*) : instr*
-def $hctx_instantiate({ CTXT ctxinstr*, STACK val*, CONT instr* }, in*) = val* $ctxinstrs_wrap(ctxinstr*, in*) instr*
-
 def $empty_hctx : hctx
 def $empty_hctx = { CTXT eps, STACK eps, CONT eps }
-
-def $hctx_from_instr(instr*) : hctx
-def $hctx_from_instr(in*) = { CTXT eps, STACK eps, CONT in* }
-
-def $hctx_bind(hctx, val*) : hctx
-def $hctx_bind({ CTXT ctxinstr*, STACK val*, CONT instr* }, val'*) = { CTXT ctxinstr*, STACK val'* val*, CONT instr* }
 
 def $get_handler(handle*, tagaddr) : labelidx?
 def $get_handler(eps, a) = eps
@@ -220,10 +197,14 @@ def $get_handler(handle handle'*, a) =
   x
   -- if handle = a x
 def $get_handler(handle handle'*, a) =
-  $get_handler(handle*, a)
+  $get_handler(handle'*, a)
   -- otherwise
 
 ;; FIXME: hack
+
+def $idx_iseps(idx?) : bool
+def $idx_iseps(eps) = true
+def $idx_iseps(idx?) = false -- otherwise
 
 def $continst_iseps(continst?) : bool
 def $continst_iseps(eps) = true

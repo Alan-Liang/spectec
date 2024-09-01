@@ -194,6 +194,12 @@ def $unrollht(C, deftype) = $unrolldt(deftype)
 def $unrollht(C, _IDX typeidx) = $unrolldt(C.TYPES[typeidx])
 def $unrollht(C, REC i) = C.RECS[i]
 
+def $expandht(context, heaptype) : comptype hint(show $expand(%)) hint(macro "expandht")
+def $expandht(C, heaptype) = comptype  -- if $unrollht(C, heaptype) = SUB fin typeuse* comptype
+
+relation ExpandHT: context |- heaptype ~~ comptype hint(macro "%expandht")
+rule ExpandHT: C |- heaptype ~~ comptype               -- if $unrollht(C, heaptype) = SUB fin typeuse* comptype
+
 rule Subtype_ok2:
   C |- SUB FINAL? typeuse* compttype : OK x i
   -- if |typeuse*| <= 1
@@ -787,14 +793,14 @@ rule Catch_ok/catch_all_ref:
 rule Instr_ok/cont.new:
   C |- CONT.NEW x : (REF nul $idx(x)) -> (REF kt)
   -- Expand: C.TYPES[x] ~~ CONT kt
-  -- Expand: kt ~~ FUNC ft
+  -- ExpandHT: C |- kt ~~ FUNC ft
 
 rule Instr_ok/cont.bind:
   C |- CONT.BIND x x' : t_3* (REF nul $idx(x)) -> (REF kt')
   -- Expand: C.TYPES[x] ~~ CONT kt
-  -- Expand: kt ~~ FUNC (t_3* t_1* -> t_2*)
+  -- ExpandHT: C |- kt ~~ FUNC (t_3* t_1* -> t_2*)
   -- Expand: C.TYPES[x'] ~~ CONT kt'
-  -- Expand: kt' ~~ FUNC (t_1'* -> t_2'*)
+  -- ExpandHT: C |- kt' ~~ FUNC (t_1'* -> t_2'*)
   -- Functype_sub: C |- (t_1* -> t_2*) <: (t_1'* -> t_2'*)
 
 rule Instr_ok/suspend:
@@ -804,24 +810,24 @@ rule Instr_ok/suspend:
 rule Instr_ok/resume:
   C |- RESUME x (TAG y l)* : t_1* (REF nul $idx(x)) -> t_2*
   -- Expand: C.TYPES[x] ~~ CONT kt
-  -- Expand: kt ~~ FUNC (t_1* -> t_2*)
+  -- ExpandHT: C |- kt ~~ FUNC (t_1* -> t_2*)
   -- (Expand: C.TAGS[y] ~~ FUNC (te_1* -> te_2*))*
   -- if (C.LABELS[l] = te_1'* (REF nul $idx(x')))
   -- (Resulttype_sub: C |- te_1* <: te_1')*
   -- (Expand: C.TYPES[x'] ~~ CONT kt')*
-  -- Expand: kt' ~~ FUNC (t_1'* -> t_2'*)
+  -- ExpandHT: C |- kt' ~~ FUNC (t_1'* -> t_2'*)
   -- (Functype_sub: C |- (te_2* -> t_2*) <: (t_1'* -> t_2'*))*
 
 rule Instr_ok/resume_throw:
   C |- RESUME_THROW x xe (TAG y l)* : te* (REF nul $idx(x)) -> t_2*
   -- Expand: C.TAGS[xe] ~~ FUNC (te* -> eps)
   -- Expand: C.TYPES[x] ~~ CONT kt
-  -- Expand: kt ~~ FUNC (t_1* -> t_2*)
+  -- ExpandHT: C |- kt ~~ FUNC (t_1* -> t_2*)
   -- (Expand: C.TAGS[y] ~~ FUNC (te_1* -> te_2*))*
   -- if (C.LABELS[l] = te_1'* (REF nul $idx(x')))
   -- (Resulttype_sub: C |- te_1* <: te_1')*
   -- (Expand: C.TYPES[x'] ~~ CONT kt')*
-  -- Expand: kt' ~~ FUNC (t_1'* -> t_2'*)
+  -- ExpandHT: C |- kt' ~~ FUNC (t_1'* -> t_2'*)
   -- (Functype_sub: C |- (te_2* -> t_2*) <: (t_1'* -> t_2'*))*
 
 rule Instr_ok/barrier:

@@ -696,6 +696,10 @@ let al_to_vec: value -> vec = function
   | CaseV ("VCONST", [ CaseV ("V128", []); v128 ]) -> V128 (al_to_vec128 v128)
   | v -> error_value "vec" v
 
+let al_to_tag = function
+| CaseV ("TAG", [ idx1; idx2 ]) -> (al_to_idx idx1, al_to_idx idx2)
+| v -> error_value "instruction tag" v
+
 let rec al_to_instr (v: value): Ast.instr = al_to_phrase al_to_instr' v
 and al_to_instr': value -> Ast.instr' = function
   (* wasm values *)
@@ -812,7 +816,17 @@ and al_to_instr': value -> Ast.instr' = function
     ArrayInitElem (al_to_idx idx1, al_to_idx idx2)
   | CaseV ("ANY.CONVERT_EXTERN", []) -> ExternConvert Internalize
   | CaseV ("EXTERN.CONVERT_ANY", []) -> ExternConvert Externalize
-  | v -> error_value "instrunction" v
+  | CaseV ("CONT.NEW", [ idx ]) -> ContNew (al_to_idx idx)
+  | CaseV ("CONT.BIND", [ idx1; idx2 ]) ->
+    ContBind (al_to_idx idx1, al_to_idx idx2)
+  | CaseV ("SUSPEND", [ idx ]) -> Suspend (al_to_idx idx)
+  | CaseV ("RESUME", [ idx; handlers ]) ->
+    Resume (al_to_idx idx, al_to_list al_to_tag handlers)
+  | CaseV ("RESUME_THROW", [ idx1; idx2; handlers ]) ->
+    ResumeThrow (al_to_idx idx1, al_to_idx idx2, al_to_list al_to_tag handlers)
+  | CaseV ("BARRIER", [ bt; instrs ]) ->
+    Barrier (al_to_block_type bt, al_to_list al_to_instr instrs)
+  | v -> error_value "instruction" v
 
 let al_to_const: value -> const = al_to_list al_to_instr |> al_to_phrase
 
@@ -1131,6 +1145,9 @@ and al_of_str_type = function
   | DefArrayT (ArrayT ft) -> CaseV ("ARRAY", [ al_of_field_type ft ])
   | DefFuncT (FuncT (rt1, rt2)) ->
     CaseV ("FUNC", [ CaseV ("->", [ al_of_result_type rt1; al_of_result_type rt2 ])])
+  | DefContT (ContT ht) ->
+    (* FIXME: actually deftype *)
+    CaseV ("CONT", [ al_of_heap_type ht ])
 
 and al_of_sub_type = function
   | SubT (fin, htl, st) ->
@@ -1900,6 +1917,21 @@ let rec al_of_instr instr =
     CaseV ("ARRAY.INIT_ELEM", [ al_of_idx idx1; al_of_idx idx2 ])
   | ExternConvert Internalize -> nullary "ANY.CONVERT_EXTERN"
   | ExternConvert Externalize -> nullary "EXTERN.CONVERT_ANY"
+  | ContNew idx -> CaseV ("CONT.NEW", [ al_of_idx idx ])
+  | ContBind (idx1, idx2) -> CaseV ("CONT.BIND", [ al_of_idx idx1; al_of_idx idx2 ])
+  | Suspend idx -> CaseV ("SUSPEND", [ al_of_idx idx ])
+  | Resume (idx, handlers) ->
+    CaseV ("RESUME", [
+      al_of_idx idx;
+      al_of_list (fun (idx1, idx2) -> CaseV ("TAG", [ al_of_idx idx1; al_of_idx idx2 ])) handlers;
+    ])
+  | ResumeThrow (idx1, idx2, handlers) ->
+    CaseV ("RESUME_THROW", [
+      al_of_idx idx1;
+      al_of_idx idx2;
+      al_of_list (fun (idx1, idx2) -> CaseV ("TAG", [ al_of_idx idx1; al_of_idx idx2 ])) handlers;
+    ])
+  | Barrier (bt, instrs) -> CaseV ("BARRIER", [ al_of_blocktype bt; al_of_list al_of_instr instrs ])
   (* | _ -> CaseV ("TODO: Unconstructed Wasm instruction (al_of_instr)", []) *)
 
 let al_of_const const = al_of_list al_of_instr const.it

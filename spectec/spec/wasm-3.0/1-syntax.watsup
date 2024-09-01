@@ -222,7 +222,7 @@ syntax fieldtype  hint(desc "field type") = mut storagetype
 syntax functype   hint(desc "function type") = resulttype -> resulttype hint(macro "toF")
 syntax structtype hint(desc "structure type") = list(fieldtype)
 syntax arraytype  hint(desc "array type") = fieldtype
-syntax conttype   hint(desc "continuation type") = deftype
+syntax conttype   hint(desc "continuation type") = heaptype
 
 syntax comptype hint(desc "composite type") hint(macro "%" "T%") =
   | STRUCT structtype

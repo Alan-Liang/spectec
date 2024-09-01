@@ -61,6 +61,7 @@ module Store = struct
       |> Record.add "STRUCTS" (listV [||])
       |> Record.add "ARRAYS" (listV [||])
       |> Record.add "EXNS" (listV [||])
+      |> Record.add "CONTS" (listV [||])
 
   let get () = strV !store
 

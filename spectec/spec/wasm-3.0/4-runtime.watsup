@@ -94,7 +94,7 @@ syntax exninst hint(desc "exception instance") hint(macro "%" "EI%") =
   { TAG tagaddr, FIELDS val* }
 syntax hctx
 syntax continst hint(desc "continuation instance") hint(macro "%" "KI%") =
-  { CTXT hctx, ARITY nat }
+  { CTXT hctx, BOUND val*, ARITY nat }
 
 
 syntax moduleinst hint(desc "module instance") hint(macro "%" "MI%") =
@@ -169,6 +169,8 @@ syntax instr/admin hint(desc "administrative instruction") =
   | HANDLER_ n `{catch*} instr* hint(show HANDLER_%#% %%)
   | HANDLE handles instr*
   | SUSPENDING tagaddr val* hctx
+  | RESUMING val* instr* hctx
+  | INVOKE deftype funcaddr
   | TRAP
 
 syntax evalctx hint(desc "evaluation context") =

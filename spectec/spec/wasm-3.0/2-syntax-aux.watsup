@@ -249,7 +249,7 @@ def $free_functype(resulttype_1 -> resulttype_2) =
   $free_resulttype(resulttype_1) ++ $free_resulttype(resulttype_2)
 
 def $free_conttype(conttype) : free
-def $free_conttype(deftype) = $free_deftype(deftype)
+def $free_conttype(heaptype) = $free_heaptype(heaptype)
 
 def $free_structtype(structtype) : free
 def $free_structtype(fieldtype*) = $free_list($free_fieldtype(fieldtype)*)
@@ -608,7 +608,7 @@ def $subst_globaltype((mut t), tv*, tu*) = mut $subst_valtype(t, tv*, tu*)
 def $subst_functype((t_1* -> t_2*), tv*, tu*) = $subst_valtype(t_1, tv*, tu*)* -> $subst_valtype(t_2, tv*, tu*)*
 def $subst_memtype((lim PAGE), tv*, tu*) = lim PAGE
 def $subst_tabletype((lim rt), tv*, tu*) = lim $subst_reftype(rt, tv*, tu*)
-def $subst_conttype(deftype, tv*, tu*) = $subst_deftype(deftype, tv*, tu*)
+def $subst_conttype(heaptype, tv*, tu*) = $subst_heaptype(heaptype, tv*, tu*)
 
 def $subst_externtype((FUNC dt), tv*, tu*) = FUNC $subst_deftype(dt, tv*, tu*)
 def $subst_externtype((GLOBAL gt), tv*, tu*) = GLOBAL $subst_globaltype(gt, tv*, tu*)
