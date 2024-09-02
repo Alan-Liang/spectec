@@ -155,11 +155,15 @@ var z : state
 ;;
 
 syntax handle hint(desc "administrative effect handler") =
-  tagaddr labelidx
+  tagaddr hdlaction
 
 syntax handles =
-  | RESUME `{handle*}
+  | HANDLES `{handle*}
   | BARRIER
+
+syntax resumption =
+  | SUSPEND
+  | RESUME hctx n
 
 syntax instr/admin hint(desc "administrative instruction") =
   | ...
@@ -168,7 +172,7 @@ syntax instr/admin hint(desc "administrative instruction") =
   | FRAME_ n `{frame} instr*    hint(show FRAME_%#% %%)
   | HANDLER_ n `{catch*} instr* hint(show HANDLER_%#% %%)
   | HANDLE handles instr*
-  | SUSPENDING tagaddr val* hctx
+  | SUSPENDING tagaddr resumption val* hctx
   | RESUMING val* instr* hctx
   | INVOKE deftype funcaddr
   | TRAP

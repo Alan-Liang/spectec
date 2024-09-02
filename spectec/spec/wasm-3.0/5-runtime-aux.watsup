@@ -191,13 +191,18 @@ def $growmem(meminst, n) = meminst'
 def $empty_hctx : hctx
 def $empty_hctx = { CTXT eps, STACK eps, CONT eps }
 
-def $get_handler(handle*, tagaddr) : labelidx?
-def $get_handler(eps, a) = eps
-def $get_handler(handle handle'*, a) =
-  x
-  -- if handle = a x
-def $get_handler(handle handle'*, a) =
-  $get_handler(handle'*, a)
+def $get_handler_suspend(handle*, tagaddr) : labelidx?
+def $get_handler_suspend(eps, a) = eps
+def $get_handler_suspend(handle handle'*, a) = l
+  -- if handle = a (SUSPEND l)
+def $get_handler_suspend(handle handle'*, a) = $get_handler_suspend(handle'*, a)
+  -- otherwise
+
+def $get_handler_switch(handle*, tagaddr) : bool
+def $get_handler_switch(eps, a) = false
+def $get_handler_switch(handle handle'*, a) = true
+  -- if handle = a SWITCH
+def $get_handler_switch(handle handle'*, a) = $get_handler_switch(handle'*, a)
   -- otherwise
 
 ;; FIXME: hack

@@ -356,6 +356,10 @@ rule Heaptype_sub/func:
   C |- deftype <: FUNC
   -- Expand: deftype ~~ FUNC functype
 
+rule Heaptype_sub/cont:
+  C |- deftype <: CONT
+  -- Expand: deftype ~~ CONT conttype
+
 rule Heaptype_sub/def:
   C |- deftype_1 <: deftype_2
   -- Deftype_sub: C |- deftype_1 <: deftype_2
@@ -379,6 +383,10 @@ rule Heaptype_sub/none:
 rule Heaptype_sub/nofunc:
   C |- NOFUNC <: heaptype
   -- Heaptype_sub: C |- heaptype <: FUNC
+
+rule Heaptype_sub/nocont:
+  C |- NOCONT <: heaptype
+  -- Heaptype_sub: C |- heaptype <: CONT
 
 rule Heaptype_sub/noextern:
   C |- NOEXTERN <: heaptype
@@ -790,17 +798,34 @@ rule Catch_ok/catch_all_ref:
 
 ;; Effect handler instructions
 
-rule Instr_ok/cont.new:
-  C |- CONT.NEW x : (REF nul $idx(x)) -> (REF kt)
-  -- Expand: C.TYPES[x] ~~ CONT kt
+relation ExpandKT: context |- deftype ~~ CONT functype
+rule ExpandKT:
+  C |- dt ~~ CONT ft
+  -- Expand: dt ~~ CONT kt
   -- ExpandHT: C |- kt ~~ FUNC ft
 
+relation Hdl_ok: context |- hdl : resulttype
+
+rule Hdl_ok/suspend:
+  C |- ON x (SUSPEND l) : t*
+  -- Expand: C.TAGS[x] ~~ FUNC (t_1* -> t_2*)
+  -- if C.LABELS[l] = t_1'* (REF nul $idx(x'))
+  -- Resulttype_sub: C |- t_1* <: t_1'*
+  -- ExpandKT: C |- C.TYPES[x'] ~~ CONT (t_2' -> t'*)
+  -- Functype_sub: C |- (t_2* -> t*) <: (t_2'* -> t'*)
+
+rule Hdl_ok/switch:
+  C |- ON x SWITCH : t*
+  -- Expand: C.TAGS[x] ~~ FUNC (eps -> t*)
+
+rule Instr_ok/cont.new:
+  C |- CONT.NEW x : (REF nul $idx(x)) -> (REF $idx(x))
+  -- ExpandKT: C |- C.TYPES[x] ~~ CONT ft
+
 rule Instr_ok/cont.bind:
-  C |- CONT.BIND x x' : t_3* (REF nul $idx(x)) -> (REF kt')
-  -- Expand: C.TYPES[x] ~~ CONT kt
-  -- ExpandHT: C |- kt ~~ FUNC (t_3* t_1* -> t_2*)
-  -- Expand: C.TYPES[x'] ~~ CONT kt'
-  -- ExpandHT: C |- kt' ~~ FUNC (t_1'* -> t_2'*)
+  C |- CONT.BIND x x' : t_3* (REF nul $idx(x)) -> (REF $idx(x'))
+  -- ExpandKT: C |- C.TYPES[x] ~~ CONT (t_3* t_1* -> t_2*)
+  -- ExpandKT: C |- C.TYPES[x'] ~~ CONT (t_1'* -> t_2'*)
   -- Functype_sub: C |- (t_1* -> t_2*) <: (t_1'* -> t_2'*)
 
 rule Instr_ok/suspend:
@@ -808,27 +833,23 @@ rule Instr_ok/suspend:
   -- Expand: C.TAGS[x] ~~ FUNC (t_1* -> t_2*)
 
 rule Instr_ok/resume:
-  C |- RESUME x (TAG y l)* : t_1* (REF nul $idx(x)) -> t_2*
-  -- Expand: C.TYPES[x] ~~ CONT kt
-  -- ExpandHT: C |- kt ~~ FUNC (t_1* -> t_2*)
-  -- (Expand: C.TAGS[y] ~~ FUNC (te_1* -> te_2*))*
-  -- if (C.LABELS[l] = te_1'* (REF nul $idx(x')))
-  -- (Resulttype_sub: C |- te_1* <: te_1')*
-  -- (Expand: C.TYPES[x'] ~~ CONT kt')*
-  -- ExpandHT: C |- kt' ~~ FUNC (t_1'* -> t_2'*)
-  -- (Functype_sub: C |- (te_2* -> t_2*) <: (t_1'* -> t_2'*))*
+  C |- RESUME x hdl* : t_1* (REF nul $idx(x)) -> t_2*
+  -- ExpandKT: C |- C.TYPES[x] ~~ CONT (t_1* -> t_2*)
+  -- (Hdl_ok: C |- hdl : t_2*)*
 
 rule Instr_ok/resume_throw:
-  C |- RESUME_THROW x xe (TAG y l)* : te* (REF nul $idx(x)) -> t_2*
+  C |- RESUME_THROW x xe hdl* : te* (REF nul $idx(x)) -> t_2*
+  -- ExpandKT: C |- C.TYPES[x] ~~ CONT (t_1* -> t_2*)
   -- Expand: C.TAGS[xe] ~~ FUNC (te* -> eps)
-  -- Expand: C.TYPES[x] ~~ CONT kt
-  -- ExpandHT: C |- kt ~~ FUNC (t_1* -> t_2*)
-  -- (Expand: C.TAGS[y] ~~ FUNC (te_1* -> te_2*))*
-  -- if (C.LABELS[l] = te_1'* (REF nul $idx(x')))
-  -- (Resulttype_sub: C |- te_1* <: te_1')*
-  -- (Expand: C.TYPES[x'] ~~ CONT kt')*
-  -- ExpandHT: C |- kt' ~~ FUNC (t_1'* -> t_2'*)
-  -- (Functype_sub: C |- (te_2* -> t_2*) <: (t_1'* -> t_2'*))*
+  -- (Hdl_ok: C |- hdl : t_2*)
+
+rule Instr_ok/switch:
+  C |- SWITCH x xe : t_1* (REF nul $idx(x)) -> t_2*
+  -- Expand: C.TAGS[xe] ~~ FUNC (eps -> t*)
+  -- ExpandKT: C |- C.TYPES[x] ~~ CONT (t_1* (REF nul' $idx(y)) -> te_1*)
+  -- Resulttype_sub: C |- te_1* <: t*
+  -- ExpandKT: C |- C.TYPES[y] ~~ CONT (t_2* -> te_2*)
+  -- Resulttype_sub: C |- t* <: te_2*
 
 rule Instr_ok/barrier:
   C |- BARRIER bt in* END : t_1* -> t_2*

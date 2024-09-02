@@ -425,6 +425,8 @@ let rec translate_rhs exp =
       (match Lib.List.last_opt push_or_exec_instrs with
       | Some { it = ExecuteI _; _ } ->
         [ perform_instr ] @ push_or_exec_instrs
+      | Some { it = EnterI _; _ } -> (* HARDCODE: SUSPENDING *)
+        [ perform_instr ] @ push_or_exec_instrs
       | _ -> (* HARDCODE: TABLE.GROW *)
         push_or_exec_instrs @ [ perform_instr ])
     | _ -> translate_rhs rhs

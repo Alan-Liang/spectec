@@ -142,6 +142,7 @@ syntax absheaptype/syn hint(desc "abstract heap type") =
   | FUNC hint(macro "FUNCT") | NOFUNC
   | EXN | NOEXN
   | EXTERN | NOEXTERN
+  | CONT | NOCONT
   | ...
 syntax absheaptype/sem =
   | ... | BOT
@@ -544,15 +545,19 @@ syntax catch hint(desc "catch clause") =
   | CATCH_ALL labelidx
   | CATCH_ALL_REF labelidx
 
-syntax handler hint(desc "effect handler") =
-  TAG tagidx labelidx
+syntax hdlaction =
+  | SUSPEND labelidx
+  | SWITCH
+syntax hdl hint(desc "effect handler") =
+  ON tagidx hdlaction
 
 syntax instr/cont hint(desc "continuation instruction") = ...
   | CONT.NEW typeidx
   | CONT.BIND typeidx typeidx
+  | RESUME typeidx hdl*
+  | RESUME_THROW typeidx tagidx hdl*
   | SUSPEND tagidx
-  | RESUME typeidx handler*
-  | RESUME_THROW typeidx tagidx handler*
+  | SWITCH typeidx tagidx
   | BARRIER blocktype instr* END
   | ...
 

@@ -696,9 +696,10 @@ let al_to_vec: value -> vec = function
   | CaseV ("VCONST", [ CaseV ("V128", []); v128 ]) -> V128 (al_to_vec128 v128)
   | v -> error_value "vec" v
 
-let al_to_tag = function
-| CaseV ("TAG", [ idx1; idx2 ]) -> (al_to_idx idx1, al_to_idx idx2)
-| v -> error_value "instruction tag" v
+let al_to_hdl = function
+  | CaseV ("ON", [ idx1; CaseV ("SUSPEND", [ idx2 ]) ]) -> (al_to_idx idx1, OnLabel (al_to_idx idx2))
+  | CaseV ("ON", [ idx1; CaseV ("SWITCH", []) ]) -> (al_to_idx idx1, OnSwitch)
+  | v -> error_value "hdl" v
 
 let rec al_to_instr (v: value): Ast.instr = al_to_phrase al_to_instr' v
 and al_to_instr': value -> Ast.instr' = function
@@ -821,9 +822,11 @@ and al_to_instr': value -> Ast.instr' = function
     ContBind (al_to_idx idx1, al_to_idx idx2)
   | CaseV ("SUSPEND", [ idx ]) -> Suspend (al_to_idx idx)
   | CaseV ("RESUME", [ idx; handlers ]) ->
-    Resume (al_to_idx idx, al_to_list al_to_tag handlers)
+    Resume (al_to_idx idx, al_to_list al_to_hdl handlers)
   | CaseV ("RESUME_THROW", [ idx1; idx2; handlers ]) ->
-    ResumeThrow (al_to_idx idx1, al_to_idx idx2, al_to_list al_to_tag handlers)
+    ResumeThrow (al_to_idx idx1, al_to_idx idx2, al_to_list al_to_hdl handlers)
+  | CaseV ("SWITCH", [ idx1; idx2 ]) ->
+    Switch (al_to_idx idx1, al_to_idx idx2)
   | CaseV ("BARRIER", [ bt; instrs ]) ->
     Barrier (al_to_block_type bt, al_to_list al_to_instr instrs)
   | v -> error_value "instruction" v
@@ -1146,7 +1149,6 @@ and al_of_str_type = function
   | DefFuncT (FuncT (rt1, rt2)) ->
     CaseV ("FUNC", [ CaseV ("->", [ al_of_result_type rt1; al_of_result_type rt2 ])])
   | DefContT (ContT ht) ->
-    (* FIXME: actually deftype *)
     CaseV ("CONT", [ al_of_heap_type ht ])
 
 and al_of_sub_type = function
@@ -1786,6 +1788,12 @@ let al_of_catch catch =
   | CatchAll idx -> CaseV ("CATCH_ALL", [ al_of_idx idx ])
   | CatchAllRef idx -> CaseV ("CATCH_ALL_REF", [ al_of_idx idx ])
 
+let al_of_hdl (idx, hdl) =
+  let al_hdl = match hdl with
+    | OnLabel idx -> CaseV ("SUSPEND", [ al_of_idx idx ])
+    | OnSwitch -> CaseV ("SWITCH", [])
+  in CaseV ("ON", [ al_of_idx idx; al_hdl ])
+
 let rec al_of_instr instr =
   match instr.it with
   (* wasm values *)
@@ -1921,16 +1929,15 @@ let rec al_of_instr instr =
   | ContBind (idx1, idx2) -> CaseV ("CONT.BIND", [ al_of_idx idx1; al_of_idx idx2 ])
   | Suspend idx -> CaseV ("SUSPEND", [ al_of_idx idx ])
   | Resume (idx, handlers) ->
-    CaseV ("RESUME", [
-      al_of_idx idx;
-      al_of_list (fun (idx1, idx2) -> CaseV ("TAG", [ al_of_idx idx1; al_of_idx idx2 ])) handlers;
-    ])
+    CaseV ("RESUME", [ al_of_idx idx; al_of_list al_of_hdl handlers ])
   | ResumeThrow (idx1, idx2, handlers) ->
     CaseV ("RESUME_THROW", [
       al_of_idx idx1;
       al_of_idx idx2;
-      al_of_list (fun (idx1, idx2) -> CaseV ("TAG", [ al_of_idx idx1; al_of_idx idx2 ])) handlers;
+      al_of_list al_of_hdl handlers;
     ])
+  | Switch (idx1, idx2) ->
+    CaseV ("SWITCH", [ al_of_idx idx1; al_of_idx idx2 ])
   | Barrier (bt, instrs) -> CaseV ("BARRIER", [ al_of_blocktype bt; al_of_list al_of_instr instrs ])
   (* | _ -> CaseV ("TODO: Unconstructed Wasm instruction (al_of_instr)", []) *)
 
