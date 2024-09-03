@@ -540,7 +540,7 @@ let render_stack_prefix expr =
   match expr.it with
   | Al.Ast.GetCurContextE _
   | Al.Ast.VarE ("F" | "L") -> ""
-  | _ when Il.Eq.eq_typ expr.note Al.Al_util.evalctxT -> "the evaluation context "
+  | _ when Il.Eq.eq_typ expr.note Al.Al_util.ctxT -> "the context "
   | Al.Ast.IterE _ -> "the values "
   | _ -> "the value "
 

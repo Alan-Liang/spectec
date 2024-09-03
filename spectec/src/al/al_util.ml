@@ -252,9 +252,9 @@ let unwrap_framev: value -> value = function
 let atom_of_name name typ = El.Atom.Atom name $$ no_region % (El.Atom.info typ)
 let atom_of_atom' atom' typ = atom' $$ no_region % (El.Atom.info typ)
 
-let frame_atom = atom_of_name "FRAME_" "evalctx"
+let frame_atom = atom_of_name "FRAME_" "ctx"
 let frameE ?(at = no) ~note (arity, e) =
-  let frame_mixop = [[frame_atom]; [atom_of_atom' El.Atom.LBrace "evalctx"]; [atom_of_atom' El.Atom.RBrace "evalctx"]] in
+  let frame_mixop = [[frame_atom]; [atom_of_atom' El.Atom.LBrace "ctx"]; [atom_of_atom' El.Atom.RBrace "ctx"]] in
   caseE (frame_mixop, [arity; e]) ~at:at ~note:note
 
 
@@ -281,5 +281,5 @@ let frameT = varT "frame" []
 let stateT = varT "state" []
 let instrT = varT "instr" []
 let admininstrT = varT "admininstr" []
-let evalctxT = varT "evalctx" []
+let ctxT = varT "ctx" []
 let funcT = varT "func" []

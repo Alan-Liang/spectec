@@ -41,7 +41,7 @@ let return_instrs_of_instantiate config =
   let ty'' = Il.Ast.TupT (List.map (fun t -> no_name, t) [store.note; ty']) $ no_region in
   [
     enterI (
-      frameE (numE Z.zero ~note:natT, frame) ~note:evalctxT,
+      frameE (numE Z.zero ~note:natT, frame) ~note:ctxT,
       catE (instrs, (listE [caseE ([[atom_of_name "FRAME_" "admininstr"]], []) ~note:admininstrT] ~note:ty)) ~note:ty,
       vals
     );
@@ -64,7 +64,7 @@ let return_instrs_of_invoke config =
   [
     letI (arity,  len_expr);
     enterI (
-      frameE (arity, frame) ~note:evalctxT,
+      frameE (arity, frame) ~note:ctxT,
       catE (instrs, listE [caseE ([[atom_of_name "FRAME_" "admininstr"]], []) ~note:admininstrT] ~note:ty) ~note:ty,
       vals
     );
