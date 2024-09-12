@@ -1106,17 +1106,11 @@ let rec translate_rgroup' (rule: rule_def) =
   let ctxt_block = match ctxt_blocks with
   | [] -> []
   | _ ->
-    let valTs = listT valT in
-    let e_vals = iterE (subE ("val", valT) ~note:valT, [ "val" ], List) ~note:valTs in
-    let instr_popall = popAllI e_vals in
-    let instr_push = pushI e_vals in
-
-    instr_popall ::
     List.fold_right (fun instrs acc ->
       assert (List.length instrs = 1);
       let if_instr = List.hd instrs in
       match if_instr.it with
-      | IfI (c, instrs1, []) -> [{if_instr with it = IfI (c, instr_push :: instrs1, acc)}]
+      | IfI (c, instrs1, []) -> [{if_instr with it = IfI (c, instrs1, acc)}]
       | _ -> assert false
     ) (List.map snd ctxt_blocks) throw_block
   in
@@ -1124,9 +1118,10 @@ let rec translate_rgroup' (rule: rule_def) =
   let body_instrs =
     match normal_block_opt, ctxt_block with
     | None, b -> b
+    | Some b, [] -> b
     | Some b1, b2 ->
       (* Assert: b1 must have the else-less IfI as inner most instruction *)
-      insert_instrs_to_else b2 b1
+      insert_instrs_to_else b2 (Transpile.flatten_if b1)
   in
 
   translate_prems pops body_instrs
