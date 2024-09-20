@@ -200,6 +200,9 @@ and token = parse
   | "-|" { TILESTURN }
 
   | "$" { DOLLAR }
+  | "[_]" { CTXHOLE }
+  | "[-" { LBRACKDASH }
+  | "-]" { DASHRBRACK }
 
   | "_|_" { BOT }
   | "^|^" { TOP }

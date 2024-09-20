@@ -82,6 +82,7 @@ and string_of_typ t =
   | BoolT -> "bool"
   | NumT t -> string_of_numtyp t
   | TextT -> "text"
+  | CtxHoleT -> "[_]"
   | TupT ets -> "(" ^ concat ", " (List.map string_of_typbind ets) ^ ")"
   | IterT (t1, iter) -> string_of_typ t1 ^ string_of_iter iter
 
@@ -130,6 +131,7 @@ and string_of_exp e =
   | BoolE b -> string_of_bool b
   | NatE n -> Z.to_string n
   | TextE t -> "\"" ^ String.escaped t ^ "\""
+  | CtxHoleE -> "[_]"
   | UnE (op, e2) -> string_of_unop op ^ " " ^ string_of_exp e2
   | BinE (op, e1, e2) ->
     "(" ^ string_of_exp e1 ^ space string_of_binop op ^ string_of_exp e2 ^ ")"
@@ -145,6 +147,7 @@ and string_of_exp e =
   | ExtE (e1, p, e2) ->
     string_of_exp e1 ^
       "[" ^ string_of_path p ^ " =++ " ^ string_of_exp e2 ^ "]"
+  | CtxSubstE (e1, e2) -> string_of_exp e1 ^ "[" ^ string_of_exp e2 ^ "]"
   | StrE efs -> "{" ^ concat ", " (List.map string_of_expfield efs) ^ "}"
   | DotE (e1, atom) ->
     string_of_exp e1 ^ "." ^ string_of_mixop [[atom]] ^ "_" ^ string_of_typ_name e1.note

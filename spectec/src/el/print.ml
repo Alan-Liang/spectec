@@ -99,6 +99,7 @@ and string_of_typ t =
     string_of_typ t1 ^ space string_of_atom atom ^ string_of_typ t2
   | BrackT (l, t1, r) ->
     "`" ^ string_of_atom l ^ string_of_typ t1 ^ string_of_atom r
+  | CtxHoleT -> "[_]"
 
 and string_of_typs sep ts =
   concat sep (List.map string_of_typ ts)
@@ -140,6 +141,7 @@ and string_of_exp e =
   | CmpE (e1, op, e2) ->
     string_of_exp e1 ^ space string_of_cmpop op ^ string_of_exp e2
   | EpsE -> "eps"
+  | CtxHoleE -> "[_]"
   | SeqE es -> "{" ^ string_of_exps " " es ^ "}"
   | IdxE (e1, e2) -> string_of_exp e1 ^ "[" ^ string_of_exp e2 ^ "]"
   | SliceE (e1, e2, e3) ->
@@ -151,6 +153,7 @@ and string_of_exp e =
   | ExtE (e1, p, e2) ->
     string_of_exp e1 ^
       "[" ^ string_of_path p ^ " =++ " ^ string_of_exp e2 ^ "]"
+  | CtxSubstE (e1, e2) -> string_of_exp e1 ^ "[" ^ string_of_exp e2 ^ "]"
   | StrE efs -> "{" ^ concat ", " (map_filter_nl_list string_of_expfield efs) ^ "}"
   | DotE (e1, atom) -> string_of_exp e1 ^ "." ^ string_of_atom atom
   | CommaE (e1, e2) -> string_of_exp e1 ^ ", " ^ string_of_exp e2

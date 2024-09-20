@@ -96,7 +96,7 @@ and typ t =
   visit_typ t;
   match t.it with
   | VarT (x, as_) -> typid x; args as_
-  | BoolT | TextT -> ()
+  | BoolT | TextT | CtxHoleT -> ()
   | NumT nt -> numtyp nt
   | TupT ets -> list (pair exp typ) ets
   | IterT (t1, it) -> typ t1; iter it
@@ -121,6 +121,7 @@ and exp e =
   | BoolE b -> bool b
   | NatE n -> nat n
   | TextE s -> text s
+  | CtxHoleE -> ()
   | UnE (op, e1) -> unop op; exp e1
   | BinE (op, e1, e2) -> binop op; exp e1; exp e2
   | CmpE (op, e1, e2) -> cmpop op; exp e1; exp e2
@@ -131,7 +132,7 @@ and exp e =
   | OptE eo -> opt exp eo
   | StrE efs -> list expfield efs
   | DotE (e1, at) -> exp e1; atom at
-  | CompE (e1, e2) | MemE (e1, e2) | CatE (e1, e2) | IdxE (e1, e2) -> exp e1; exp e2
+  | CompE (e1, e2) | MemE (e1, e2) | CatE (e1, e2) | IdxE (e1, e2) | CtxSubstE (e1, e2) -> exp e1; exp e2
   | SliceE (e1, e2, e3) -> exp e1; exp e2; exp e3
   | UpdE (e1, p, e2) | ExtE (e1, p, e2) -> exp e1; path p; exp e2
   | CallE (x, as_) -> defid x; args as_

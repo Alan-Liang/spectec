@@ -55,6 +55,7 @@ and typ' =
   | SeqT of typ list             (* `eps` / typ typ *)
   | InfixT of typ * atom * typ   (* typ atom typ *)
   | BrackT of atom * typ * atom  (* ``` ([{ typ }]) *)
+  | CtxHoleT                     (* [_] *)
 
 and typfield = atom * (typ * prem nl_list) * hint list (* atom typ prem* hint* *)
 and typcase = atom * (typ * prem nl_list) * hint list  (* atom typ* prem* hint* *)
@@ -113,6 +114,8 @@ and exp' =
   | SliceE of exp * exp * exp    (* exp `[` exp `:` exp `]` *)
   | UpdE of exp * path * exp     (* exp `[` path `=` exp `]` *)
   | ExtE of exp * path * exp     (* exp `[` path `=..` exp `]` *)
+  | CtxHoleE                     (* [_] *)
+  | CtxSubstE of exp * exp       (* exp `[` exp `]` *)
   | StrE of expfield nl_list     (* `{` list(expfield, `,`) `}` *)
   | DotE of exp * atom           (* exp `.` atom *)
   | CommaE of exp * exp          (* exp `,` exp *)  (* TODO(3, rossberg): Remove? *)

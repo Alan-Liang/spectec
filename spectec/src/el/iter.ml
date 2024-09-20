@@ -108,6 +108,7 @@ and typ t =
   | SeqT ts -> list typ ts
   | InfixT (t1, at, t2) -> typ t1; atom at; typ t2
   | BrackT (at1, t1, at2) -> atom at1; typ t1; atom at2
+  | CtxHoleT -> ()
 
 and typfield (at, (t, prs), hs) = atom at; typ t; prems prs; hints hs
 and typcase (at, (t, prs), hs) = atom at; typ t; prems prs; hints hs
@@ -124,15 +125,15 @@ and exp e =
   | BoolE b -> bool b
   | NatE (op, n) -> natop op; nat n
   | TextE s -> text s
-  | EpsE | HoleE _ | LatexE _ -> ()
+  | EpsE | CtxHoleE | HoleE _ | LatexE _ -> ()
   | UnE (op, e1) -> unop op; exp e1
   | LenE e1 | ArithE e1 | ParenE (e1, _) | UnparenE e1 -> exp e1
   | DotE (e1, at) -> exp e1; atom at
   | SizeE x -> gramid x
   | BinE (e1, op, e2) -> exp e1; binop op; exp e2
   | CmpE (e1, op, e2) -> exp e1; cmpop op; exp e2
-  | IdxE (e1, e2) | CommaE (e1, e2) | CatE (e1, e2) | MemE (e1, e2)
-  | FuseE (e1, e2) -> exp e1; exp e2
+  | IdxE (e1, e2) | CtxSubstE (e1, e2) | CommaE (e1, e2)
+  | CatE (e1, e2) | MemE (e1, e2) | FuseE (e1, e2) -> exp e1; exp e2
   | SliceE (e1, e2, e3) -> exp e1; exp e2; exp e3
   | SeqE es | TupE es -> list exp es
   | UpdE (e1, p, e2) | ExtE (e1, p, e2) -> exp e1; path p; exp e2
@@ -251,7 +252,7 @@ let rec clone_iter = function
 and clone_typ t =
   (match t.it with
   | VarT (id, args) -> VarT (id, List.map clone_arg args)
-  | (BoolT | NumT _ | TextT) as t' -> t'
+  | (BoolT | NumT _ | TextT | CtxHoleT) as t' -> t'
   | ParenT t1 -> ParenT (clone_typ t1)
   | TupT ts -> TupT (List.map clone_typ ts)
   | IterT (t1, iter) -> IterT (clone_typ t1, clone_iter iter) 
@@ -268,7 +269,7 @@ and clone_typcase (atom, (t, prs), hints) =
 and clone_exp e =
   (match e.it with
   | VarE (id, args) -> VarE (id, List.map clone_arg args)
-  | (BoolE _ | NatE _ | TextE _ | EpsE | SizeE _ | HoleE _) as e' -> e'
+  | (BoolE _ | NatE _ | TextE _ | EpsE | CtxHoleE | SizeE _ | HoleE _) as e' -> e'
   | AtomE atom -> AtomE (clone_atom atom)
   | UnE (op, e1) -> UnE (op, clone_exp e1)
   | BinE (e1, op, e2) -> BinE (clone_exp e1, op, clone_exp e2)
@@ -278,6 +279,7 @@ and clone_exp e =
   | SliceE (e1, e2, e3) -> SliceE (clone_exp e1, clone_exp e2, clone_exp e3)
   | UpdE (e1, p, e2) -> UpdE (clone_exp e1, clone_path p, clone_exp e2)
   | ExtE (e1, p, e2) -> ExtE (clone_exp e1, clone_path p, clone_exp e2)
+  | CtxSubstE (e1, e2) -> CtxSubstE (clone_exp e1, clone_exp e2)
   | StrE efs -> StrE (Convert.map_nl_list clone_expfield efs)
   | DotE (e1, atom) -> DotE (clone_exp e1, clone_atom atom)
   | CommaE (e1, e2) -> CommaE (clone_exp e1, clone_exp e2)
