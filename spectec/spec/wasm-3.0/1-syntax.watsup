@@ -558,7 +558,7 @@ syntax instr/cont hint(desc "continuation instruction") = ...
   | RESUME_THROW typeidx tagidx hdl*
   | SUSPEND tagidx
   | SWITCH typeidx tagidx
-  | BARRIER blocktype instr* END
+  | BARRIER blocktype instr*
   | ...
 
 

@@ -244,6 +244,9 @@ rule Step_read/throw_ref-label:
 rule Step_read/throw_ref-frame:
   z; (FRAME_ n `{f} (REF.EXN_ADDR a) THROW_REF)  ~>  (REF.EXN_ADDR a) THROW_REF
 
+rule Step_read/throw_ref-handle:
+  z; (HANDLE handles (REF.EXN_ADDR a) THROW_REF)  ~>  (REF.EXN_ADDR a) THROW_REF
+
 rule Step_read/throw_ref-handler-empty:
   z; (HANDLER_ n `{eps} (REF.EXN_ADDR a) THROW_REF)  ~>  (REF.EXN_ADDR a) THROW_REF
 
@@ -332,12 +335,20 @@ rule Step/resume_throw-consumed:
   -- if $continst_iseps($continst(z)[a])
 
 rule Step/resume_throw:
-  z; val^m (REF.CONT_ADDR a) (RESUME_THROW kx ax (ON x hdlaction)*)  ~>  $with_cont(z, a, eps); (HANDLE (HANDLES `{ea*}) (RESUMING val''* (THROW ax) hctx))
+  z; val^m (REF.CONT_ADDR a) (RESUME_THROW kx ax (ON x hdlaction)*)  ~>  $with_cont(z', a, eps); (HANDLE (HANDLES `{ea*}) (RESUMING val''* THROW_REF hctx))
+  ;; extract continuation and actions
   -- if $continst(z)[a] = cont
   -- if cont = { CTXT hctx, BOUND val'*, ARITY n }
-  -- if val''* = val'* val^m
   -- if (ea = $tagaddr(z)[x] hdlaction)*
-  -- Expand: $taginst(z)[$tagaddr(z)[ax]].TYPE ~~ FUNC (t_1^m -> t_2*)
+  ;; create exception
+  -- Expand: $tag(z, ax).TYPE ~~ FUNC (t^m -> eps)
+  -- if a' = |$exninst(z)|
+  ;; extend value stack
+  -- if val''* = val'* (REF.EXN_ADDR a')
+  ;; TODO: inline
+  -- if z' = $add_exninst(z, exn)
+  ;; TODO: this couldn't be lifted to above add_exninst due to type inference
+  -- if exn = {TAG $tagaddr(z)[ax], FIELDS val^m}
 
 rule Step_pure/resuming-vals:
   (RESUMING val'* instr'* hctx)  ~>  val* val'* instr'* instr*
@@ -369,7 +380,7 @@ rule Step_pure/resuming-handle:
   -- if hctx' = { CTXT ctxinstr'*, STACK val*, CONT instr* }
 
 rule Step_pure/barrier:
-  (BARRIER bt in* END)  ~>  (HANDLE BARRIER in*)
+  (BARRIER bt in*)  ~>  (HANDLE BARRIER in*)
 
 rule Step_pure/handle-vals:
   (HANDLE h val*)  ~>  val*
