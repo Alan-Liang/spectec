@@ -10,7 +10,8 @@ let rec transform_expr f e =
     | VarE _
     | BoolE _
     | NatE _
-    | TextE _ -> e.it
+    | TextE _
+    | CtxHoleE -> e.it
     | UnE (op, e1) -> UnE (op, new_ e1)
     | BinE (op, e1, e2) -> BinE (op, new_ e1, new_ e2)
     | CmpE (op, e1, e2) -> CmpE (op, new_ e1, new_ e2)
@@ -18,6 +19,7 @@ let rec transform_expr f e =
     | SliceE (e1, e2, e3) -> SliceE (new_ e1, new_ e2, new_ e3)
     | UpdE (e1, p, e2) -> UpdE (new_ e1, p, new_ e2)
     | ExtE (e1, p, e2) -> ExtE (new_ e1, p, new_ e2)
+    | CtxSubstE (e1, e2) -> CtxSubstE (new_ e1, new_ e2)
     | StrE efs -> StrE efs (* TODO efs *)
     | DotE (e1, atom) -> DotE (new_ e1, atom)
     | CompE (e1, e2) -> CompE (new_ e1, new_ e2)

@@ -93,7 +93,8 @@ and check_typ env ctx t =
     List.iter (check_arg env ctx) args
   | BoolT
   | NumT _
-  | TextT ->
+  | TextT
+  | CtxHoleT ->
     check_varid env ctx `Impl (Convert.varid_of_typ t)
   | AtomT _ -> ()
   | ParenT t1
@@ -140,7 +141,8 @@ and check_exp env ctx e =
   | NatE _
   | TextE _
   | SizeE _
-  | EpsE -> ()
+  | EpsE
+  | CtxHoleE -> ()
   | UnE (_, e1)
   | DotE (e1, _)
   | LenE e1
@@ -151,6 +153,7 @@ and check_exp env ctx e =
   | BinE (e1, _, e2)
   | CmpE (e1, _, e2)
   | IdxE (e1, e2)
+  | CtxSubstE (e1, e2)
   | CommaE (e1, e2)
   | CatE (e1, e2)
   | MemE (e1, e2)
@@ -357,7 +360,7 @@ and annot_exp env e : Il.Ast.exp * occur =
     match e.it with
     | VarE id when id.it <> "_" && Env.mem id.it env ->
       VarE id, Env.singleton id.it (e.note, Env.find id.it env)
-    | VarE _ | BoolE _ | NatE _ | TextE _ ->
+    | VarE _ | BoolE _ | NatE _ | TextE _ | CtxHoleE ->
       e.it, Env.empty
     | UnE (op, e1) ->
       let e1', occur1 = annot_exp env e1 in
@@ -389,6 +392,10 @@ and annot_exp env e : Il.Ast.exp * occur =
       let p', occur2 = annot_path env p in
       let e2', occur3 = annot_exp env e2 in
       ExtE (e1', p', e2'), union (union occur1 occur2) occur3
+    | CtxSubstE (e1, e2) ->
+      let e1', occur1 = annot_exp env e1 in
+      let e2', occur2 = annot_exp env e2 in
+      CtxSubstE (e1', e2'), union occur1 occur2
     | StrE efs ->
       let efs', occurs = List.split (List.map (annot_expfield env) efs) in
       StrE efs', List.fold_left union Env.empty occurs

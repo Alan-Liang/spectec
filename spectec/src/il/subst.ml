@@ -101,7 +101,7 @@ and subst_typ s t =
     | None -> VarT (id, subst_args s as_)
     | Some t' -> assert (as_ = []); t'.it  (* We do not support higher-order substitutions yet *)
     )
-  | BoolT | NumT _ | TextT -> t.it
+  | BoolT | NumT _ | TextT | CtxHoleT -> t.it
   | TupT ets -> TupT (fst (subst_list_dep subst_typbind Free.bound_typbind s ets))
   | IterT (t1, iter) ->
     let iter', s' = subst_iter s iter in
@@ -136,7 +136,7 @@ and subst_exp s e =
     | None -> VarE id
     | Some e' -> e'.it
     )
-  | BoolE _ | NatE _ | TextE _ -> e.it
+  | BoolE _ | NatE _ | TextE _ | CtxHoleE -> e.it
   | UnE (op, e1) -> UnE (op, subst_exp s e1)
   | BinE (op, e1, e2) -> BinE (op, subst_exp s e1, subst_exp s e2)
   | CmpE (op, e1, e2) -> CmpE (op, subst_exp s e1, subst_exp s e2)
@@ -144,6 +144,7 @@ and subst_exp s e =
   | SliceE (e1, e2, e3) -> SliceE (subst_exp s e1, subst_exp s e2, subst_exp s e3)
   | UpdE (e1, p, e2) -> UpdE (subst_exp s e1, subst_path s p, subst_exp s e2)
   | ExtE (e1, p, e2) -> ExtE (subst_exp s e1, subst_path s p, subst_exp s e2)
+  | CtxSubstE (e1, e2) -> CtxSubstE (subst_exp s e1, subst_exp s e2)
   | StrE efs -> StrE (subst_list subst_expfield s efs)
   | DotE (e1, atom) -> DotE (subst_exp s e1, atom)
   | CompE (e1, e2) -> CompE (subst_exp s e1, subst_exp s e2)

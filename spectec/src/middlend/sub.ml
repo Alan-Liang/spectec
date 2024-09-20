@@ -121,7 +121,7 @@ and t_typ env x = { x with it = t_typ' env x.it }
 
 and t_typ' env = function
   | VarT (id, args) -> VarT (id, t_args env args)
-  | (BoolT | NumT _ | TextT) as t -> t
+  | (BoolT | NumT _ | TextT | CtxHoleT) as t -> t
   | TupT xts -> TupT (List.map (fun (id, t) -> (id, t_typ env t)) xts)
   | IterT (t, iter) -> IterT (t_typ env t, iter)
 
@@ -140,7 +140,7 @@ and t_typcase env (atom, (binds, t, prems), hints) =
 and t_exp2 env x = { x with it = t_exp' env x.it; note = t_typ env x.note }
 
 and t_exp' env = function
-  | (VarE _ | BoolE _ | NatE _ | TextE _) as e -> e
+  | (VarE _ | BoolE _ | NatE _ | TextE _ | CtxHoleE) as e -> e
   | UnE (unop, exp) -> UnE (unop, t_exp env exp)
   | BinE (binop, exp1, exp2) -> BinE (binop, t_exp env exp1, t_exp env exp2)
   | CmpE (cmpop, exp1, exp2) -> CmpE (cmpop, t_exp env exp1, t_exp env exp2)
@@ -148,6 +148,7 @@ and t_exp' env = function
   | SliceE (exp1, exp2, exp3) -> SliceE (t_exp env exp1, t_exp env exp2, t_exp env exp3)
   | UpdE (exp1, path, exp2) -> UpdE (t_exp env exp1, t_path env path, t_exp env exp2)
   | ExtE (exp1, path, exp2) -> ExtE (t_exp env exp1, t_path env path, t_exp env exp2)
+  | CtxSubstE (exp1, exp2) -> CtxSubstE (t_exp env exp1, t_exp env exp2)
   | StrE fields -> StrE (List.map (fun (a, e) -> a, t_exp env e) fields)
   | DotE (e, a) -> DotE (t_exp env e, a)
   | CompE (exp1, exp2) -> CompE (t_exp env exp1, t_exp env exp2)

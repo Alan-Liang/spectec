@@ -35,6 +35,7 @@ and typ' =
   | TextT                        (* `text` *)
   | TupT of (exp * typ) list     (* typ * ... * typ *)
   | IterT of typ * iter          (* typ iter *)
+  | CtxHoleT                     (* [_] *)
 
 and deftyp = deftyp' phrase
 and deftyp' =
@@ -101,6 +102,8 @@ and exp' =
   | SliceE of exp * exp * exp    (* exp[exp : exp] *)
   | UpdE of exp * path * exp     (* exp[path = exp] *)
   | ExtE of exp * path * exp     (* exp[path =.. exp] *)
+  | CtxHoleE                     (* [_] *)
+  | CtxSubstE of exp * exp       (* exp[exp] *)
   | CallE of id * arg list       (* defid( arg* ) *)
   | IterE of exp * iterexp       (* exp iter *)
   | SubE of exp * typ * typ      (* exp : typ1 <: typ2 *)

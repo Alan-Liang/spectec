@@ -90,7 +90,7 @@ and subst_typ s t =
         Util.Error.error id.at "syntax" "identifer suffix encountered during substitution";
       assert (args = []); t'.it  (* We do not support higher-order substitutions yet *)
     )
-  | BoolT | NumT _ | TextT | AtomT _ -> t.it
+  | BoolT | NumT _ | TextT | AtomT _ | CtxHoleT -> t.it
   | ParenT t1 -> ParenT (subst_typ s t1)
   | TupT ts -> TupT (subst_list subst_typ s ts)
   | IterT (t1, iter) -> IterT (subst_typ s t1, subst_iter s iter)
@@ -128,12 +128,13 @@ and subst_exp s e =
   | UnE (op, e1) -> UnE (op, subst_exp s e1)
   | BinE (e1, op, e2) -> BinE (subst_exp s e1, op, subst_exp s e2)
   | CmpE (e1, op, e2) -> CmpE (subst_exp s e1, op, subst_exp s e2)
-  | EpsE -> EpsE
+  | EpsE | CtxHoleE -> e.it
   | SeqE es -> SeqE (subst_list subst_exp s es)
   | IdxE (e1, e2) -> IdxE (subst_exp s e1, subst_exp s e2)
   | SliceE (e1, e2, e3) -> SliceE (subst_exp s e1, subst_exp s e2, subst_exp s e3)
   | UpdE (e1, p, e2) -> UpdE (subst_exp s e1, subst_path s p, subst_exp s e2)
   | ExtE (e1, p, e2) -> ExtE (subst_exp s e1, subst_path s p, subst_exp s e2)
+  | CtxSubstE (e1, e2) -> CtxSubstE (subst_exp s e1, subst_exp s e2)
   | StrE efs -> StrE (subst_nl_list subst_expfield s efs)
   | DotE (e1, atom) -> DotE (subst_exp s e1, atom)
   | CommaE (e1, e2) -> CommaE (subst_exp s e1, subst_exp s e2)

@@ -138,7 +138,7 @@ and reduce_exp env e : exp =
     (fun r -> fmt "%s" (el_exp r))
   ) @@ fun _ ->
   match e.it with
-  | VarE _ | AtomE _ | BoolE _ | NatE _ | TextE _ | SizeE _ -> e
+  | VarE _ | AtomE _ | BoolE _ | NatE _ | TextE _ | SizeE _ | CtxHoleE -> e
   | UnE (op, e1) ->
     let e1' = reduce_exp env e1 in
     (match op, e1'.it with
@@ -250,6 +250,10 @@ and reduce_exp env e : exp =
         then reduce_exp env (SeqE [e'; e2'] $ e.at)
         else ExtE (e', p', e2') $ e.at
       )
+  | CtxSubstE (e1, e2) ->
+    let e1' = reduce_exp env e1 in
+    let e2' = reduce_exp env e2 in
+    CtxSubstE (e1', e2') $ e.at
   | StrE efs -> StrE (Convert.map_nl_list (reduce_expfield env) efs) $ e.at
   | DotE (e1, atom) ->
     let e1' = reduce_exp env e1 in

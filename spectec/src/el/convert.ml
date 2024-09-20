@@ -92,6 +92,7 @@ let rec exp_of_typ t =
   | SeqT ts -> SeqE (List.map exp_of_typ ts)
   | InfixT (t1, atom, t2) -> InfixE (exp_of_typ t1, atom, exp_of_typ t2)
   | BrackT (l, t1, r) -> BrackE (l, exp_of_typ t1, r)
+  | CtxHoleT -> CtxHoleE
   | CaseT _ | ConT _ | RangeT _ -> error t.at "malformed expression"
   ) $ t.at
 
@@ -200,7 +201,7 @@ let rec param_of_arg a =
     )
   | TypA {it = VarT (id, []); _} ->
     if id.it <> (strip_var_suffix id).it then
-      error id.at "invalid identifer suffix in binding position";
+      error id.at "invalid identifier suffix in binding position";
     TypP id
   | GramA {it = AttrG ({it = VarE (id, []); _}, g); _} ->
     GramP (id, typ_of_exp (exp_of_sym g))

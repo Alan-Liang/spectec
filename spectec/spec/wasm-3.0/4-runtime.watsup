@@ -155,3 +155,24 @@ syntax instr/admin hint(desc "administrative instruction") =
   | FRAME_ n `{frame} instr*    hint(show FRAME_%#% %%)
   | HANDLER_ n `{catch*} instr* hint(show HANDLER_%#% %%)
   | TRAP
+
+
+;;
+;; Evaluation contexts
+;;
+
+syntax blockctx(nat) hint(show %latex("B")^%)
+syntax blockctxC(nat) hint(show %latex("C")^%)
+
+syntax blockctx(k) = STACK val* blockctx(k) instr* hint(show %%) | HANDLER_ n `{catch*} blockctx(k) | LABEL blockctxC(k) hint(show %%)
+
+syntax blockctxC(0) = [_]
+syntax blockctxC($(k+1)) = LABEL_ n `{instr*} blockctx(k)
+
+syntax throwctx hint(show %latex("T")) =
+  | HOLE [_] hint(show %%)
+  | STACK val* throwctx instr* hint(show %%)
+  | LABEL_ n `{instr*} throwctx
+  | FRAME_ n `{frame} throwctx
+
+syntax evalctx hint(show %latex("E")) = HOLE [_] hint(show %%) | STACK val* throwctx instr* hint(show %%) | LABEL_ n `{instr*} throwctx

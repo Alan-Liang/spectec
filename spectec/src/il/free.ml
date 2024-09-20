@@ -93,13 +93,13 @@ and bound_iter iter =
 and free_typ t =
   match t.it with
   | VarT (id, as_) -> free_typid id + free_args as_
-  | BoolT | NumT _ | TextT -> empty
+  | BoolT | NumT _ | TextT | CtxHoleT -> empty
   | TupT ets -> free_typbinds ets
   | IterT (t1, iter) -> free_typ t1 + free_iter iter
 
 and bound_typ t =
   match t.it with
-  | VarT _ | BoolT | NumT _ | TextT -> empty
+  | VarT _ | BoolT | NumT _ | TextT | CtxHoleT -> empty
   | TupT ets -> bound_list bound_typbind ets
   | IterT (t1, _iter) -> bound_typ t1
   
@@ -124,10 +124,11 @@ and free_typcase (_, (bs, t, prems), _) =
 and free_exp e =
   match e.it with
   | VarE id -> free_varid id
-  | BoolE _ | NatE _ | TextE _ -> empty
+  | BoolE _ | NatE _ | TextE _ | CtxHoleE -> empty
   | UnE (_, e1) | LenE e1 | ProjE (e1, _) | TheE e1 | DotE (e1, _) -> free_exp e1
   | BinE (_, e1, e2) | CmpE (_, e1, e2)
-  | IdxE (e1, e2) | CompE (e1, e2) | MemE (e1, e2) | CatE (e1, e2) -> free_exp e1 + free_exp e2
+  | IdxE (e1, e2) | CtxSubstE (e1, e2)
+  | CompE (e1, e2) | MemE (e1, e2) | CatE (e1, e2) -> free_exp e1 + free_exp e2
   | SliceE (e1, e2, e3) -> free_list free_exp [e1; e2; e3]
   | OptE eo -> free_opt free_exp eo
   | TupE es | ListE es -> free_list free_exp es

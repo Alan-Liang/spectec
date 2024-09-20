@@ -57,7 +57,7 @@ let as_alt_sym sym =
 
 let check_varid_bind id =
   if id.it = (El.Convert.strip_var_suffix id).it then id else
-    error id.at "invalid identifer suffix in binding position"
+    error id.at "invalid identifier suffix in binding position"
 
 
 (* Parentheses Role etc *)
@@ -65,9 +65,9 @@ let check_varid_bind id =
 type prec = Op | Seq | Post | Prim
 
 let rec prec_of_exp = function  (* as far as iteration is concerned *)
-  | VarE _ | BoolE _ | NatE _ | TextE _ | EpsE | StrE _
+  | VarE _ | BoolE _ | NatE _ | TextE _ | EpsE | CtxHoleE | StrE _
   | ParenE _ | TupE _ | BrackE _ | CallE _ | HoleE _ -> Prim
-  | AtomE _ | IdxE _ | SliceE _ | UpdE _ | ExtE _ | DotE _ | IterE _ -> Post
+  | AtomE _ | IdxE _ | SliceE _ | UpdE _ | ExtE _ | CtxSubstE _ | DotE _ | IterE _ -> Post
   | SeqE _ -> Seq
   | UnE _ | BinE _ | CmpE _ | MemE _ | InfixE _ | LenE _ | SizeE _
   | CommaE _ | CatE _ | TypE _ | FuseE _ | UnparenE _ | LatexE _ -> Op
@@ -103,14 +103,14 @@ let is_typcase t =
   match t.it with
   | AtomT _ | InfixT _ | BrackT _ -> true
   | SeqT ({it = AtomT _; _}::_) -> true
-  | VarT _ | BoolT | NumT _ | TextT | TupT _ | SeqT _
+  | VarT _ | BoolT | NumT _ | TextT | CtxHoleT | TupT _ | SeqT _
   | ParenT _ | IterT _ -> false
   | StrT _ | CaseT _ | ConT _ | RangeT _ -> assert false
 
 let rec is_typcon t =
   match t.it with
   | AtomT _ | InfixT _ | BrackT _ | SeqT _ -> true
-  | VarT _ | BoolT | NumT _ | TextT | TupT _ -> false
+  | VarT _ | BoolT | NumT _ | TextT | CtxHoleT | TupT _ -> false
   | ParenT t1 | IterT (t1, _) -> is_typcon t1
   | StrT _ | CaseT _ | ConT _ | RangeT _ -> assert false
 
@@ -126,6 +126,7 @@ let rec is_typcon t =
 %token ARROW ARROW2 ARROWSUB ARROW2SUB DARROW2 SQARROW SQARROWSTAR
 %token MEM PREC SUCC TURNSTILE TILESTURN
 %token DOLLAR TICK
+%token CTXHOLE LBRACKDASH DASHRBRACK
 %token BOT TOP
 %token HOLE MULTIHOLE NOTHING FUSE FUSEFUSE LATEX
 %token<int> HOLEN
@@ -445,6 +446,7 @@ nottyp_prim_ :
       | [], _ -> ParenT (SeqT [] $ $sloc)
       | [t], `Insig -> ParenT t
       | ts, _ -> TupT ts }
+  | CTXHOLE { CtxHoleT }
 
 nottyp_post : nottyp_post_ { $1 $ $sloc }
 nottyp_post_ :
@@ -531,6 +533,7 @@ exp_prim_ :
   | exp_call_ { $1 }
   | exp_hole_ { $1 }
   | EPS { EpsE }
+  | CTXHOLE { CtxHoleE }
   | LBRACE comma_nl_list(fieldexp) RBRACE { StrE $2 }
   | LPAREN tup_list(exp_bin) RPAREN
     { match $2 with
@@ -553,6 +556,7 @@ exp_post_ :
   | exp_atom LBRACK arith COLON arith RBRACK { SliceE ($1, $3, $5) }
   | exp_atom LBRACK path EQ exp RBRACK { UpdE ($1, $3, $5) }
   | exp_atom LBRACK path EQCAT exp RBRACK { ExtE ($1, $3, $5) }
+  | exp_atom LBRACKDASH exp DASHRBRACK { CtxSubstE ($1, $3) }
   | exp_atom iter { IterE ($1, $2) }
   | exp_post dotid { DotE ($1, $2) }
 

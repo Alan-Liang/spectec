@@ -122,7 +122,7 @@ and t_epe n x k = ternary t_exp t_path t_exp n x k
 
 and t_exp' n e : eqns * exp' =
   match e with
-  | VarE _ | BoolE _ | NatE _ | TextE _ | OptE None -> [], e
+  | VarE _ | BoolE _ | NatE _ | TextE _ | CtxHoleE | OptE None -> [], e
 
   | UnE (uo, exp) -> t_e n exp (fun exp' -> UnE (uo, exp'))
   | DotE (exp, a) -> t_e n exp (fun exp' -> DotE (exp', a))
@@ -138,6 +138,7 @@ and t_exp' n e : eqns * exp' =
   | BinE (bo, exp1, exp2) -> t_ee n (exp1, exp2) (fun (e1', e2') -> BinE (bo, e1', e2'))
   | CmpE (co, exp1, exp2) -> t_ee n (exp1, exp2) (fun (e1', e2') -> CmpE (co, e1', e2'))
   | IdxE (exp1, exp2) -> t_ee n (exp1, exp2) (fun (e1', e2') -> IdxE (e1', e2'))
+  | CtxSubstE (exp1, exp2) -> t_ee n (exp1, exp2) (fun (e1', e2') -> CtxSubstE (e1', e2'))
   | CompE (exp1, exp2) -> t_ee n (exp1, exp2) (fun (e1', e2') -> CompE (e1', e2'))
   | CatE (exp1, exp2) -> t_ee n (exp1, exp2) (fun (e1', e2') -> CatE (e1', e2'))
   | MemE (exp1, exp2) -> t_ee n (exp1, exp2) (fun (e1', e2') -> MemE (e1', e2'))

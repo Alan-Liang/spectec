@@ -182,6 +182,7 @@ let rec typ_to_var_name ty =
   | Il.Ast.NumT RatT -> "q"
   | Il.Ast.NumT RealT -> "r"
   | Il.Ast.TextT -> "s"
+  | Il.Ast.CtxHoleT -> assert false
   | Il.Ast.TupT tys -> List.map typ_to_var_name (List.map snd tys) |> String.concat "_"
   | Il.Ast.IterT (t, _) -> typ_to_var_name t
 

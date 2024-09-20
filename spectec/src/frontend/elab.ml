@@ -640,6 +640,7 @@ and elab_typ env t : Il.typ =
     | List1 | ListN _ -> error t.at "illegal iterator in syntax type"
     | _ -> Il.IterT (elab_typ env t1, elab_iter env iter) $ t.at
     )
+  | CtxHoleT -> Il.CtxHoleT $ t.at
   | StrT _ | CaseT _ | ConT _ | RangeT _ | AtomT _ | SeqT _ | InfixT _ | BrackT _ ->
     error t.at "this type is only allowed in type definitions"
 
@@ -978,6 +979,13 @@ and infer_exp' env e : Il.exp' * typ =
     let _t21 = as_list_typ "path" env Infer t2 p.at in
     let e2' = elab_exp env e2 t2 in
     Il.ExtE (e1', p', e2'), t1
+  | CtxSubstE (e1, e2) ->
+    let e1', _t1 = infer_exp env e1 in
+    let instrT = VarT ("instr" $ e.at, []) $ e.at in
+    let instrsT = IterT (instrT, List) $ e.at in
+    let e2' = elab_exp_notation_iter env ("instr" $ e2.at) (unseq_exp e2) (instrT, List) instrsT e.at in
+    (* HARDCODE *)
+    Il.CtxSubstE (e1', e2'), instrsT
   | StrE _ ->
     error e.at "cannot infer type of record"
   | DotE (e1, atom) ->
@@ -1028,6 +1036,7 @@ and infer_exp' env e : Il.exp' * typ =
   | SeqE [] ->  (* empty tuples *)
     Il.TupE [], TupT [] $ e.at
   | EpsE -> error e.at "cannot infer type of empty sequence"
+  | CtxHoleE -> Il.CtxHoleE, CtxHoleT $ e.at
   | SeqE _ -> error e.at "cannot infer type of expression sequence"
   | InfixE _ -> error e.at "cannot infer type of infix expression"
   | BrackE _ -> error e.at "cannot infer type of bracket expression"
@@ -1101,6 +1110,9 @@ and elab_exp' env e t : Il.exp' =
   | CmpE _ ->
     let e', t' = infer_exp env e in
     cast_exp' "comparison operator" env e' t' t
+  | CtxHoleE ->
+    let e', t' = infer_exp env e in
+    cast_exp' "evaluation context hole" env e' t' t
   | IdxE _ ->
     let e', t' = infer_exp env e in
     cast_exp' "list element" env e' t' t
@@ -1121,6 +1133,9 @@ and elab_exp' env e t : Il.exp' =
     let _t21 = as_list_typ "path" env Check t2 p.at in
     let e2' = elab_exp env e2 t2 in
     Il.ExtE (e1', p', e2')
+  | CtxSubstE _ ->
+    let e', t' = infer_exp env e in
+    cast_exp' "context substitution" env e' t' t
   | StrE efs ->
     let tfs = as_struct_typ "record" env Check t e.at in
     let efs' = elab_expfields env (expand_id env t) (filter_nl efs) tfs t e.at in
@@ -1346,6 +1361,10 @@ and elab_exp_notation' env tid e t : Il.exp list * Subst.t =
     [elab_exp env e1 t], Subst.empty
   | (EpsE | SeqE _), IterT (t1, iter) ->
     [elab_exp_notation_iter env tid (unseq_exp e) (t1, iter) t e.at], Subst.empty
+  | CtxSubstE (e1, e2), IterT (t1, List) ->
+    let e1', _t1 = infer_exp env e1 in
+    let e2' = elab_exp_notation_iter env tid (unseq_exp e2) (t1, List) t e.at in
+    [Il.CtxSubstE (e1', e2') $$ e.at % elab_typ env t], Subst.empty
   | IterE (e1, iter1), IterT (t1, iter) ->
     if iter = Opt && iter1 <> Opt then
       error_typ env e.at "iteration expression" t;
@@ -1903,7 +1922,7 @@ and elab_param env p : Il.param list =
         if Map.mem id' env.typs then ps' else (
           let id = id' $ t.at in
           if id.it <> (strip_var_suffix id).it then
-            error_id id "invalid identifer suffix in binding position";
+            error_id id "invalid identifier suffix in binding position";
           env.typs <- bind "syntax type" env.typs id ([], Opaque);
           env.gvars <- bind "variable" env.gvars (strip_var_sub id) (VarT (id, []) $ id.at);
           (Il.TypP id $ id.at) :: ps'

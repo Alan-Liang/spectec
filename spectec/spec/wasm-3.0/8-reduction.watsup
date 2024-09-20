@@ -228,37 +228,27 @@ rule Step/throw:
 rule Step_read/throw_ref-null:
   z; (REF.NULL ht) THROW_REF  ~>  TRAP
 
-rule Step_read/throw_ref-vals:
-  z; val* (REF.EXN_ADDR a) THROW_REF instr*  ~>  (REF.EXN_ADDR a) THROW_REF
-  -- if val* =/= eps \/ instr* =/= eps
-
-rule Step_read/throw_ref-label:
-  z; (LABEL_ n `{instr'*} (REF.EXN_ADDR a) THROW_REF)  ~>  (REF.EXN_ADDR a) THROW_REF
-
-rule Step_read/throw_ref-frame:
-  z; (FRAME_ n `{f} (REF.EXN_ADDR a) THROW_REF)  ~>  (REF.EXN_ADDR a) THROW_REF
-
 rule Step_read/throw_ref-handler-empty:
-  z; (HANDLER_ n `{eps} (REF.EXN_ADDR a) THROW_REF)  ~>  (REF.EXN_ADDR a) THROW_REF
+  z; (HANDLER_ n `{eps} throwctx[- (REF.EXN_ADDR a) THROW_REF -])  ~>  (REF.EXN_ADDR a) THROW_REF
 
 rule Step_read/throw_ref-handler-catch:
-  z; (HANDLER_ n `{(CATCH x l) catch'*} (REF.EXN_ADDR a) THROW_REF)  ~>  val* (BR l)
+  z; (HANDLER_ n `{(CATCH x l) catch'*} throwctx[- (REF.EXN_ADDR a) THROW_REF -])  ~>  val* (BR l)
   -- if $exninst(z)[a].TAG = $tagaddr(z)[x]
   -- if val* = $exninst(z)[a].FIELDS  ;; TODO(rossberg, 3): inline
 
 rule Step_read/throw_ref-handler-catch_ref:
-  z; (HANDLER_ n `{(CATCH_REF x l) catch'*} (REF.EXN_ADDR a) THROW_REF)  ~>  val* (REF.EXN_ADDR a) (BR l)
+  z; (HANDLER_ n `{(CATCH_REF x l) catch'*} throwctx[- (REF.EXN_ADDR a) THROW_REF -])  ~>  val* (REF.EXN_ADDR a) (BR l)
   -- if $exninst(z)[a].TAG = $tagaddr(z)[x]
   -- if val* = $exninst(z)[a].FIELDS  ;; TODO(rossberg, 3): inline
 
 rule Step_read/throw_ref-handler-catch_all:
-  z; (HANDLER_ n `{(CATCH_ALL l) catch'*} (REF.EXN_ADDR a) THROW_REF)  ~>  (BR l)
+  z; (HANDLER_ n `{(CATCH_ALL l) catch'*} throwctx[- (REF.EXN_ADDR a) THROW_REF -])  ~>  (BR l)
 
 rule Step_read/throw_ref-handler-catch_all_ref:
-  z; (HANDLER_ n `{(CATCH_ALL_REF l) catch'*} (REF.EXN_ADDR a) THROW_REF)  ~>  (REF.EXN_ADDR a) (BR l)
+  z; (HANDLER_ n `{(CATCH_ALL_REF l) catch'*} throwctx[- (REF.EXN_ADDR a) THROW_REF -])  ~>  (REF.EXN_ADDR a) (BR l)
 
 rule Step_read/throw_ref-handler-next:
-  z; (HANDLER_ n `{catch catch'*} (REF.EXN_ADDR a) THROW_REF)  ~>  (HANDLER_ n `{catch'*} (REF.EXN_ADDR a) THROW_REF)
+  z; (HANDLER_ n `{catch catch'*} throwctx[- (REF.EXN_ADDR a) THROW_REF -])  ~>  (HANDLER_ n `{catch'*} (REF.EXN_ADDR a) THROW_REF)
   -- otherwise
 
 rule Step_read/try_table:
@@ -273,11 +263,8 @@ rule Step_pure/handler-vals:
 ;; Traps
 
 rule Step_pure/trap-vals:
-  val* TRAP instr*  ~>  TRAP
-  -- if val* =/= eps \/ instr* =/= eps
-
-rule Step_pure/trap-label:
-  (LABEL_ n `{instr'*} TRAP)  ~>  TRAP
+  evalctx[- TRAP -]  ~>  TRAP
+  -- if evalctx =/= (HOLE [_])
 
 rule Step_pure/trap-frame:
   (FRAME_ n `{f} TRAP)  ~>  TRAP
@@ -285,8 +272,8 @@ rule Step_pure/trap-frame:
 
 ;; Context
 
-rule Step/ctxt-label:
-  z; (LABEL_ n `{instr_0*} instr*)  ~>  z'; (LABEL_ n `{instr_0*} instr'*)
+rule Step/ctxt-instrs:
+  z; evalctx[- instr* -]  ~>  z'; evalctx[- instr'* -]
   -- Step: z; instr* ~> z'; instr'*
 
 rule Step/ctxt-frame:

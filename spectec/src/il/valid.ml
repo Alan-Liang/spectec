@@ -164,7 +164,8 @@ and valid_typ env t =
     ignore (valid_args env as_ ps Subst.empty t.at)
   | BoolT
   | NumT _
-  | TextT ->
+  | TextT
+  | CtxHoleT ->
     ()
   | TupT ets ->
     List.iter (valid_typbind env) ets
@@ -239,6 +240,7 @@ and infer_exp (env : Env.t) e : typ =
   | BoolE _ -> BoolT $ e.at
   | NatE _ | LenE _ -> NumT NatT $ e.at
   | TextE _ -> TextT $ e.at
+  | CtxHoleE -> CtxHoleT $ e.at
   | UnE (op, _) -> let _t1, t' = infer_unop op in t' $ e.at
   | BinE (op, _, _) -> let _t1, _t2, t' = infer_binop op in t' $ e.at
   | CmpE _ | MemE _ -> BoolT $ e.at
@@ -248,6 +250,9 @@ and infer_exp (env : Env.t) e : typ =
   | ExtE (e1, _, _)
   | CompE (e1, _) -> infer_exp env e1
   | StrE _ -> error e.at "cannot infer type of record"
+  | CtxSubstE _ ->
+    (* HARDCODE *)
+    IterT (VarT ("instr" $ e.at, []) $ e.at, List) $ e.at
   | DotE (e1, atom) ->
     let tfs = as_struct_typ "expression" env Infer (infer_exp env e1) e1.at in
     let _binds, t, _prems = find_field tfs atom e1.at in
@@ -303,7 +308,7 @@ try
   | VarE id ->
     let t' = Env.find_var env id in
     equiv_typ env t' t e.at
-  | BoolE _ | NatE _ | TextE _ ->
+  | BoolE _ | NatE _ | TextE _ | CtxHoleE ->
     let t' = infer_exp env e in
     equiv_typ env t' t e.at
   | UnE (op, e1) ->
@@ -351,6 +356,9 @@ try
     let t2 = valid_path env p t in
     let _typ21 = as_list_typ "path" env Check t2 p.at in
     valid_exp env e2 t2
+  | CtxSubstE _ ->
+    (* TODO(lyl) *)
+    ()
   | StrE efs ->
     let tfs = as_struct_typ "record" env Check t e.at in
     valid_list (valid_expfield ~side) env efs tfs e.at

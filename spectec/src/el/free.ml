@@ -94,7 +94,7 @@ let rec free_iter iter =
 and free_typ t =
   match t.it with
   | VarT (id, as_) -> free_typid id + free_args as_
-  | BoolT | NumT _ | TextT -> empty
+  | BoolT | NumT _ | TextT | CtxHoleT -> empty
   | ParenT t1 -> free_typ t1
   | TupT ts -> free_list free_typ ts
   | IterT (t1, iter) -> free_typ t1 + free_iter iter
@@ -129,13 +129,14 @@ and det_typcon ((t, prems), _) = det_typ t + det_prems prems
 and free_exp e =
   match e.it with
   | VarE (id, as_) -> free_varid id + free_list free_arg as_
-  | AtomE _ | BoolE _ | NatE _ | TextE _ | EpsE | HoleE _ | LatexE _ ->
+  | AtomE _ | BoolE _ | NatE _ | TextE _ | EpsE | CtxHoleE | HoleE _ | LatexE _ ->
     empty
   | UnE (_, e1) | DotE (e1, _) | LenE e1
   | ParenE (e1, _) | BrackE (_, e1, _) | ArithE e1 | UnparenE e1 -> free_exp e1
   | SizeE id -> free_gramid id
   | BinE (e1, _, e2) | CmpE (e1, _, e2)
-  | IdxE (e1, e2) | CommaE (e1, e2) | CatE (e1, e2) | MemE (e1, e2)
+  | IdxE (e1, e2) | CtxSubstE (e1, e2)
+  | CommaE (e1, e2) | CatE (e1, e2) | MemE (e1, e2)
   | InfixE (e1, _, e2) | FuseE (e1, e2) -> free_exp e1 + free_exp e2
   | SliceE (e1, e2, e3) -> free_exp e1 + free_exp e2 + free_exp e3
   | SeqE es | TupE es -> free_list free_exp es
@@ -175,7 +176,8 @@ and det_exp e =
   | CallE (_, as_) ->
     free_list idx_arg as_ + det_arg (Util.Lib.List.last as_)
   | TypE (e1, _) -> det_exp e1
-  | AtomE _ | BoolE _ | NatE _ | TextE _ | EpsE -> empty
+  | CtxSubstE (e1, e2) -> det_exp e1 + det_exp e2
+  | AtomE _ | BoolE _ | NatE _ | TextE _ | EpsE | CtxHoleE -> empty
   | UnE _ | BinE _ | CmpE _
   | IdxE _ | SliceE _ | UpdE _ | ExtE _ | CommaE _ | CatE _ | MemE _
   | DotE _ | LenE _ | SizeE _ -> idx_exp e

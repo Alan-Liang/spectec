@@ -69,7 +69,7 @@ let rec t_exp env e : prem list =
   end @
   (* And now descend *)
   match e.it with
-  | VarE _ | BoolE _ | NatE _ | TextE _ | OptE None
+  | VarE _ | BoolE _ | NatE _ | TextE _ | CtxHoleE | OptE None
   -> []
   | UnE (_, exp)
   | DotE (exp, _)
@@ -84,6 +84,7 @@ let rec t_exp env e : prem list =
   | BinE (_, exp1, exp2)
   | CmpE (_, exp1, exp2)
   | IdxE (exp1, exp2)
+  | CtxSubstE (exp1, exp2)
   | CompE (exp1, exp2)
   | MemE (exp1, exp2)
   | CatE (exp1, exp2)

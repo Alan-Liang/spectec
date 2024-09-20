@@ -494,7 +494,7 @@ and expand_exp env ctxt e =
   | AtomE atom ->
     let atom' = expand_atom env ctxt atom in
     AtomE atom'
-  | BoolE _ | NatE _ | TextE _ | EpsE ->
+  | BoolE _ | NatE _ | TextE _ | EpsE | CtxHoleE ->
     e.it
   | VarE (id, args) ->
     let id' = expand_id env ctxt id in
@@ -533,6 +533,10 @@ and expand_exp env ctxt e =
     let p' = expand_path env ctxt p in
     let e2' = expand_exp env ctxt e2 in
     ExtE (e1', p', e2')
+  | CtxSubstE (e1, e2) ->
+    let e1' = expand_exp env ctxt e1 in
+    let e2' = expand_exp env ctxt e2 in
+    CtxSubstE (e1', e2')
   | StrE efs ->
     let efs' = map_nl_list (expand_expfield env ctxt) efs in
     StrE efs'
@@ -1033,6 +1037,7 @@ and render_exp env e =
     let atom = {it = Atom.Atom (Z.to_string n); at = e.at; note = Atom.info "nat"} in
     render_atom (without_macros true env) atom
   | TextE t -> "\\mbox{\\tt`" ^ t ^ "'}"
+  | CtxHoleE -> "[\\_]"
   | UnE (op, e2) -> "{" ^ render_unop op ^ render_exp env e2 ^ "}"
   | BinE (e1, ExpOp, ({it = ParenE (e2, _); _ } | e2)) ->
     "{" ^ render_exp env e1 ^ "^{" ^ render_exp env e2 ^ "}}"
@@ -1067,6 +1072,7 @@ Printf.eprintf "[render %s:X @ %s] try expansion\n%!" (Source.string_of_region e
   | ExtE (e1, p, e2) ->
     render_exp env e1 ^
       "{}[" ^ render_path env p ^ " \\mathrel{{=}{\\oplus}} " ^ render_exp env e2 ^ "]"
+  | CtxSubstE (e1, e2) -> render_exp env e1 ^ "{}[" ^ render_exp env e2 ^ "]"
   | StrE efs ->
     "\\{ " ^
     "\\begin{array}[t]{@{}l@{}}\n" ^
