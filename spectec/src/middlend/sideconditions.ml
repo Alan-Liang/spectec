@@ -84,11 +84,12 @@ let rec t_exp env e : prem list =
   | BinE (_, exp1, exp2)
   | CmpE (_, exp1, exp2)
   | IdxE (exp1, exp2)
-  | CtxSubstE (exp1, exp2)
   | CompE (exp1, exp2)
   | MemE (exp1, exp2)
   | CatE (exp1, exp2)
   -> t_exp env exp1 @ t_exp env exp2
+  | CtxSubstE (exp1, exp2s, exp3)
+  -> t_exp env exp1 @ List.concat_map (t_exp env) exp2s @ t_exp env exp3
   | SliceE (exp1, exp2, exp3)
   -> t_exp env exp1 @ t_exp env exp2 @ t_exp env exp3
   | UpdE (exp1, path, exp2)

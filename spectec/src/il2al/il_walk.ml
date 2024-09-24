@@ -19,7 +19,7 @@ let rec transform_expr f e =
     | SliceE (e1, e2, e3) -> SliceE (new_ e1, new_ e2, new_ e3)
     | UpdE (e1, p, e2) -> UpdE (new_ e1, p, new_ e2)
     | ExtE (e1, p, e2) -> ExtE (new_ e1, p, new_ e2)
-    | CtxSubstE (e1, e2) -> CtxSubstE (new_ e1, new_ e2)
+    | CtxSubstE (e1, e2s, e3) -> CtxSubstE (new_ e1, List.map new_ e2s, new_ e3)
     | StrE efs -> StrE efs (* TODO efs *)
     | DotE (e1, atom) -> DotE (new_ e1, atom)
     | CompE (e1, e2) -> CompE (new_ e1, new_ e2)

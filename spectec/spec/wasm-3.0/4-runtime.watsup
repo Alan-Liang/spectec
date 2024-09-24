@@ -161,13 +161,13 @@ syntax instr/admin hint(desc "administrative instruction") =
 ;; Evaluation contexts
 ;;
 
-syntax blockctx(nat) hint(show %latex("B")^%)
-syntax blockctxC(nat) hint(show %latex("C")^%)
+syntax blockctx(idx) hint(show %latex("B")^%)
+syntax blockctxC(idx) hint(show %latex("C")^%)
 
-syntax blockctx(k) = STACK val* blockctx(k) instr* hint(show %%) | HANDLER_ n `{catch*} blockctx(k) | LABEL blockctxC(k) hint(show %%)
+syntax blockctx(x) = STACK val* blockctx(x) instr* hint(show %%) | HANDLER_ n `{catch*} blockctx(x) | LABEL blockctxC(x) hint(show %%)
 
 syntax blockctxC(0) = [_]
-syntax blockctxC($(k+1)) = LABEL_ n `{instr*} blockctx(k)
+syntax blockctxC($(x+1)) = LABEL_ n `{instr*} blockctx(x)
 
 syntax throwctx hint(show %latex("T")) =
   | HOLE [_] hint(show %%)

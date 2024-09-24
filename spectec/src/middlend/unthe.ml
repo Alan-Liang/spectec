@@ -72,6 +72,11 @@ let t_list (t : 'a traversal) : ('a list, 'b) traversal_k
     let eqnss, xs' = List.split (List.map (t n) xs) in
     List.concat eqnss, k xs'
 
+let t_list' (t : 'a traversal) : 'a list traversal
+  = fun n xs ->
+    let eqnss, xs' = List.split (List.map (t n) xs) in
+    List.concat eqnss, xs'
+
 let unary (t : 'a traversal) : ('a, 'b) traversal_k =
   fun n x k ->
   let eqns, exp' = t n x in
@@ -117,6 +122,7 @@ and t_exp2 n = phrase t_exp' n
 
 and t_e n x k = unary t_exp n x k
 and t_ee n x k = binary t_exp t_exp n x k
+and t_ele n x k = ternary t_exp (t_list' t_exp) t_exp n x k
 and t_eee n x k = ternary t_exp t_exp t_exp n x k
 and t_epe n x k = ternary t_exp t_path t_exp n x k
 
@@ -138,7 +144,7 @@ and t_exp' n e : eqns * exp' =
   | BinE (bo, exp1, exp2) -> t_ee n (exp1, exp2) (fun (e1', e2') -> BinE (bo, e1', e2'))
   | CmpE (co, exp1, exp2) -> t_ee n (exp1, exp2) (fun (e1', e2') -> CmpE (co, e1', e2'))
   | IdxE (exp1, exp2) -> t_ee n (exp1, exp2) (fun (e1', e2') -> IdxE (e1', e2'))
-  | CtxSubstE (exp1, exp2) -> t_ee n (exp1, exp2) (fun (e1', e2') -> CtxSubstE (e1', e2'))
+  | CtxSubstE (exp1, exp2s, exp3) -> t_ele n (exp1, exp2s, exp3) (fun (e1', e2', e3') -> CtxSubstE (e1', e2', e3'))
   | CompE (exp1, exp2) -> t_ee n (exp1, exp2) (fun (e1', e2') -> CompE (e1', e2'))
   | CatE (exp1, exp2) -> t_ee n (exp1, exp2) (fun (e1', e2') -> CatE (e1', e2'))
   | MemE (exp1, exp2) -> t_ee n (exp1, exp2) (fun (e1', e2') -> MemE (e1', e2'))

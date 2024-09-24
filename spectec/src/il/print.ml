@@ -147,7 +147,7 @@ and string_of_exp e =
   | ExtE (e1, p, e2) ->
     string_of_exp e1 ^
       "[" ^ string_of_path p ^ " =++ " ^ string_of_exp e2 ^ "]"
-  | CtxSubstE (e1, e2) -> string_of_exp e1 ^ "[" ^ string_of_exp e2 ^ "]"
+  | CtxSubstE (e1, e2s, e3) -> string_of_exp e1 ^ string_of_arg_exps e2s ^ "[" ^ string_of_exp e3 ^ "]"
   | StrE efs -> "{" ^ concat ", " (List.map string_of_expfield efs) ^ "}"
   | DotE (e1, atom) ->
     string_of_exp e1 ^ "." ^ string_of_mixop [[atom]] ^ "_" ^ string_of_typ_name e1.note
@@ -168,6 +168,10 @@ and string_of_exp e =
     string_of_mixop op ^ "_" ^ string_of_typ_name e.note ^ string_of_exp_args e1
   | SubE (e1, t1, t2) ->
     "(" ^ string_of_exp e1 ^ " : " ^ string_of_typ t1 ^ " <: " ^ string_of_typ t2 ^ ")"
+
+and string_of_arg_exps = function
+  | [] -> ""
+  | args -> "(" ^ (List.map string_of_exp args |> String.concat " ") ^ ")"
 
 and string_of_exp_args e =
   match e.it with

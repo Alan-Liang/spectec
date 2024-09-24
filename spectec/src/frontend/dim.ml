@@ -392,10 +392,13 @@ and annot_exp env e : Il.Ast.exp * occur =
       let p', occur2 = annot_path env p in
       let e2', occur3 = annot_exp env e2 in
       ExtE (e1', p', e2'), union (union occur1 occur2) occur3
-    | CtxSubstE (e1, e2) ->
+    | CtxSubstE (e1, e2s, e3) ->
       let e1', occur1 = annot_exp env e1 in
-      let e2', occur2 = annot_exp env e2 in
-      CtxSubstE (e1', e2'), union occur1 occur2
+      let res2 = List.map (annot_exp env) e2s in
+      let e2' = List.map fst res2 in
+      let occur2 = List.map snd res2 |> List.fold_left union Env.empty in
+      let e3', occur3 = annot_exp env e3 in
+      CtxSubstE (e1', e2', e3'), union (union occur1 occur2) occur3
     | StrE efs ->
       let efs', occurs = List.split (List.map (annot_expfield env) efs) in
       StrE efs', List.fold_left union Env.empty occurs

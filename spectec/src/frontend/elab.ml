@@ -979,13 +979,25 @@ and infer_exp' env e : Il.exp' * typ =
     let _t21 = as_list_typ "path" env Infer t2 p.at in
     let e2' = elab_exp env e2 t2 in
     Il.ExtE (e1', p', e2'), t1
-  | CtxSubstE (e1, e2) ->
-    let e1', _t1 = infer_exp env e1 in
+  | CtxSubstE ({ it = VarE (id, args); _ } as e1, e2) ->
+    let extract_arg arg = match !(arg.it) with
+      | ExpA e -> let e', _typ = infer_exp env e in e'
+      | _ -> error arg.at "invalid argument"
+    in
+    let args' = List.map extract_arg args in
+
     let instrT = VarT ("instr" $ e.at, []) $ e.at in
     let instrsT = IterT (instrT, List) $ e.at in
+    let ctxT = VarT (id, args) $ e.at in
+    let ctxT' = Il.VarT (id, List.map (fun e -> Il.ExpA e $ e.at) args') $ e.at in
+
+    if not (bound env.vars id) then env.vars <- bind "variable" env.vars id ctxT;
+    let e1' = Il.VarE id $$ e1.at % ctxT' in
     let e2' = elab_exp_notation_iter env ("instr" $ e2.at) (unseq_exp e2) (instrT, List) instrsT e.at in
     (* HARDCODE *)
-    Il.CtxSubstE (e1', e2'), instrsT
+    Il.CtxSubstE (e1', args', e2'), instrsT
+  | CtxSubstE _ ->
+    error e.at "lhs of context substitution must be a VarE"
   | StrE _ ->
     error e.at "cannot infer type of record"
   | DotE (e1, atom) ->
@@ -1361,10 +1373,20 @@ and elab_exp_notation' env tid e t : Il.exp list * Subst.t =
     [elab_exp env e1 t], Subst.empty
   | (EpsE | SeqE _), IterT (t1, iter) ->
     [elab_exp_notation_iter env tid (unseq_exp e) (t1, iter) t e.at], Subst.empty
-  | CtxSubstE (e1, e2), IterT (t1, List) ->
-    let e1', _t1 = infer_exp env e1 in
+  | CtxSubstE ({ it = VarE (id, args); _ } as e1, e2), IterT (t1, List) ->
+    let extract_arg arg = match !(arg.it) with
+      | ExpA e -> let e', _typ = infer_exp env e in e'
+      | _ -> error arg.at "invalid argument"
+    in
+    let args' = List.map extract_arg args in
+
+    let ctxT = VarT (id, args) $ e.at in
+    let ctxT' = Il.VarT (id, List.map (fun e -> Il.ExpA e $ e.at) args') $ e.at in
+
+    if not (bound env.vars id) then env.vars <- bind "variable" env.vars id ctxT;
+    let e1' = Il.VarE id $$ e1.at % ctxT' in
     let e2' = elab_exp_notation_iter env tid (unseq_exp e2) (t1, List) t e.at in
-    [Il.CtxSubstE (e1', e2') $$ e.at % elab_typ env t], Subst.empty
+    [Il.CtxSubstE (e1', args', e2') $$ e.at % elab_typ env t], Subst.empty
   | IterE (e1, iter1), IterT (t1, iter) ->
     if iter = Opt && iter1 <> Opt then
       error_typ env e.at "iteration expression" t;
@@ -1747,13 +1769,17 @@ and make_binds_iter_arg env free dims : Il.bind list ref * (module Iter.Arg) =
           left := Free.{!left with typid = Set.remove id.it !left.typid};
         )
 
-      let visit_varid id =
+      let rec visit_varid id =
         if Free.(Set.mem id.it !left.varid) && Dim.Env.mem id.it dims then (
           let t =
             try find "variable" env.vars id with Error _ ->
               find "variable" env.gvars (strip_var_suffix id)
           in
           let fwd = Free.(inter (free_typ t) !left) in
+          (* TODO: HACK: make blockctx(l) work in Step_pure/br, because this type depends on l *)
+          if fwd.varid <> Set.empty then
+            (Set.iter (fun x -> visit_varid (x $ id.at)) fwd.varid; visit_varid id)
+          else
           if fwd <> Free.empty then
             error id.at ("the type of `" ^ id.it ^ "` depends on " ^
               ( Free.Set.(elements fwd.typid @ elements fwd.gramid @ elements fwd.varid @ elements fwd.defid) |>
