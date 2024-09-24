@@ -247,10 +247,11 @@ and reduce_exp env e : exp =
         then reduce_exp env (CatE (e', e2') $> e')
         else ExtE (e', p', e2') $> e'
       )
-  | CtxSubstE (e1, e2) ->
+  | CtxSubstE (e1, e2s, e3) ->
     let e1' = reduce_exp env e1 in
-    let e2' = reduce_exp env e2 in
-    CtxSubstE (e1', e2') $> e
+    let e2s' = List.map (reduce_exp env) e2s in
+    let e3' = reduce_exp env e3 in
+    CtxSubstE (e1', e2s', e3') $> e
   | StrE efs -> StrE (List.map (reduce_expfield env) efs) $> e
   | DotE (e1, atom) ->
     let e1' = reduce_exp env e1 in

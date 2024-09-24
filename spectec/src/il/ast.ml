@@ -103,7 +103,7 @@ and exp' =
   | UpdE of exp * path * exp     (* exp[path = exp] *)
   | ExtE of exp * path * exp     (* exp[path =.. exp] *)
   | CtxHoleE                     (* [_] *)
-  | CtxSubstE of exp * exp       (* exp[exp] *)
+  | CtxSubstE of exp * exp list * exp (* exp(depth)[exp] *)
   | CallE of id * arg list       (* defid( arg* ) *)
   | IterE of exp * iterexp       (* exp iter *)
   | SubE of exp * typ * typ      (* exp : typ1 <: typ2 *)

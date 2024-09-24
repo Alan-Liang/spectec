@@ -126,9 +126,9 @@ and free_exp e =
   | VarE id -> free_varid id
   | BoolE _ | NatE _ | TextE _ | CtxHoleE -> empty
   | UnE (_, e1) | LenE e1 | ProjE (e1, _) | TheE e1 | DotE (e1, _) -> free_exp e1
-  | BinE (_, e1, e2) | CmpE (_, e1, e2)
-  | IdxE (e1, e2) | CtxSubstE (e1, e2)
+  | BinE (_, e1, e2) | CmpE (_, e1, e2) | IdxE (e1, e2)
   | CompE (e1, e2) | MemE (e1, e2) | CatE (e1, e2) -> free_exp e1 + free_exp e2
+  | CtxSubstE (e1, e2s, e3) -> free_exp e1 + free_exps e2s + free_exp e3
   | SliceE (e1, e2, e3) -> free_list free_exp [e1; e2; e3]
   | OptE eo -> free_opt free_exp eo
   | TupE es | ListE es -> free_list free_exp es
@@ -138,6 +138,10 @@ and free_exp e =
   | CallE (id, as1) -> free_defid id + free_args as1
   | IterE (e1, iter) -> (free_exp e1 - bound_iterexp iter) + free_iterexp iter
   | SubE (e1, t1, t2) -> free_exp e1 + free_typ t1 + free_typ t2
+
+and free_exps = function
+  | hd :: tl -> free_exp hd + free_exps tl
+  | [] -> empty
 
 and free_expfield (_, e) = free_exp e
 

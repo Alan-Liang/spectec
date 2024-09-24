@@ -176,12 +176,20 @@ and det_exp e =
   | CallE (_, as_) ->
     free_list idx_arg as_ + det_arg (Util.Lib.List.last as_)
   | TypE (e1, _) -> det_exp e1
-  | CtxSubstE (e1, e2) -> det_exp e1 + det_exp e2
+  | CtxSubstE ({ it = VarE (id, args); _ }, e2) ->
+    bound_varid id + det_args_exp args + det_exp e2
   | AtomE _ | BoolE _ | NatE _ | TextE _ | EpsE | CtxHoleE -> empty
   | UnE _ | BinE _ | CmpE _
   | IdxE _ | SliceE _ | UpdE _ | ExtE _ | CommaE _ | CatE _ | MemE _
   | DotE _ | LenE _ | SizeE _ -> idx_exp e
-  | HoleE _ | FuseE _ | UnparenE _ | LatexE _ -> assert false
+  | CtxSubstE _ | HoleE _ | FuseE _ | UnparenE _ | LatexE _ -> assert false
+
+and det_args_exp = function
+  | [] -> empty
+  | hd :: tl ->
+    match !(hd.it) with
+    | ExpA e -> det_exp e + det_args_exp tl
+    | _ -> assert false
 
 and det_expfield (_, e) = det_exp e
 

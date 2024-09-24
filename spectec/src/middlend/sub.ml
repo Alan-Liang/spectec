@@ -148,7 +148,7 @@ and t_exp' env = function
   | SliceE (exp1, exp2, exp3) -> SliceE (t_exp env exp1, t_exp env exp2, t_exp env exp3)
   | UpdE (exp1, path, exp2) -> UpdE (t_exp env exp1, t_path env path, t_exp env exp2)
   | ExtE (exp1, path, exp2) -> ExtE (t_exp env exp1, t_path env path, t_exp env exp2)
-  | CtxSubstE (exp1, exp2) -> CtxSubstE (t_exp env exp1, t_exp env exp2)
+  | CtxSubstE (exp1, exp2s, exp3) -> CtxSubstE (t_exp env exp1, List.map (t_exp env) exp2s, t_exp env exp3)
   | StrE fields -> StrE (List.map (fun (a, e) -> a, t_exp env e) fields)
   | DotE (e, a) -> DotE (t_exp env e, a)
   | CompE (exp1, exp2) -> CompE (t_exp env exp1, t_exp env exp2)

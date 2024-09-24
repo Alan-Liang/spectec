@@ -144,7 +144,7 @@ and subst_exp s e =
   | SliceE (e1, e2, e3) -> SliceE (subst_exp s e1, subst_exp s e2, subst_exp s e3)
   | UpdE (e1, p, e2) -> UpdE (subst_exp s e1, subst_path s p, subst_exp s e2)
   | ExtE (e1, p, e2) -> ExtE (subst_exp s e1, subst_path s p, subst_exp s e2)
-  | CtxSubstE (e1, e2) -> CtxSubstE (subst_exp s e1, subst_exp s e2)
+  | CtxSubstE (e1, e2s, e3) -> CtxSubstE (subst_exp s e1, List.map (subst_exp s) e2s, subst_exp s e3)
   | StrE efs -> StrE (subst_list subst_expfield s efs)
   | DotE (e1, atom) -> DotE (subst_exp s e1, atom)
   | CompE (e1, e2) -> CompE (subst_exp s e1, subst_exp s e2)
