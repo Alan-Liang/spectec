@@ -15,7 +15,9 @@ let nat32 = I32.to_string_u
 let add_hex_char buf c = Printf.bprintf buf "\\%02x" (Char.code c)
 let add_char buf = function
   | '\n' -> Buffer.add_string buf "\\n"
+  | '\r' -> Buffer.add_string buf "\\r"
   | '\t' -> Buffer.add_string buf "\\t"
+  | '\'' -> Buffer.add_string buf "\\'"
   | '\"' -> Buffer.add_string buf "\\\""
   | '\\' -> Buffer.add_string buf "\\\\"
   | c when '\x20' <= c && c < '\x7f' -> Buffer.add_char buf c
@@ -96,11 +98,15 @@ let array_type (ArrayT ft) =
 let func_type (FuncT (ts1, ts2)) =
   Node ("func", decls "param" ts1 @ decls "result" ts2)
 
+let cont_type (ContT ct) =
+  Node ("cont", [atom heap_type ct])
+
 let str_type st =
   match st with
   | DefStructT st -> struct_type st
   | DefArrayT at -> array_type at
   | DefFuncT ft -> func_type ft
+  | DefContT ct -> cont_type ct
 
 let sub_type = function
   | SubT (Final, [], st) -> str_type st
@@ -516,6 +522,16 @@ let rec instr e =
     | ReturnCallRef x -> "return_call_ref " ^ var x, []
     | ReturnCallIndirect (x, y) ->
       "return_call_indirect " ^ var x, [Node ("type " ^ var y, [])]
+    | ContNew x -> "cont.new " ^ var x, []
+    | ContBind (x, y) -> "cont.bind " ^ var x ^ " " ^ var y, []
+    | Suspend x -> "suspend " ^ var x, []
+    | Resume (x, xys) ->
+      "resume " ^ var x,
+      List.map (fun (x, y) -> Node ("on " ^ var x ^ " " ^ var y, [])) xys
+    | ResumeThrow (x, y, xys) ->
+      "resume_throw " ^ var x ^ " " ^ var y,
+      List.map (fun (x, y) -> Node ("on " ^ var x ^ " " ^ var y, [])) xys
+    | Barrier (bt, es) -> "barrier", block_type bt @ list instr es
     | Throw x -> "throw " ^ var x, []
     | ThrowRef -> "throw_ref", []
     | TryTable (bt, cs, es) ->
@@ -714,8 +730,8 @@ let export_desc d =
   | FuncExport x -> Node ("func", [atom var x])
   | TableExport x -> Node ("table", [atom var x])
   | MemoryExport x -> Node ("memory", [atom var x])
-  | TagExport x -> Node ("tag", [atom var x])
   | GlobalExport x -> Node ("global", [atom var x])
+  | TagExport x -> Node ("tag", [atom var x])
 
 let export ex =
   let {name = n; edesc} = ex.it in
@@ -890,10 +906,12 @@ let assertion mode ass =
     [Node ("assert_trap", [definition mode None def; Atom (string re)])]
   | AssertReturn (act, results) ->
     [Node ("assert_return", action mode act :: List.map (result mode) results)]
-  | AssertTrap (act, re) ->
-    [Node ("assert_trap", [action mode act; Atom (string re)])]
   | AssertException act ->
     [Node ("assert_exception", [action mode act])]
+  | AssertTrap (act, re) ->
+    [Node ("assert_trap", [action mode act; Atom (string re)])]
+  | AssertSuspension (act, re) ->
+    [Node ("assert_suspension", [action mode act; Atom (string re)])]
   | AssertExhaustion (act, re) ->
     [Node ("assert_exhaustion", [action mode act; Atom (string re)])]
 
