@@ -403,7 +403,7 @@ let rec step (c : config) : config =
         let hs = handle_table c xls in
         let args, vs' = i32_split (Lib.List32.length ts) vs e.at in
         cont := None;
-        vs', [Handle (Some hs, ctxt (args, [Plain (Throw x) @@ e.at])) @@ e.at]
+        vs', [Handle (Some hs, ctxt ([], [Throwing (tagt, args) @@ e.at])) @@ e.at]
 
       | Switch (x, y), Ref (NullRef _) :: vs ->
          vs, [Trapping "null continuation reference" @@ e.at]
@@ -1279,7 +1279,7 @@ let rec step (c : config) : config =
        let FuncT (_, ts) = func_type_of_tag_type c.frame.inst (Tag.type_of tagt) in
        let ctxt'' code = compose (ctxt' code) (vs', es') in
        let cont' = Ref (ContRef (ref (Some (Int32.add (Lib.List32.length ts) 1l, ctxt'')))) in
-       let args = vs1 @ [cont'] in
+       let args = cont' :: vs1 in
        cont := None;
        vs' @ vs, [Handle (hso, ctxt (args, [])) @@ e.at]
 
