@@ -1460,7 +1460,7 @@ $${rule: Instr_ok/if}
 
 * The tag :math:`C.\CTAGS[x]` must be defined in the context.
 
-* Let :math:`[t^\ast] \to [{t'}^\ast]` be the :ref:`tag type <syntax-tagtype>` :math:`C.\CTAGS[x]`.
+* Let :math:`[t^\ast] \to [{t'}^\ast]` be the :ref:`expansion <aux-expand-deftype>` of the :ref:`tag type <syntax-tagtype>` :math:`C.\CTAGS[x]`.
 
 * The :ref:`result type <syntax-resulttype>` :math:`[{t'}^\ast]` must be empty.
 
@@ -1478,13 +1478,13 @@ $${rule: Catch_ok/catch}
 
 * The tag :math:`C.\CTAGS[x]` must be defined in the context.
 
-* Let :math:`[t^\ast] \to [{t'}^\ast]` be the :ref:`tag type <syntax-tagtype>` :math:`C.\CTAGS[x]`.
+* Let :math:`[t^\ast] \to [{t'}^\ast]` be the :ref:`expansion <aux-expand-deftype>` of the :ref:`tag type <syntax-tagtype>` :math:`C.\CTAGS[x]`.
 
 * The :ref:`result type <syntax-resulttype>` :math:`[{t'}^\ast]` must be empty.
 
 * The label :math:`C.\CLABELS[l]` must be defined in the context.
 
-* The :ref:`result type <syntax-resulttype>` :math:`[t^\ast (REF EXN)]` must :ref:`match <match-resulttype>` :math:`C.\CLABELS[l]`.
+* The :ref:`result type <syntax-resulttype>` :math:`[t^\ast~(\REF~\EXN)]` must :ref:`match <match-resulttype>` :math:`C.\CLABELS[l]`.
 
 * Then the catch clause is valid.
 
@@ -1508,7 +1508,7 @@ $${rule: Catch_ok/catch_all}
 
 * The label :math:`C.\CLABELS[l]` must be defined in the context.
 
-* The :ref:`result type <syntax-resulttype>` :math:`[(REF EXN)]` must :ref:`match <match-resulttype>` :math:`C.\CLABELS[l]`.
+* The :ref:`result type <syntax-resulttype>` :math:`[(\REF~\EXN)]` must :ref:`match <match-resulttype>` :math:`C.\CLABELS[l]`.
 
 * Then the catch clause is valid.
 
@@ -1562,15 +1562,10 @@ $${rule: Instr_ok/br_if}
 
 * There must be a sequence :math:`t^\ast` of :ref:`value types <syntax-valtype>`, such that:
 
-  * The length of the sequence :math:`t^\ast` is the same as the length of the sequence :math:`C.\CLABELS[l_N]`.
+  * The result type :math:`[t^\ast]` :ref:`matches <match-resulttype>` :math:`C.\CLABELS[l_N]`.
 
-  * For each :ref:`operand type <syntax-opdtype>` :math:`t_j` in :math:`t^\ast` and corresponding type :math:`t'_{Nj}` in :math:`C.\CLABELS[l_N]`, :math:`t_j` :ref:`matches <match-opdtype>` :math:`t'_{Nj}`.
-
-  * For each :ref:`label <syntax-label>` :math:`l_i` in :math:`l^\ast`:
-
-    * The length of the sequence :math:`t^\ast` is the same as the length of the sequence :math:`C.\CLABELS[l_i]`.
-
-    * For each :ref:`operand type <syntax-opdtype>` :math:`t_j` in :math:`t^\ast` and corresponding type :math:`t'_{ij}` in :math:`C.\CLABELS[l_i]`, :math:`t_j` :ref:`matches <match-opdtype>` :math:`t'_{ij}`.
+  * For all :math:`l_i` in :math:`l^\ast`,
+    the result type :math:`[t^\ast]` :ref:`matches <match-resulttype>` :math:`C.\CLABELS[l_i]`.
 
 * Then the instruction is valid with any :ref:`valid <valid-instrtype>` type of the form :math:`[t_1^\ast~t^\ast~\I32] \to [t_2^\ast]`.
 
@@ -1668,6 +1663,34 @@ $${rule: Instr_ok/br_on_cast}
 * Then the instruction is valid with type :math:`[t^\ast~\X{rt}_1] \to [t^\ast~\X{rt}_2]`.
 
 $${rule: Instr_ok/br_on_cast_fail}
+
+
+.. _valid-return:
+
+:math:`\RETURN`
+...............
+
+* The return type :math:`C.\CRETURN` must not be absent in the context.
+
+* Let :math:`[t^\ast]` be the :ref:`result type <syntax-resulttype>` of :math:`C.\CRETURN`.
+
+* Then the instruction is valid with any :ref:`valid <valid-instrtype>` type of the form :math:`[t_1^\ast~t^\ast] \to [t_2^\ast]`.
+
+.. math::
+   \frac{
+     C.\CRETURN = [t^\ast]
+     \qquad
+     C \vdashinstrtype [t_1^\ast~t^\ast] \to [t_2^\ast] \ok
+   }{
+     C \vdashinstr \RETURN : [t_1^\ast~t^\ast] \to [t_2^\ast]
+   }
+
+.. note::
+   The |RETURN| instruction is :ref:`stack-polymorphic <polymorphism>`.
+
+   :math:`C.\CRETURN` is absent (set to :math:`\epsilon`) when validating an :ref:`expression <valid-expr>` that is not a function body.
+   This differs from it being set to the empty result type (:math:`[\epsilon]`),
+   which is the case for functions not returning anything.
 
 
 .. _valid-call:
