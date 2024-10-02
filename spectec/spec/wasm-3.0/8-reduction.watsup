@@ -287,8 +287,8 @@ rule Step/cont.new-null:
 rule Step/cont.new-func:
   z; (REF.FUNC_ADDR a) (CONT.NEW y)  ~>  $add_continst(z, cont); (REF.CONT_ADDR ca)
   -- Expand: $type(z, y) ~~ CONT dt
-  -- Expand: dt ~~ FUNC (t_1^n -> t_2*)
-  -- if cont = { CTXT { CTXT eps, STACK eps, CONT (INVOKE dt a) }, BOUND eps, ARITY n }
+  -- Expand: dt ~~ FUNC (t_1* -> t_2*)
+  -- if cont = { CTXT { CTXT eps, STACK eps, CONT (INVOKE dt a) }, BOUND eps }
   -- if ca = |$continst(z)|
 
 rule Step_pure/invoke:
@@ -304,14 +304,16 @@ rule Step/cont.bind-consumed:
 rule Step/cont.bind-cont:
   z; val^n (REF.CONT_ADDR a) (CONT.BIND x y)  ~>  $with_cont(z', a, eps); (REF.CONT_ADDR ca)
   -- if $continst(z)[a] = cont_1
-  -- Expand: $type(z, y) ~~ CONT dt
+  -- Expand: $type(z, x) ~~ CONT dt
   -- Expand: dt ~~ FUNC (t_1* -> t_2*)
-  -- if cont_1 = { CTXT hctx_1, BOUND val'*, ARITY n_1 }
-  -- if n = $(n_1 - |t_1*|)
+  -- Expand: $type(z, y) ~~ CONT dt'
+  -- Expand: dt' ~~ FUNC (t_1'* -> t_2'*)
+  -- if cont_1 = { CTXT hctx_1, BOUND val'* }
+  -- if n = $(|t_1*| - |t_1'*|)
   -- if ca = |$continst(z)|
   ;; FIXME: hack: inlining z', execute with_cont before add_continst, or randomly poking around would break AL
   -- if z' = $add_continst(z, cont_2)
-  -- if cont_2 = { CTXT hctx_1, BOUND val'* val^n, ARITY $(|t_1*|) }
+  -- if cont_2 = { CTXT hctx_1, BOUND val'* val^n }
 
 rule Step/resume-null:
   z; (REF.NULL ht) (RESUME kx hdl*)  ~>  z; TRAP
@@ -322,8 +324,10 @@ rule Step/resume-consumed:
 
 rule Step/resume-cont:
   z; val^n (REF.CONT_ADDR a) (RESUME kx (ON x hdlaction)*)  ~>  $with_cont(z, a, eps); (HANDLE `{ea*} (RESUMING val''* eps hctx))
+  -- Expand: $type(z, kx) ~~ CONT dt
+  -- Expand: dt ~~ FUNC (t_1^n -> t_2*)
   -- if $continst(z)[a] = cont
-  -- if cont = { CTXT hctx, BOUND val'*, ARITY n }
+  -- if cont = { CTXT hctx, BOUND val'* }
   -- if val''* = val'* val^n
   -- if (ea = ON $tagaddr(z)[x] hdlaction)*
 
@@ -338,7 +342,7 @@ rule Step/resume_throw:
   z; val^m (REF.CONT_ADDR a) (RESUME_THROW kx ax (ON x hdlaction)*)  ~>  $with_cont(z', a, eps); (HANDLE `{ea*} (RESUMING val''* THROW_REF hctx))
   ;; extract continuation and actions
   -- if $continst(z)[a] = cont
-  -- if cont = { CTXT hctx, BOUND val'*, ARITY n }
+  -- if cont = { CTXT hctx, BOUND val'* }
   -- if (ea = ON $tagaddr(z)[x] hdlaction)*
   ;; create exception
   -- Expand: $tag(z, ax).TYPE ~~ FUNC (t^m -> eps)
@@ -415,7 +419,7 @@ rule Step/suspending-handle-suspend-skip:
   -- if hctx' = { CTXT (HANDLE `{handle*} v* in*) ctxinstr*, STACK eps, CONT eps }
 
 rule Step/suspending-handle-switch-skip:
-  z; (HANDLE `{handle*} (SUSPENDING tagaddr (RESUME hctx_1 n_1) val'* hctx))  ~>  z; (SUSPENDING tagaddr (RESUME hctx_1 n_1) val'* hctx')
+  z; (HANDLE `{handle*} (SUSPENDING tagaddr (RESUME hctx_1) val'* hctx))  ~>  z; (SUSPENDING tagaddr (RESUME hctx_1) val'* hctx')
   -- if ~ $get_handler_switch(handle*, tagaddr)
   -- if hctx = { CTXT ctxinstr*, STACK v*, CONT in* }
   -- if hctx' = { CTXT (HANDLE `{handle*} v* in*) ctxinstr*, STACK eps, CONT eps }
@@ -423,14 +427,14 @@ rule Step/suspending-handle-switch-skip:
 rule Step/suspending-handle-suspend:
   z; (HANDLE `{handle*} (SUSPENDING tagaddr SUSPEND val^n hctx))  ~>  $add_continst(z, cont); val^n (REF.CONT_ADDR a) (BR l)
   -- if $get_handler_suspend(handle*, tagaddr) = l
-  -- Expand: $taginst(z)[tagaddr].TYPE ~~ FUNC (t_1^n -> t_2^m)
-  -- if cont = { CTXT hctx, BOUND eps, ARITY m }
+  -- Expand: $taginst(z)[tagaddr].TYPE ~~ FUNC (t_1^n -> t_2*)
+  -- if cont = { CTXT hctx, BOUND eps }
   -- if a = |$continst(z)|
 
 rule Step/suspending-handle-switch:
-  z; (HANDLE `{handle*} (SUSPENDING tagaddr (RESUME hctx_1 n_1) val^n hctx))  ~>  $add_continst(z, cont); (HANDLE `{handle*} (RESUMING val'* eps hctx_1))
+  z; (HANDLE `{handle*} (SUSPENDING tagaddr (RESUME hctx_1) val^n hctx))  ~>  $add_continst(z, cont); (HANDLE `{handle*} (RESUMING val'* eps hctx_1))
   -- if $get_handler_switch(handle*, tagaddr)
-  -- if cont = { CTXT hctx, BOUND eps, ARITY n_1 }
+  -- if cont = { CTXT hctx, BOUND eps }
   -- if a = |$continst(z)|
   -- if val'* = val^n (REF.CONT_ADDR a)
 
@@ -442,16 +446,16 @@ rule Step/switch-consumed:
   -- if $continst_iseps($continst(z)[a])
 
 rule Step/switch-cont:
-  z; val^n' (REF.CONT_ADDR a) (SWITCH x xe)  ~>  $with_cont(z, a, eps); (SUSPENDING tagaddr (RESUME hctx m) val''* $empty_hctx)
+  z; val^n (REF.CONT_ADDR a) (SWITCH x xe)  ~>  $with_cont(z, a, eps); (SUSPENDING tagaddr (RESUME hctx) val''* $empty_hctx)
   -- if $continst(z)[a] = cont
-  -- if cont = { CTXT hctx, BOUND val'*, ARITY n }
-  -- if val''* = val'* val^n'
-  -- if n' = $(n - 1)
+  -- if cont = { CTXT hctx, BOUND val'* }
+  -- if val''* = val'* val^n
   -- if tagaddr = $tagaddr(z)[xe]
   -- Expand: $type(z, x) ~~ CONT dt
   -- Expand: dt ~~ FUNC (t_1* (REF nul dt_1) -> te_1*)
   -- Expand: dt_1 ~~ CONT dt_1'
   -- Expand: dt_1' ~~ FUNC (t_2^m -> te_2*)
+  -- if n = |t_1*|
 
 
 ;; Traps

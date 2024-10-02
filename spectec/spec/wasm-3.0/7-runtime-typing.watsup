@@ -37,9 +37,9 @@ rule Ref_type/exn:
 
 rule Ref_type/cont:
   s |- REF.CONT_ADDR a : (REF eps dt)
-  -- if $continst_arity(s.CONTS[a], n)
+  -- if ~ $continst_iseps(s.CONTS[a])
   -- Expand: dt ~~ CONT dt'
-  -- Expand: dt' ~~ FUNC (t_1^n -> t_2*)
+  -- Expand: dt' ~~ FUNC (t_1* -> t_2*)
 
 rule Ref_type/host:
   s |- REF.HOST_ADDR a : (REF eps ANY)

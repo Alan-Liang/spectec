@@ -223,8 +223,3 @@ def $idx_iseps(idx?) = false -- otherwise
 def $continst_iseps(continst?) : bool
 def $continst_iseps(eps) = true
 def $continst_iseps(continst?) = false -- otherwise
-
-def $continst_arity(continst?, nat) : bool
-def $continst_arity(eps, n) = true
-def $continst_arity(continst, n) = true -- if continst.ARITY = n
-def $continst_arity(continst?, n) = false -- otherwise
