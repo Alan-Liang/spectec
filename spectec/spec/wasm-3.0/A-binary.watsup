@@ -160,8 +160,8 @@ grammar Bcomptype : comptype =
   | 0x60 t_1*:Bresulttype t_2*:Bresulttype => FUNC (t_1* -> t_2*)
 
 grammar Bsubtype : subtype =
-  | 0x4F x*:Blist(Btypeidx) ct:Bcomptype => SUB FINAL $idx(x)* ct
-  | 0x50 x*:Blist(Btypeidx) ct:Bcomptype => SUB $idx(x)* ct
+  | 0x4F x*:Blist(Btypeidx) ct:Bcomptype => SUB FINAL (_IDX x)* ct
+  | 0x50 x*:Blist(Btypeidx) ct:Bcomptype => SUB (_IDX x)* ct
   | ct:Bcomptype => SUB FINAL eps ct
 
 grammar Brectype : rectype =
@@ -189,11 +189,11 @@ grammar Btagtype : typeidx =
 
 
 grammar Bexterntype : externtype =
-  | 0x00 x:Btypeidx => FUNC $idx(x)
+  | 0x00 x:Btypeidx => FUNC (_IDX x)
   | 0x01 tt:Btabletype => TABLE tt
   | 0x02 mt:Bmemtype => MEM mt
   | 0x03 gt:Bglobaltype => GLOBAL gt
-  | 0x04 x:Btagtype => TAG $idx(x)
+  | 0x04 x:Btagtype => TAG (_IDX x)
 
 
 ;;
@@ -217,9 +217,6 @@ grammar Binstr/control : instr =
   | 0x03 bt:Bblocktype (in:Binstr)* 0x0B => LOOP bt in*
   | 0x04 bt:Bblocktype (in:Binstr)* 0x0B => IF bt in* ELSE eps
   | 0x04 bt:Bblocktype (in_1:Binstr)*
-    ;; TODO(2, rossberg): do not require 2 empty lines
-
-
     0x05 (in_2:Binstr)* 0x0B => IF bt in_1* ELSE in_2*
   | 0x08 x:Btagidx => THROW x
   | 0x0A => THROW_REF
@@ -228,11 +225,10 @@ grammar Binstr/control : instr =
   | 0x0E l*:Blist(Blabelidx) l_n:Blabelidx => BR_TABLE l* l_n
   | 0x0F => RETURN
   | 0x10 x:Bfuncidx => CALL x
-  | 0x11 y:Btypeidx x:Btableidx => CALL_INDIRECT x $idx(y)
+  | 0x11 y:Btypeidx x:Btableidx => CALL_INDIRECT x (_IDX y)
   | 0x12 x:Bfuncidx => RETURN_CALL x
-  | 0x13 y:Btypeidx x:Btableidx => RETURN_CALL_INDIRECT x $idx(y)
-  | 0x1F bt:Bblocktype c*:Blist(Bcatch) (in:Binstr)* 0x0B =>
-      TRY_TABLE bt c* in*
+  | 0x13 y:Btypeidx x:Btableidx => RETURN_CALL_INDIRECT x (_IDX y)
+  | 0x1F bt:Bblocktype c*:Blist(Bcatch) (in:Binstr)* 0x0B => TRY_TABLE bt c* in*
   | ...
 
 grammar Bcatch : catch =
@@ -294,14 +290,8 @@ grammar Binstr/cast : instr = ...
   | 0xFB 22:Bu32 ht:Bheaptype => REF.CAST (REF ht)
   | 0xFB 23:Bu32 ht:Bheaptype => REF.CAST (REF NULL ht)
   | 0xFB 24:Bu32 (nul1, nul2):Bcastop
-    ;; TODO(2, rossberg): do not require 2 empty lines
-
-
     l:Blabelidx ht_1:Bheaptype ht_2:Bheaptype => BR_ON_CAST l (REF nul1 ht_1) (REF nul2 ht_2)
   | 0xFB 25:Bu32 (nul1, nul2):Bcastop
-    ;; TODO(2, rossberg): do not require 2 empty lines
-
-
     l:Blabelidx ht_1:Bheaptype ht_2:Bheaptype => BR_ON_CAST_FAIL l (REF nul1 ht_1) (REF nul2 ht_2)
   | ...
 
@@ -1170,69 +1160,26 @@ grammar Btagsec : tag* hint(desc "tag section") =
 
 ;; Modules
 
-;; TODO(2, rossberg): avoid double empty lines
 grammar Bmagic : () = 0x00 0x61 0x73 0x6D => ()
 grammar Bversion : () = 0x01 0x00 0x00 0x00 => ()
 grammar Bmodule : module =
-  | Bmagic
-    Bversion
-
-
-    Bcustomsec*
-    type*:Btypesec
-
-
-    Bcustomsec*
-    import*:Bimportsec
-
-
-    Bcustomsec*
-    typeidx*:Bfuncsec
-
-
-    Bcustomsec*
-    table*:Btablesec
-
-
-    Bcustomsec*
-    mem*:Bmemsec
-
-
-    Bcustomsec*
-    tag*:Btagsec
-
-
-    Bcustomsec*
-    global*:Bglobalsec
-
-
-    Bcustomsec*
-    export*:Bexportsec
-
-
-    Bcustomsec*
-    start?:Bstartsec
-
-
-    Bcustomsec*
-    elem*:Belemsec
-
-
-    Bcustomsec*
-    n?:Bdatacntsec
-
-
-    Bcustomsec*
-    (local*, expr)*:Bcodesec
-
-
-    Bcustomsec*
-    data*:Bdatasec
-
-
+  | Bmagic Bversion
+    Bcustomsec* type*:Btypesec
+    Bcustomsec* import*:Bimportsec
+    Bcustomsec* typeidx*:Bfuncsec
+    Bcustomsec* table*:Btablesec
+    Bcustomsec* mem*:Bmemsec
+    Bcustomsec* tag*:Btagsec
+    Bcustomsec* global*:Bglobalsec
+    Bcustomsec* export*:Bexportsec
+    Bcustomsec* start?:Bstartsec
+    Bcustomsec* elem*:Belemsec
+    Bcustomsec* n?:Bdatacntsec
+    Bcustomsec* (local*, expr)*:Bcodesec
+    Bcustomsec* data*:Bdatasec
     Bcustomsec* =>
       MODULE type* import* func* global* table* mem* tag* elem* data* start? export*
     ----
     -- (if n = |data*|)?
-    -- if n? =/= eps \/ $dataidx_funcs(func*) = eps
+    -- if (n? =/= eps \/ $dataidx_funcs(func*) = eps)
     -- (if func = FUNC typeidx local* expr)*

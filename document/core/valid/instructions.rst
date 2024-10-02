@@ -1484,7 +1484,7 @@ $${rule: Catch_ok/catch}
 
 * The label :math:`C.\CLABELS[l]` must be defined in the context.
 
-* The :ref:`result type <syntax-resulttype>` :math:`[t^\ast~(\REF~\EXN)]` must :ref:`match <match-resulttype>` :math:`C.\CLABELS[l]`.
+* The :ref:`result type <syntax-resulttype>` :math:`[t^\ast (\REF~\EXN)]` must :ref:`match <match-resulttype>` :math:`C.\CLABELS[l]`.
 
 * Then the catch clause is valid.
 
@@ -1513,7 +1513,6 @@ $${rule: Catch_ok/catch_all}
 * Then the catch clause is valid.
 
 $${rule: Catch_ok/catch_all_ref}
-
 
 
 .. _valid-br:
@@ -1663,34 +1662,6 @@ $${rule: Instr_ok/br_on_cast}
 * Then the instruction is valid with type :math:`[t^\ast~\X{rt}_1] \to [t^\ast~\X{rt}_2]`.
 
 $${rule: Instr_ok/br_on_cast_fail}
-
-
-.. _valid-return:
-
-:math:`\RETURN`
-...............
-
-* The return type :math:`C.\CRETURN` must not be absent in the context.
-
-* Let :math:`[t^\ast]` be the :ref:`result type <syntax-resulttype>` of :math:`C.\CRETURN`.
-
-* Then the instruction is valid with any :ref:`valid <valid-instrtype>` type of the form :math:`[t_1^\ast~t^\ast] \to [t_2^\ast]`.
-
-.. math::
-   \frac{
-     C.\CRETURN = [t^\ast]
-     \qquad
-     C \vdashinstrtype [t_1^\ast~t^\ast] \to [t_2^\ast] \ok
-   }{
-     C \vdashinstr \RETURN : [t_1^\ast~t^\ast] \to [t_2^\ast]
-   }
-
-.. note::
-   The |RETURN| instruction is :ref:`stack-polymorphic <polymorphism>`.
-
-   :math:`C.\CRETURN` is absent (set to :math:`\epsilon`) when validating an :ref:`expression <valid-expr>` that is not a function body.
-   This differs from it being set to the empty result type (:math:`[\epsilon]`),
-   which is the case for functions not returning anything.
 
 
 .. _valid-call:

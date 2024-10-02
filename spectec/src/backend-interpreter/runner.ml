@@ -130,10 +130,10 @@ let get_global_value module_name globalname =
 let instantiate module_ =
   log "[Instantiating module...]\n";
 
-  let al_module = al_of_module module_ in
-  let externaddrs = List.map get_externaddr module_.it.imports in
-
-  Interpreter.instantiate [ al_module; listV_of_list externaddrs ]
+  match al_of_module module_, List.map get_externaddr module_.it.imports with
+  | exception _ -> raise Exception.Invalid
+  | al_module, externaddrs ->
+    Interpreter.instantiate [ al_module; listV_of_list externaddrs ]
 
 
 (** Wast runner **)
@@ -164,18 +164,32 @@ let test_assertion assertion =
       fail
     with Exception.Trap -> success
   )
-  | AssertUninstantiable (def, re) -> (
+  | AssertUninstantiable (var_opt, re) -> (
     try
-      def |> module_of_def |> instantiate |> ignore;
+      Modules.find (Modules.get_module_name var_opt) |> instantiate |> ignore;
       Run.assert_message assertion.at "instantiation" "module instance" re;
       fail
     with Exception.Trap -> success
   )
-  | AssertException action -> (
-    match run_action action with
+  | AssertException action ->
+    (match run_action action with
     | exception Exception.Throw -> success
     | _ -> Assert.error assertion.at "expected exception"
-  )
+    )
+  | AssertInvalid (def, re) when !Construct.version = 3 ->
+    (match def |> module_of_def |> instantiate |> ignore with
+    | exception Exception.Invalid -> success
+    | _ ->
+      Run.assert_message assertion.at "validation" "module instance" re;
+      fail
+    )
+  | AssertInvalidCustom (def, re) when !Construct.version = 3 ->
+    (match def |> module_of_def |> instantiate |> ignore with
+    | exception Exception.Invalid -> success
+    | _ ->
+      Run.assert_message assertion.at "validation" "module instance" re;
+      fail
+    )
   (* ignore other kinds of assertions *)
   | _ -> pass
 
@@ -184,8 +198,12 @@ let run_command' command =
   | Module (var_opt, def) ->
     def
     |> module_of_def
+    |> Modules.add_with_var var_opt;
+    success
+  | Instance (var1_opt, var2_opt) ->
+    Modules.find (Modules.get_module_name var2_opt)
     |> instantiate
-    |> Register.add_with_var var_opt;
+    |> Register.add_with_var var1_opt;
     success
   | Register (modulename, var_opt) ->
     let moduleinst = Register.find (Register.get_module_name var_opt) in

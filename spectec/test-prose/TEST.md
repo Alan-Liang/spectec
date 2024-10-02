@@ -17,7 +17,7 @@ watsup 0.4 generator
 == Translating to AL...
 == Prose Generation...
 
-* :math:`(n, m)` is valid with type :math:`k` if and only if:
+* :math:`({}[~n~..~m~])` is valid with type :math:`k` if and only if:
 
 
    * :math:`n` must be less than or equal to :math:`m`.
@@ -67,7 +67,7 @@ watsup 0.4 generator
       * :math:`{\mathit{memtype}}` is valid.
 
 
-* :math:`(n_{11}, n_{12})` matches :math:`(n_{21}, n_{22})` if and only if:
+* :math:`({}[~n_{11}~..~n_{12}~])` matches :math:`({}[~n_{21}~..~n_{22}~])` if and only if:
 
 
    * :math:`n_{11}` must be greater than or equal to :math:`n_{21}`.
@@ -301,7 +301,7 @@ watsup 0.4 generator
 
    * :math:`{|C{.}\mathsf{mems}|}` must be greater than :math:`0`.
 
-   * :math:`{n^?}` is :math:`\epsilon` if and only if :math:`{{\mathit{sx}}^?}` is :math:`\epsilon`.
+   * :math:`{\mathit{n?}}` is :math:`\epsilon` if and only if :math:`{\mathit{sx?}}` is :math:`\epsilon`.
 
    * :math:`C{.}\mathsf{mems}{}[0]` must be equal to :math:`{\mathit{mt}}`.
 
@@ -359,7 +359,7 @@ watsup 0.4 generator
 
       * :math:`{\mathit{instr}}_1` is valid with type :math:`({t_1^\ast}~\rightarrow~{t_2^\ast})`.
 
-      * :math:`{\mathit{instr}}_2` is valid with type :math:`({t_2^\ast}~\rightarrow~{t_3^\ast})`.   * Or:
+      * :math:`{{\mathit{instr}}_2^\ast}` is valid with type :math:`({t_2^\ast}~\rightarrow~{t_3^\ast})`.   * Or:
 
       * :math:`{{\mathit{instr}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}^\ast}` must be equal to :math:`{{\mathit{instr}}^\ast}`.
 
@@ -445,7 +445,7 @@ watsup 0.4 generator
 
    * :math:`{|C{.}\mathsf{tables}|}` must be greater than :math:`0`.
 
-   * :math:`{|{x^\ast}|}` must be equal to :math:`{|{{\mathit{ft}}^\ast}|}`.
+   * :math:`{|{\mathit{x*}}|}` must be equal to :math:`{|{\mathit{ft*}}|}`.
 
    * For all :math:`x` in :math:`{x^\ast}`,
 
@@ -537,19 +537,19 @@ watsup 0.4 generator
 * :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\ast}~{{\mathit{func}}^\ast}~{{\mathit{global}}^\ast}~{{\mathit{table}}^\ast}~{{\mathit{mem}}^\ast}~{{\mathit{elem}}^\ast}~{{\mathit{data}}^\ast}~{{\mathit{start}}^?}~{{\mathit{export}}^\ast})` is valid if and only if:
 
 
-   * :math:`{|{{\mathit{type}}^\ast}|}` must be equal to :math:`{|{{\mathit{ft}'}^\ast}|}`.
+   * :math:`{|{\mathit{type*}}|}` must be equal to :math:`{|{\mathit{ft'*}}|}`.
 
-   * :math:`{|{{\mathit{ixt}}^\ast}|}` must be equal to :math:`{|{{\mathit{import}}^\ast}|}`.
+   * :math:`{|{\mathit{ixt*}}|}` must be equal to :math:`{|{\mathit{import*}}|}`.
 
-   * :math:`{|{{\mathit{gt}}^\ast}|}` must be equal to :math:`{|{{\mathit{global}}^\ast}|}`.
+   * :math:`{|{\mathit{gt*}}|}` must be equal to :math:`{|{\mathit{global*}}|}`.
 
-   * :math:`{|{{\mathit{func}}^\ast}|}` must be equal to :math:`{|{{\mathit{ft}}^\ast}|}`.
+   * :math:`{|{\mathit{func*}}|}` must be equal to :math:`{|{\mathit{ft*}}|}`.
 
-   * :math:`{|{{\mathit{tt}}^\ast}|}` must be equal to :math:`{|{{\mathit{table}}^\ast}|}`.
+   * :math:`{|{\mathit{tt*}}|}` must be equal to :math:`{|{\mathit{table*}}|}`.
 
-   * :math:`{|{{\mathit{mt}}^\ast}|}` must be equal to :math:`{|{{\mathit{mem}}^\ast}|}`.
+   * :math:`{|{\mathit{mt*}}|}` must be equal to :math:`{|{\mathit{mem*}}|}`.
 
-   * :math:`{|{{\mathit{xt}}^\ast}|}` must be equal to :math:`{|{{\mathit{export}}^\ast}|}`.
+   * :math:`{|{\mathit{xt*}}|}` must be equal to :math:`{|{\mathit{export*}}|}`.
 
    * For all :math:`{\mathit{ft}'}` in :math:`{{\mathit{ft}'}^\ast}` and :math:`{\mathit{type}}` in :math:`{{\mathit{type}}^\ast}`,
 
@@ -681,9 +681,9 @@ watsup 0.4 generator
 
 1. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
-#. Assert: Due to validation, a label is now on the top of the stack.
+#. Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{label}`.
 
-#. Pop the current label from the stack.
+#. Pop the current :math:`\mathsf{label}` context from the stack.
 
 #. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
 
@@ -692,17 +692,9 @@ watsup 0.4 generator
 .............................................................
 
 
-1. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+1. Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{label}`.
 
-#. Assert: Due to validation, the top of the stack is a :math:`\mathsf{label}`.
-
-#. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
-
-#. Let :math:`L` be the current label.
-
-#. Let :math:`n` be the arity of :math:`L`.
-
-#. Let :math:`{{\mathit{instr}'}^\ast}` be the continuation of :math:`L`.
+#. Let :math:`({{\mathsf{label}}_{n}}{\{}~{{\mathit{instr}'}^\ast}~\})` be the current :math:`\mathsf{label}` context.
 
 #. If :math:`n_{\mathit{u{\kern-0.1em\scriptstyle 0}}}` is :math:`0`, then:
 
@@ -712,7 +704,7 @@ watsup 0.4 generator
 
    #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
 
-   #. Pop the current label from the stack.
+   #. Pop the current :math:`\mathsf{label}` context from the stack.
 
    #. Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
 
@@ -726,7 +718,7 @@ watsup 0.4 generator
 
       1) Let :math:`l` be :math:`n_{\mathit{u{\kern-0.1em\scriptstyle 0}}} - 1`.
 
-      #) Pop the current label from the stack.
+      #) Pop the current :math:`\mathsf{label}` context from the stack.
 
       #) Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
 
@@ -771,9 +763,7 @@ watsup 0.4 generator
 ......................
 
 
-1. Let :math:`f` be the current frame.
-
-#. Let :math:`n` be the arity of :math:`f`.
+1. Let :math:`({{\mathsf{frame}}_{n}}{\{}~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
@@ -781,9 +771,9 @@ watsup 0.4 generator
 
 #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
 
-#. Assert: Due to validation, a frame is now on the top of the stack.
+#. Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{frame}`.
 
-#. Pop the current frame from the stack.
+#. Pop the current :math:`\mathsf{frame}` context from the stack.
 
 #. Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
 
@@ -792,15 +782,9 @@ watsup 0.4 generator
 .......................
 
 
-1. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+1. If the first non-value entry of the stack is a :math:`\mathsf{frame}`, then:
 
-#. If the top of the stack is a :math:`\mathsf{frame}`, then:
-
-   a. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
-
-   #. Let :math:`f` be the current frame.
-
-   #. Let :math:`n` be the arity of :math:`f`.
+   a. Let :math:`({{\mathsf{frame}}_{n}}{\{}~f~\})` be the current :math:`\mathsf{frame}` context.
 
    #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
@@ -808,17 +792,15 @@ watsup 0.4 generator
 
    #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
 
-   #. Pop the current frame from the stack.
+   #. Pop the current :math:`\mathsf{frame}` context from the stack.
 
    #. Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
 
-#. Else if the top of the stack is a :math:`\mathsf{label}`, then:
+#. Else if the first non-value entry of the stack is a :math:`\mathsf{label}`, then:
 
-   a. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
+   a. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
-   #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
-
-   #. Pop the current label from the stack.
+   #. Pop the current :math:`\mathsf{label}` context from the stack.
 
    #. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
 
@@ -829,11 +811,9 @@ watsup 0.4 generator
 .............................
 
 
-1. Assert: Due to validation, a value of value type :math:`{\mathit{valtype}}_0` is on the top of the stack.
+1. Assert: Due to validation, a value of value type :math:`t` is on the top of the stack.
 
 #. Pop the value :math:`({\mathit{valtype}}_0{.}\mathsf{const}~c_1)` from the stack.
-
-#. Assert: Due to validation, :math:`{\mathit{valtype}}_0` is :math:`t`.
 
 #. If :math:`{|{{\mathit{unop}}}{{}_{t}}{(c_1)}|}` is less than or equal to :math:`0`, then:
 
@@ -848,11 +828,9 @@ watsup 0.4 generator
 ..............................
 
 
-1. Assert: Due to validation, a value of value type :math:`{\mathit{valtype}}_0` is on the top of the stack.
+1. Assert: Due to validation, a value of value type :math:`t` is on the top of the stack.
 
 #. Pop the value :math:`({\mathit{valtype}}_0{.}\mathsf{const}~c_2)` from the stack.
-
-#. Assert: Due to validation, :math:`{\mathit{valtype}}_0` is :math:`t`.
 
 #. Assert: Due to validation, a value of value type :math:`{\mathit{valtype}}_0` is on the top of the stack.
 
@@ -871,11 +849,9 @@ watsup 0.4 generator
 ...............................
 
 
-1. Assert: Due to validation, a value of value type :math:`{\mathit{valtype}}_0` is on the top of the stack.
+1. Assert: Due to validation, a value of value type :math:`t` is on the top of the stack.
 
 #. Pop the value :math:`({\mathit{valtype}}_0{.}\mathsf{const}~c_1)` from the stack.
-
-#. Assert: Due to validation, :math:`{\mathit{valtype}}_0` is :math:`t`.
 
 #. Let :math:`c` be :math:`{{\mathit{testop}}}{{}_{t}}{(c_1)}`.
 
@@ -886,11 +862,9 @@ watsup 0.4 generator
 ..............................
 
 
-1. Assert: Due to validation, a value of value type :math:`{\mathit{valtype}}_0` is on the top of the stack.
+1. Assert: Due to validation, a value of value type :math:`t` is on the top of the stack.
 
 #. Pop the value :math:`({\mathit{valtype}}_0{.}\mathsf{const}~c_2)` from the stack.
-
-#. Assert: Due to validation, :math:`{\mathit{valtype}}_0` is :math:`t`.
 
 #. Assert: Due to validation, a value of value type :math:`{\mathit{valtype}}_0` is on the top of the stack.
 
@@ -905,11 +879,9 @@ watsup 0.4 generator
 ....................................................
 
 
-1. Assert: Due to validation, a value of value type :math:`{\mathit{valtype}}_0` is on the top of the stack.
+1. Assert: Due to validation, a value of value type :math:`t_1` is on the top of the stack.
 
 #. Pop the value :math:`({\mathit{valtype}}_0{.}\mathsf{const}~c_1)` from the stack.
-
-#. Assert: Due to validation, :math:`{\mathit{valtype}}_0` is :math:`t_1`.
 
 #. If :math:`{|{{\mathit{cvtop}}}{{}_{t_1, t_2}}{(c_1)}|}` is less than or equal to :math:`0`, then:
 
@@ -943,26 +915,20 @@ watsup 0.4 generator
 
 #. If :math:`{t^?}` is not defined, then:
 
-   a. Let :math:`L` be the label whose arity is :math:`n` and whose continuation is :math:`\epsilon`.
-
-   #. Enter :math:`{{\mathit{instr}}^\ast}` with label :math:`L`.
+   a. Enter :math:`{{\mathit{instr}}^\ast}` with label :math:`({{\mathsf{label}}_{n}}{\{}~\epsilon~\})`.
 
 #. Let :math:`n` be :math:`1`.
 
 #. If :math:`{t^?}` is not :math:`\epsilon`, then:
 
-   a. Let :math:`L` be the label whose arity is :math:`n` and whose continuation is :math:`\epsilon`.
-
-   #. Enter :math:`{{\mathit{instr}}^\ast}` with label :math:`L`.
+   a. Enter :math:`{{\mathit{instr}}^\ast}` with label :math:`({{\mathsf{label}}_{n}}{\{}~\epsilon~\})`.
 
 
 :math:`\mathsf{loop}~{t^?}~{{\mathit{instr}}^\ast}`
 ...................................................
 
 
-1. Let :math:`L` be the label whose arity is :math:`0` and whose continuation is :math:`(\mathsf{loop}~{t^?}~{{\mathit{instr}}^\ast})`.
-
-#. Enter :math:`{{\mathit{instr}}^\ast}` with label :math:`L`.
+1. Enter :math:`{{\mathit{instr}}^\ast}` with label :math:`({{\mathsf{label}}_{0}}{\{}~(\mathsf{loop}~{t^?}~{{\mathit{instr}}^\ast})~\})`.
 
 
 :math:`\mathsf{call}~x`
@@ -1023,21 +989,17 @@ watsup 0.4 generator
 
 #. Assert: Due to validation, :math:`{\mathit{func}}` is of the case :math:`\mathsf{func}`.
 
-#. Let :math:`(\mathsf{func}~x~{\mathit{local}}_0~{{\mathit{instr}}^\ast})` be :math:`{\mathit{func}}`.
+#. Let :math:`(\mathsf{func}~x~{{\mathit{local}}_0^\ast}~{{\mathit{instr}}^\ast})` be :math:`{\mathit{func}}`.
 
-#. Assert: Due to validation, :math:`{\mathit{local}}_0` is of the case :math:`\mathsf{local}`.
+#. Assert: Due to validation, for all :math:`{({\mathit{local}}_0)^\ast}`, :math:`{\mathit{local}}_0` is of the case :math:`\mathsf{local}`.
 
-#. Let :math:`{(\mathsf{local}~t)^\ast}` be :math:`{\mathit{local}}_0`.
+#. Let :math:`{(\mathsf{local}~t)^\ast}` be :math:`{{\mathit{local}}_0^\ast}`.
 
 #. Let :math:`f` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{locals}~{{\mathit{val}}^{k}}~{{{\mathrm{default}}}_{t}^\ast},\; \mathsf{module}~{\mathit{mm}} \}\end{array}`.
 
-#. Let :math:`F` be the activation of :math:`f` with arity :math:`n`.
+#. Push the evaluation context :math:`({{\mathsf{frame}}_{n}}{\{}~f~\})` to the stack.
 
-#. Push :math:`F` to the stack.
-
-#. Let :math:`L` be the label whose arity is :math:`n` and whose continuation is :math:`\epsilon`.
-
-#. Enter :math:`{{\mathit{instr}}^\ast}` with label :math:`L`.
+#. Enter :math:`{{\mathit{instr}}^\ast}` with label :math:`({{\mathsf{label}}_{n}}{\{}~\epsilon~\})`.
 
 
 :math:`\mathsf{local{.}get}~x`
@@ -2132,7 +2094,7 @@ watsup 0.4 generator
 ........................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`f`.
 
@@ -2141,7 +2103,7 @@ watsup 0.4 generator
 ...........................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`f{.}\mathsf{module}{.}\mathsf{funcs}`.
 
@@ -2178,7 +2140,7 @@ watsup 0.4 generator
 .............................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`f{.}\mathsf{module}`.
 
@@ -2187,7 +2149,7 @@ watsup 0.4 generator
 ..........................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`f{.}\mathsf{module}{.}\mathsf{types}{}[x]`.
 
@@ -2196,7 +2158,7 @@ watsup 0.4 generator
 ..........................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`s{.}\mathsf{funcs}{}[f{.}\mathsf{module}{.}\mathsf{funcs}{}[x]]`.
 
@@ -2205,7 +2167,7 @@ watsup 0.4 generator
 ............................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`s{.}\mathsf{globals}{}[f{.}\mathsf{module}{.}\mathsf{globals}{}[x]]`.
 
@@ -2214,7 +2176,7 @@ watsup 0.4 generator
 ...........................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]`.
 
@@ -2223,7 +2185,7 @@ watsup 0.4 generator
 .........................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]`.
 
@@ -2232,7 +2194,7 @@ watsup 0.4 generator
 ...........................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`f{.}\mathsf{locals}{}[x]`.
 
@@ -2241,7 +2203,7 @@ watsup 0.4 generator
 ..............................................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Replace :math:`f{.}\mathsf{locals}{}[x]` with :math:`v`.
 
@@ -2250,7 +2212,7 @@ watsup 0.4 generator
 ...............................................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Replace :math:`s{.}\mathsf{globals}{}[f{.}\mathsf{module}{.}\mathsf{globals}{}[x]]{.}\mathsf{value}` with :math:`v`.
 
@@ -2259,7 +2221,7 @@ watsup 0.4 generator
 .................................................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Replace :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]{.}\mathsf{refs}{}[i]` with :math:`a`.
 
@@ -2268,7 +2230,7 @@ watsup 0.4 generator
 ..............................................................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Replace :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]` with :math:`{\mathit{ti}}`.
 
@@ -2277,7 +2239,7 @@ watsup 0.4 generator
 .........................................................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Replace :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]{.}\mathsf{bytes}{}[i : j]` with :math:`{b^\ast}`.
 
@@ -2286,7 +2248,7 @@ watsup 0.4 generator
 ............................................................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Replace :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]` with :math:`{\mathit{mi}}`.
 
@@ -2295,13 +2257,13 @@ watsup 0.4 generator
 ..............................................
 
 
-1. Let :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~(i, j),\; \mathsf{refs}~{a^\ast} \}\end{array}` be :math:`{\mathit{ti}}`.
+1. Let :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~({}[~i~..~j~]),\; \mathsf{refs}~{a^\ast} \}\end{array}` be :math:`{\mathit{ti}}`.
 
 #. Let :math:`{i'}` be :math:`{|{a^\ast}|} + n`.
 
 #. If :math:`{i'}` is less than or equal to :math:`j`, then:
 
-   a. Let :math:`{\mathit{ti}'}` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~({i'}, j),\; \mathsf{refs}~{a^\ast}~{\epsilon^{n}} \}\end{array}`.
+   a. Let :math:`{\mathit{ti}'}` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~({}[~{i'}~..~j~]),\; \mathsf{refs}~{a^\ast}~{\epsilon^{n}} \}\end{array}`.
 
    #. Return :math:`{\mathit{ti}'}`.
 
@@ -2310,13 +2272,13 @@ watsup 0.4 generator
 ...............................................
 
 
-1. Let :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~(i, j),\; \mathsf{bytes}~{b^\ast} \}\end{array}` be :math:`{\mathit{mi}}`.
+1. Let :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~({}[~i~..~j~]),\; \mathsf{bytes}~{b^\ast} \}\end{array}` be :math:`{\mathit{mi}}`.
 
 #. Let :math:`{i'}` be :math:`{|{b^\ast}|} / 64 \, {\mathrm{Ki}} + n`.
 
 #. If :math:`{i'}` is less than or equal to :math:`j`, then:
 
-   a. Let :math:`{\mathit{mi}'}` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~({i'}, j),\; \mathsf{bytes}~{b^\ast}~{0^{n \cdot 64 \, {\mathrm{Ki}}}} \}\end{array}`.
+   a. Let :math:`{\mathit{mi}'}` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~({}[~{i'}~..~j~]),\; \mathsf{bytes}~{b^\ast}~{0^{n \cdot 64 \, {\mathrm{Ki}}}} \}\end{array}`.
 
    #. Return :math:`{\mathit{mi}'}`.
 
@@ -2477,11 +2439,11 @@ watsup 0.4 generator
    #. Return :math:`{\mathit{ga}}~{{\mathit{ga}'}^\ast}`.
 
 
-:math:`{\mathrm{alloctable}}((i, j))`
-.....................................
+:math:`{\mathrm{alloctable}}(({}[~i~..~j~]))`
+.............................................
 
 
-1. Let :math:`{\mathit{ti}}` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~(i, j),\; \mathsf{refs}~{\epsilon^{i}} \}\end{array}`.
+1. Let :math:`{\mathit{ti}}` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~({}[~i~..~j~]),\; \mathsf{refs}~{\epsilon^{i}} \}\end{array}`.
 
 #. Let :math:`a` be :math:`{|s{.}\mathsf{tables}|}`.
 
@@ -2507,11 +2469,11 @@ watsup 0.4 generator
 #. Return :math:`{\mathit{ta}}~{{\mathit{ta}'}^\ast}`.
 
 
-:math:`{\mathrm{allocmem}}((i, j))`
-...................................
+:math:`{\mathrm{allocmem}}(({}[~i~..~j~]))`
+...........................................
 
 
-1. Let :math:`{\mathit{mi}}` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~(i, j),\; \mathsf{bytes}~{0^{i \cdot 64 \, {\mathrm{Ki}}}} \}\end{array}`.
+1. Let :math:`{\mathit{mi}}` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~({}[~i~..~j~]),\; \mathsf{bytes}~{0^{i \cdot 64 \, {\mathrm{Ki}}}} \}\end{array}`.
 
 #. Let :math:`a` be :math:`{|s{.}\mathsf{mems}|}`.
 
@@ -2580,23 +2542,23 @@ watsup 0.4 generator
 
 #. Assert: Due to validation, :math:`{\mathit{module}}` is of the case :math:`\mathsf{module}`.
 
-#. Let :math:`(\mathsf{module}~{\mathit{type}}_0~{{\mathit{import}}^\ast}~{{\mathit{func}}^{n_{\mathit{func}}}}~{\mathit{global}}_1~{\mathit{table}}_2~{\mathit{mem}}_3~{{\mathit{elem}}^\ast}~{{\mathit{data}}^\ast}~{{\mathit{start}}^?}~{{\mathit{export}}^\ast})` be :math:`{\mathit{module}}`.
+#. Let :math:`(\mathsf{module}~{{\mathit{type}}_0^\ast}~{{\mathit{import}}^\ast}~{{\mathit{func}}^{n_{\mathit{func}}}}~{{\mathit{global}}_1^{n_{\mathit{global}}}}~{{\mathit{table}}_2^{n_{\mathit{table}}}}~{{\mathit{mem}}_3^{n_{\mathit{mem}}}}~{{\mathit{elem}}^\ast}~{{\mathit{data}}^\ast}~{{\mathit{start}}^?}~{{\mathit{export}}^\ast})` be :math:`{\mathit{module}}`.
 
-#. Assert: Due to validation, :math:`{\mathit{mem}}_3` is of the case :math:`\mathsf{memory}`.
+#. Assert: Due to validation, for all :math:`{({\mathit{mem}}_3)^{n_{\mathit{mem}}}}`, :math:`{\mathit{mem}}_3` is of the case :math:`\mathsf{memory}`.
 
-#. Let :math:`{(\mathsf{memory}~{\mathit{memtype}})^{n_{\mathit{mem}}}}` be :math:`{\mathit{mem}}_3`.
+#. Let :math:`{(\mathsf{memory}~{\mathit{memtype}})^{n_{\mathit{mem}}}}` be :math:`{{\mathit{mem}}_3^{n_{\mathit{mem}}}}`.
 
-#. Assert: Due to validation, :math:`{\mathit{table}}_2` is of the case :math:`\mathsf{table}`.
+#. Assert: Due to validation, for all :math:`{({\mathit{table}}_2)^{n_{\mathit{table}}}}`, :math:`{\mathit{table}}_2` is of the case :math:`\mathsf{table}`.
 
-#. Let :math:`{(\mathsf{table}~{\mathit{tabletype}})^{n_{\mathit{table}}}}` be :math:`{\mathit{table}}_2`.
+#. Let :math:`{(\mathsf{table}~{\mathit{tabletype}})^{n_{\mathit{table}}}}` be :math:`{{\mathit{table}}_2^{n_{\mathit{table}}}}`.
 
-#. Assert: Due to validation, :math:`{\mathit{global}}_1` is of the case :math:`\mathsf{global}`.
+#. Assert: Due to validation, for all :math:`{({\mathit{global}}_1)^{n_{\mathit{global}}}}`, :math:`{\mathit{global}}_1` is of the case :math:`\mathsf{global}`.
 
-#. Let :math:`{(\mathsf{global}~{\mathit{globaltype}}~{\mathit{expr}}_1)^{n_{\mathit{global}}}}` be :math:`{\mathit{global}}_1`.
+#. Let :math:`{(\mathsf{global}~{\mathit{globaltype}}~{\mathit{expr}}_1)^{n_{\mathit{global}}}}` be :math:`{{\mathit{global}}_1^{n_{\mathit{global}}}}`.
 
-#. Assert: Due to validation, :math:`{\mathit{type}}_0` is of the case :math:`\mathsf{type}`.
+#. Assert: Due to validation, for all :math:`{({\mathit{type}}_0)^\ast}`, :math:`{\mathit{type}}_0` is of the case :math:`\mathsf{type}`.
 
-#. Let :math:`{(\mathsf{type}~{\mathit{ft}})^\ast}` be :math:`{\mathit{type}}_0`.
+#. Let :math:`{(\mathsf{type}~{\mathit{ft}})^\ast}` be :math:`{{\mathit{type}}_0^\ast}`.
 
 #. Let :math:`{{\mathit{fa}}^\ast}` be :math:`{{|s{.}\mathsf{funcs}|} + i_{\mathit{func}}^{i_{\mathit{func}}<n_{\mathit{func}}}}`.
 
@@ -2711,23 +2673,23 @@ watsup 0.4 generator
 
 #. Let :math:`z` be :math:`f_{\mathit{init}}`.
 
-#. Push the activation of :math:`z` to the stack.
+#. Push the value :math:`({\mathsf{frame}}_{0}\,\{~z~\})` to the stack.
 
 #. Let :math:`{(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~i_{\mathsf{d}})^\ast}` be :math:`{{\mathrm{eval}}_{\mathit{expr}}({\mathit{expr}}_{\mathsf{d}})^\ast}`.
 
-#. Pop the activation of :math:`f` from the stack.
+#. Pop the value :math:`({\mathsf{frame}}_{0}\,\{~f~\})` from the stack.
 
-#. Push the activation of :math:`z` to the stack.
+#. Push the value :math:`({\mathsf{frame}}_{0}\,\{~z~\})` to the stack.
 
 #. Let :math:`{(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~i_{\mathsf{e}})^\ast}` be :math:`{{\mathrm{eval}}_{\mathit{expr}}({\mathit{expr}}_{\mathsf{e}})^\ast}`.
 
-#. Pop the activation of :math:`f` from the stack.
+#. Pop the value :math:`({\mathsf{frame}}_{0}\,\{~f~\})` from the stack.
 
-#. Push the activation of :math:`z` to the stack.
+#. Push the value :math:`({\mathsf{frame}}_{0}\,\{~z~\})` to the stack.
 
 #. Let :math:`{{\mathit{val}}^\ast}` be :math:`{{\mathrm{eval}}_{\mathit{expr}}({\mathit{expr}}_{\mathsf{g}})^\ast}`.
 
-#. Pop the activation of :math:`f` from the stack.
+#. Pop the value :math:`({\mathsf{frame}}_{0}\,\{~f~\})` from the stack.
 
 #. Let :math:`{\mathit{moduleinst}}` be :math:`{\mathrm{allocmodule}}({\mathit{module}}, {{\mathit{externaddr}}^\ast}, {{\mathit{val}}^\ast})`.
 
@@ -2737,13 +2699,13 @@ watsup 0.4 generator
 
 #. Perform :math:`{\mathrm{initdata}}({\mathit{moduleinst}}, {i_{\mathsf{d}}^\ast}, {{b^\ast}^\ast})`.
 
-#. Push the activation of :math:`f` with arity :math:`0` to the stack.
+#. Push the evaluation context :math:`({\mathsf{frame}}_{0}\,\{~f~\})` to the stack.
 
 #. If :math:`{(\mathsf{call}~{x'})^?}` is defined, then:
 
    a. Execute the instruction :math:`(\mathsf{call}~{x'})`.
 
-#. Pop the activation of :math:`f` with arity :math:`0` from the stack.
+#. Pop the evaluation context :math:`({\mathsf{frame}}_{0}\,\{~f~\})` from the stack.
 
 #. Return :math:`f{.}\mathsf{module}`.
 
@@ -2754,15 +2716,15 @@ watsup 0.4 generator
 
 1. Let :math:`f` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{locals}~\epsilon,\; \mathsf{module}~\{ \begin{array}[t]{@{}l@{}}\mathsf{types}~\epsilon,\; \mathsf{funcs}~\epsilon,\; \mathsf{globals}~\epsilon,\; \mathsf{tables}~\epsilon,\; \mathsf{mems}~\epsilon,\; \mathsf{exports}~\epsilon \}\end{array} \}\end{array}`.
 
-#. Push the activation of :math:`f` to the stack.
+#. Push the value :math:`({\mathsf{frame}}_{0}\,\{~f~\})` to the stack.
 
 #. Let :math:`({t_1^{n}}~\rightarrow~{t_2^\ast})` be :math:`z{.}\mathsf{funcs}{}[{\mathit{fa}}]{.}\mathsf{type}`.
 
-#. Pop the activation of :math:`f` from the stack.
+#. Pop the value :math:`({\mathsf{frame}}_{0}\,\{~f~\})` from the stack.
 
 #. Let :math:`k` be :math:`{|{t_2^\ast}|}`.
 
-#. Push the activation of :math:`f` with arity :math:`k` to the stack.
+#. Push the evaluation context :math:`({\mathsf{frame}}_{k}\,\{~f~\})` to the stack.
 
 #. Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
 
@@ -2770,7 +2732,7 @@ watsup 0.4 generator
 
 #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
-#. Pop the activation of :math:`f` with arity :math:`k` from the stack.
+#. Pop the evaluation context :math:`({\mathsf{frame}}_{k}\,\{~f~\})` from the stack.
 
 #. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
 
@@ -2800,7 +2762,7 @@ watsup 0.4 generator
 == Translating to AL...
 == Prose Generation...
 Limits_ok
-- the limits (n, m) is valid with the nat k if and only if:
+- the limits ([ n .. m ]) is valid with the nat k if and only if:
   - n is less than or equal to m.
   - m is less than or equal to k.
 
@@ -2834,7 +2796,7 @@ Externtype_ok
     - the memory type memtype is valid.
 
 Limits_sub
-- the limits (n_11, n_12) matches the limits (n_21, n_22) if and only if:
+- the limits ([ n_11 .. n_12 ]) matches the limits ([ n_21 .. n_22 ]) if and only if:
   - n_11 is greater than or equal to n_21.
   - n_12 is less than or equal to n_22.
 
@@ -3021,7 +2983,7 @@ Instrs_ok
     - valtype_u1* is t_1*.
     - valtype_u2* is t_3*.
     - the instr instr_1 is valid with the function type (t_1* -> t_2*).
-    - the instr sequence [instr_2] is valid with the function type (t_2* -> t_3*).
+    - the instr sequence instr_2* is valid with the function type (t_2* -> t_3*).
   - Or:
     - instr_u0* is instr*.
     - valtype_u1* is t* :: t_1*.
@@ -3197,29 +3159,25 @@ Step_pure/if t? instr_1* instr_2*
 
 Step_pure/label
 1. Pop all values val* from the top of the stack.
-2. Assert: Due to validation, a label is now on the top of the stack.
-3. Pop the current label from the stack.
+2. Assert: Due to validation, the first non-value entry of the stack is a LABEL_.
+3. Pop the current LABEL_ context from the stack.
 4. Push the values val* to the stack.
 
 Step_pure/br n_u0
-1. Pop all values val* from the top of the stack.
-2. Assert: Due to validation, the top of the stack is a LABEL_.
-3. Push the values val* to the stack.
-4. Let L be the current label.
-5. Let n be the arity of L.
-6. Let instr'* be the continuation of L.
-7. If (n_u0 is 0), then:
+1. Assert: Due to validation, the first non-value entry of the stack is a LABEL_.
+2. Let (LABEL_ n { instr'* }) be the current LABEL_ context.
+3. If (n_u0 is 0), then:
   a. Assert: Due to validation, there are at least n values on the top of the stack.
   b. Pop the values val^n from the stack.
   c. Pop all values val'* from the top of the stack.
-  d. Pop the current label from the stack.
+  d. Pop the current LABEL_ context from the stack.
   e. Push the values val^n to the stack.
   f. Execute the instruction instr'*.
-8. Else:
+4. Else:
   a. Pop all values val* from the top of the stack.
   b. If (n_u0 ≥ 1), then:
     1) Let l be (n_u0 - 1).
-    2) Pop the current label from the stack.
+    2) Pop the current LABEL_ context from the stack.
     3) Push the values val* to the stack.
     4) Execute the instruction (BR l).
 
@@ -3240,77 +3198,67 @@ Step_pure/br_table l* l'
   a. Execute the instruction (BR l').
 
 Step_pure/frame
-1. Let f be the current frame.
-2. Let n be the arity of f.
+1. Let (FRAME_ n { f }) be the current FRAME_ context.
+2. Assert: Due to validation, there are at least n values on the top of the stack.
 3. Assert: Due to validation, there are at least n values on the top of the stack.
-4. Assert: Due to validation, there are at least n values on the top of the stack.
-5. Pop the values val^n from the stack.
-6. Assert: Due to validation, a frame is now on the top of the stack.
-7. Pop the current frame from the stack.
-8. Push the values val^n to the stack.
+4. Pop the values val^n from the stack.
+5. Assert: Due to validation, the first non-value entry of the stack is a FRAME_.
+6. Pop the current FRAME_ context from the stack.
+7. Push the values val^n to the stack.
 
 Step_pure/return
-1. Pop all values val* from the top of the stack.
-2. If the top of the stack is a FRAME_, then:
-  a. Push the values val* to the stack.
-  b. Let f be the current frame.
-  c. Let n be the arity of f.
-  d. Assert: Due to validation, there are at least n values on the top of the stack.
-  e. Pop the values val^n from the stack.
-  f. Pop all values val'* from the top of the stack.
-  g. Pop the current frame from the stack.
-  h. Push the values val^n to the stack.
-3. Else if the top of the stack is a LABEL_, then:
-  a. Push the values val* to the stack.
-  b. Pop all values val* from the top of the stack.
-  c. Pop the current label from the stack.
-  d. Push the values val* to the stack.
-  e. Execute the instruction RETURN.
+1. If the first non-value entry of the stack is a FRAME_, then:
+  a. Let (FRAME_ n { f }) be the current FRAME_ context.
+  b. Assert: Due to validation, there are at least n values on the top of the stack.
+  c. Pop the values val^n from the stack.
+  d. Pop all values val'* from the top of the stack.
+  e. Pop the current FRAME_ context from the stack.
+  f. Push the values val^n to the stack.
+2. Else if the first non-value entry of the stack is a LABEL_, then:
+  a. Pop all values val* from the top of the stack.
+  b. Pop the current LABEL_ context from the stack.
+  c. Push the values val* to the stack.
+  d. Execute the instruction RETURN.
 
 Step_pure/unop t unop
-1. Assert: Due to validation, a value of value type valtype_0 is on the top of the stack.
+1. Assert: Due to validation, a value of value type t is on the top of the stack.
 2. Pop the value (valtype_0.CONST c_1) from the stack.
-3. Assert: Due to validation, (valtype_0 is t).
-4. If (|$unop_(t, unop, c_1)| ≤ 0), then:
+3. If (|$unop_(t, unop, c_1)| ≤ 0), then:
   a. Trap.
-5. Let c be an element of $unop_(t, unop, c_1).
-6. Push the value (t.CONST c) to the stack.
+4. Let c be an element of $unop_(t, unop, c_1).
+5. Push the value (t.CONST c) to the stack.
 
 Step_pure/binop t binop
-1. Assert: Due to validation, a value of value type valtype_0 is on the top of the stack.
+1. Assert: Due to validation, a value of value type t is on the top of the stack.
 2. Pop the value (valtype_0.CONST c_2) from the stack.
-3. Assert: Due to validation, (valtype_0 is t).
-4. Assert: Due to validation, a value of value type valtype_0 is on the top of the stack.
-5. Pop the value (valtype_0.CONST c_1) from the stack.
-6. If (|$binop_(t, binop, c_1, c_2)| ≤ 0), then:
+3. Assert: Due to validation, a value of value type valtype_0 is on the top of the stack.
+4. Pop the value (valtype_0.CONST c_1) from the stack.
+5. If (|$binop_(t, binop, c_1, c_2)| ≤ 0), then:
   a. Trap.
-7. Let c be an element of $binop_(t, binop, c_1, c_2).
-8. Push the value (t.CONST c) to the stack.
+6. Let c be an element of $binop_(t, binop, c_1, c_2).
+7. Push the value (t.CONST c) to the stack.
 
 Step_pure/testop t testop
-1. Assert: Due to validation, a value of value type valtype_0 is on the top of the stack.
+1. Assert: Due to validation, a value of value type t is on the top of the stack.
 2. Pop the value (valtype_0.CONST c_1) from the stack.
-3. Assert: Due to validation, (valtype_0 is t).
-4. Let c be $testop_(t, testop, c_1).
-5. Push the value (I32.CONST c) to the stack.
+3. Let c be $testop_(t, testop, c_1).
+4. Push the value (I32.CONST c) to the stack.
 
 Step_pure/relop t relop
-1. Assert: Due to validation, a value of value type valtype_0 is on the top of the stack.
+1. Assert: Due to validation, a value of value type t is on the top of the stack.
 2. Pop the value (valtype_0.CONST c_2) from the stack.
-3. Assert: Due to validation, (valtype_0 is t).
-4. Assert: Due to validation, a value of value type valtype_0 is on the top of the stack.
-5. Pop the value (valtype_0.CONST c_1) from the stack.
-6. Let c be $relop_(t, relop, c_1, c_2).
-7. Push the value (I32.CONST c) to the stack.
+3. Assert: Due to validation, a value of value type valtype_0 is on the top of the stack.
+4. Pop the value (valtype_0.CONST c_1) from the stack.
+5. Let c be $relop_(t, relop, c_1, c_2).
+6. Push the value (I32.CONST c) to the stack.
 
 Step_pure/cvtop t_2 t_1 cvtop
-1. Assert: Due to validation, a value of value type valtype_0 is on the top of the stack.
+1. Assert: Due to validation, a value of value type t_1 is on the top of the stack.
 2. Pop the value (valtype_0.CONST c_1) from the stack.
-3. Assert: Due to validation, (valtype_0 is t_1).
-4. If (|$cvtop__(t_1, t_2, cvtop, c_1)| ≤ 0), then:
+3. If (|$cvtop__(t_1, t_2, cvtop, c_1)| ≤ 0), then:
   a. Trap.
-5. Let c be an element of $cvtop__(t_1, t_2, cvtop, c_1).
-6. Push the value (t_2.CONST c) to the stack.
+4. Let c be an element of $cvtop__(t_1, t_2, cvtop, c_1).
+5. Push the value (t_2.CONST c) to the stack.
 
 Step_pure/local.tee x
 1. Assert: Due to validation, a value is on the top of the stack.
@@ -3322,16 +3270,13 @@ Step_pure/local.tee x
 Step_read/block t? instr*
 1. Let n be 0.
 2. If t? is not defined, then:
-  a. Let L be the label_n{[]}.
-  b. Enter instr* with label L.
+  a. Enter instr* with label (LABEL_ n { [] }).
 3. Let n be 1.
 4. If (t? is not ?()), then:
-  a. Let L be the label_n{[]}.
-  b. Enter instr* with label L.
+  a. Enter instr* with label (LABEL_ n { [] }).
 
 Step_read/loop t? instr*
-1. Let L be the label_0{[(LOOP t? instr*)]}.
-2. Enter instr* with label L.
+1. Enter instr* with label (LABEL_ 0 { [(LOOP t? instr*)] }).
 
 Step_read/call x
 1. Let z be the current state.
@@ -3360,14 +3305,12 @@ Step_read/call_addr a
 4. Assert: Due to validation, there are at least k values on the top of the stack.
 5. Pop the values val^k from the stack.
 6. Assert: Due to validation, func is of the case FUNC.
-7. Let (FUNC x local_0 instr*) be func.
-8. Assert: Due to validation, local_0 is of the case LOCAL.
-9. Let (LOCAL t)* be local_0.
+7. Let (FUNC x local_0* instr*) be func.
+8. Assert: Due to validation, local_0 is of the case LOCAL*.
+9. Let (LOCAL t)* be local_0*.
 10. Let f be { LOCALS: val^k :: $default_(t)*; MODULE: mm; }.
-11. Let F be the activation of f with arity n.
-12. Push F to the stack.
-13. Let L be the label_n{[]}.
-14. Enter instr* with label L.
+11. Push the evaluation context (FRAME_ n { f }) to the stack.
+12. Enter instr* with label (LABEL_ n { [] }).
 
 Step_read/local.get x
 1. Let z be the current state.
@@ -3893,11 +3836,11 @@ store
 1. Return.
 
 frame
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return f.
 
 funcaddr
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return f.MODULE.FUNCS.
 
 funcinst
@@ -3913,69 +3856,69 @@ meminst
 1. Return s.MEMS.
 
 moduleinst
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return f.MODULE.
 
 type x
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return f.MODULE.TYPES[x].
 
 func x
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return s.FUNCS[f.MODULE.FUNCS[x]].
 
 global x
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return s.GLOBALS[f.MODULE.GLOBALS[x]].
 
 table x
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return s.TABLES[f.MODULE.TABLES[x]].
 
 mem x
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return s.MEMS[f.MODULE.MEMS[x]].
 
 local x
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return f.LOCALS[x].
 
 with_local x v
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Replace f.LOCALS[x] with v.
 
 with_global x v
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Replace s.GLOBALS[f.MODULE.GLOBALS[x]].VALUE with v.
 
 with_table x i a
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Replace s.TABLES[f.MODULE.TABLES[x]].REFS[i] with ?(a).
 
 with_tableinst x ti
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Replace s.TABLES[f.MODULE.TABLES[x]] with ti.
 
 with_mem x i j b*
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Replace s.MEMS[f.MODULE.MEMS[x]].BYTES[i : j] with b*.
 
 with_meminst x mi
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Replace s.MEMS[f.MODULE.MEMS[x]] with mi.
 
 growtable ti n
-1. Let { TYPE: (i, j); REFS: ?(a)*; } be ti.
+1. Let { TYPE: ([ i .. j ]); REFS: ?(a)*; } be ti.
 2. Let i' be (|a*| + n).
 3. If (i' ≤ j), then:
-  a. Let ti' be { TYPE: (i', j); REFS: ?(a)* :: ?()^n; }.
+  a. Let ti' be { TYPE: ([ i' .. j ]); REFS: ?(a)* :: ?()^n; }.
   b. Return ti'.
 
 growmemory mi n
-1. Let { TYPE: (i, j); BYTES: b*; } be mi.
+1. Let { TYPE: ([ i .. j ]); BYTES: b*; } be mi.
 2. Let i' be ((|b*| / (64 · $Ki())) + n).
 3. If (i' ≤ j), then:
-  a. Let mi' be { TYPE: (i', j); BYTES: b* :: 0^(n · (64 · $Ki())); }.
+  a. Let mi' be { TYPE: ([ i' .. j ]); BYTES: b* :: 0^(n · (64 · $Ki())); }.
   b. Return mi'.
 
 funcs externaddr_u0*
@@ -4052,8 +3995,8 @@ allocglobals globaltype_u0* val_u1*
   e. Let ga'* be $allocglobals(globaltype'*, val'*).
   f. Return [ga] :: ga'*.
 
-alloctable (i, j)
-1. Let ti be { TYPE: (i, j); REFS: ?()^i; }.
+alloctable ([ i .. j ])
+1. Let ti be { TYPE: ([ i .. j ]); REFS: ?()^i; }.
 2. Let a be |s.TABLES|.
 3. Append ti to the s.TABLES.
 4. Return a.
@@ -4066,8 +4009,8 @@ alloctables tabletype_u0*
 4. Let ta'* be $alloctables(tabletype'*).
 5. Return [ta] :: ta'*.
 
-allocmem (i, j)
-1. Let mi be { TYPE: (i, j); BYTES: 0^(i · (64 · $Ki())); }.
+allocmem ([ i .. j ])
+1. Let mi be { TYPE: ([ i .. j ]); BYTES: 0^(i · (64 · $Ki())); }.
 2. Let a be |s.MEMS|.
 3. Append mi to the s.MEMS.
 4. Return a.
@@ -4100,15 +4043,15 @@ allocmodule module externaddr* val*
 3. Let ma_ex* be $mems(externaddr*).
 4. Let ta_ex* be $tables(externaddr*).
 5. Assert: Due to validation, module is of the case MODULE.
-6. Let (MODULE type_0 import* func^n_func global_1 table_2 mem_3 elem* data* start? export*) be module.
-7. Assert: Due to validation, mem_3 is of the case MEMORY.
-8. Let (MEMORY memtype)^n_mem be mem_3.
-9. Assert: Due to validation, table_2 is of the case TABLE.
-10. Let (TABLE tabletype)^n_table be table_2.
-11. Assert: Due to validation, global_1 is of the case GLOBAL.
-12. Let (GLOBAL globaltype expr_1)^n_global be global_1.
-13. Assert: Due to validation, type_0 is of the case TYPE.
-14. Let (TYPE ft)* be type_0.
+6. Let (MODULE type_0* import* func^n_func global_1^n_global table_2^n_table mem_3^n_mem elem* data* start? export*) be module.
+7. Assert: Due to validation, mem_3 is of the case MEMORY^n_mem.
+8. Let (MEMORY memtype)^n_mem be mem_3^n_mem.
+9. Assert: Due to validation, table_2 is of the case TABLE^n_table.
+10. Let (TABLE tabletype)^n_table be table_2^n_table.
+11. Assert: Due to validation, global_1 is of the case GLOBAL^n_global.
+12. Let (GLOBAL globaltype expr_1)^n_global be global_1^n_global.
+13. Assert: Due to validation, type_0 is of the case TYPE*.
+14. Let (TYPE ft)* be type_0*.
 15. Let fa* be (|s.FUNCS| + i_func)^(i_func<n_func).
 16. Let ga* be (|s.GLOBALS| + i_global)^(i_global<n_global).
 17. Let ta* be (|s.TABLES| + i_table)^(i_table<n_table).
@@ -4164,36 +4107,36 @@ instantiate z module externaddr*
 14. Let moduleinst_init be { TYPES: functype*; FUNCS: $funcs(externaddr*) :: (|s.FUNCS| + i_F)^(i_F<n_F); GLOBALS: $globals(externaddr*); TABLES: []; MEMS: []; EXPORTS: []; }.
 15. Let f_init be { LOCALS: []; MODULE: moduleinst_init; }.
 16. Let z be f_init.
-17. Push the activation of z to the stack.
+17. Push the value (FRAME_ 0 { z }) to the stack.
 18. Let [(I32.CONST i_D)]* be $eval_expr(expr_D)*.
-19. Pop the activation of _f from the stack.
-20. Push the activation of z to the stack.
+19. Pop the value (FRAME_ 0 { _f }) from the stack.
+20. Push the value (FRAME_ 0 { z }) to the stack.
 21. Let [(I32.CONST i_E)]* be $eval_expr(expr_E)*.
-22. Pop the activation of _f from the stack.
-23. Push the activation of z to the stack.
+22. Pop the value (FRAME_ 0 { _f }) from the stack.
+23. Push the value (FRAME_ 0 { z }) to the stack.
 24. Let [val]* be $eval_expr(expr_G)*.
-25. Pop the activation of _f from the stack.
+25. Pop the value (FRAME_ 0 { _f }) from the stack.
 26. Let moduleinst be $allocmodule(module, externaddr*, val*).
 27. Let f be { LOCALS: []; MODULE: moduleinst; }.
 28. Perform $initelem(moduleinst, i_E*, moduleinst.FUNCS[x]**).
 29. Perform $initdata(moduleinst, i_D*, b**).
-30. Push the activation of f with arity 0 to the stack.
+30. Push the evaluation context (FRAME_ 0 { f }) to the stack.
 31. If (CALL x')? is defined, then:
   a. Execute the instruction (CALL x').
-32. Pop the activation of f with arity 0 from the stack.
+32. Pop the evaluation context (FRAME_ 0 { f }) from the stack.
 33. Return f.MODULE.
 
 invoke z fa val^n
 1. Let f be { LOCALS: []; MODULE: { TYPES: []; FUNCS: []; GLOBALS: []; TABLES: []; MEMS: []; EXPORTS: []; }; }.
-2. Push the activation of f to the stack.
+2. Push the value (FRAME_ 0 { f }) to the stack.
 3. Let (t_1^n -> t_2*) be $funcinst(z)[fa].TYPE.
-4. Pop the activation of _f from the stack.
+4. Pop the value (FRAME_ 0 { _f }) from the stack.
 5. Let k be |t_2*|.
-6. Push the activation of f with arity k to the stack.
+6. Push the evaluation context (FRAME_ k { f }) to the stack.
 7. Push the values val^n to the stack.
 8. Execute the instruction (CALL_ADDR fa).
 9. Pop all values val* from the top of the stack.
-10. Pop the activation of f with arity k from the stack.
+10. Pop the evaluation context (FRAME_ k { f }) from the stack.
 11. Push the values val* to the stack.
 12. Pop the values val^k from the stack.
 13. Return val^k.
@@ -4214,7 +4157,7 @@ watsup 0.4 generator
 == Translating to AL...
 == Prose Generation...
 
-* :math:`(n, m)` is valid with type :math:`k` if and only if:
+* :math:`({}[~n~..~m~])` is valid with type :math:`k` if and only if:
 
 
    * :math:`n` must be less than or equal to :math:`m`.
@@ -4279,14 +4222,14 @@ watsup 0.4 generator
 * :math:`{t_1^\ast}` matches :math:`{t_2^\ast}` if and only if:
 
 
-   * :math:`{|{t_2^\ast}|}` must be equal to :math:`{|{t_1^\ast}|}`.
+   * :math:`{|t_{\mathit{{\scriptstyle 2}*}}|}` must be equal to :math:`{|t_{\mathit{{\scriptstyle 1}*}}|}`.
 
    * For all :math:`t_1` in :math:`{t_1^\ast}` and :math:`t_2` in :math:`{t_2^\ast}`,
 
       * :math:`t_1` matches :math:`t_2`.
 
 
-* :math:`(n_{11}, n_{12})` matches :math:`(n_{21}, n_{22})` if and only if:
+* :math:`({}[~n_{11}~..~n_{12}~])` matches :math:`({}[~n_{21}~..~n_{22}~])` if and only if:
 
 
    * :math:`n_{11}` must be greater than or equal to :math:`n_{21}`.
@@ -4766,7 +4709,7 @@ watsup 0.4 generator
 
    * :math:`{|C{.}\mathsf{mems}|}` must be greater than :math:`0`.
 
-   * :math:`{n^?}` is :math:`\epsilon` if and only if :math:`{{\mathit{sx}}^?}` is :math:`\epsilon`.
+   * :math:`{\mathit{n?}}` is :math:`\epsilon` if and only if :math:`{\mathit{sx?}}` is :math:`\epsilon`.
 
    * :math:`C{.}\mathsf{mems}{}[0]` must be equal to :math:`{\mathit{mt}}`.
 
@@ -4882,7 +4825,7 @@ watsup 0.4 generator
 
       * :math:`{\mathit{instr}}_1` is valid with type :math:`({t_1^\ast}~\rightarrow~{t_2^\ast})`.
 
-      * :math:`{\mathit{instr}}_2` is valid with type :math:`({t_2^\ast}~\rightarrow~{t_3^\ast})`.   * Or:
+      * :math:`{{\mathit{instr}}_2^\ast}` is valid with type :math:`({t_2^\ast}~\rightarrow~{t_3^\ast})`.   * Or:
 
       * :math:`{{\mathit{instr}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}^\ast}` must be equal to :math:`{{\mathit{instr}}^\ast}`.
 
@@ -5104,21 +5047,21 @@ watsup 0.4 generator
 * :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\ast}~{{\mathit{func}}^\ast}~{{\mathit{global}}^\ast}~{{\mathit{table}}^\ast}~{{\mathit{mem}}^\ast}~{{\mathit{elem}}^\ast}~{{\mathit{data}}^{n}}~{{\mathit{start}}^?}~{{\mathit{export}}^\ast})` is valid if and only if:
 
 
-   * :math:`{|{{\mathit{type}}^\ast}|}` must be equal to :math:`{|{{\mathit{ft}'}^\ast}|}`.
+   * :math:`{|{\mathit{type*}}|}` must be equal to :math:`{|{\mathit{ft'*}}|}`.
 
-   * :math:`{|{{\mathit{ixt}}^\ast}|}` must be equal to :math:`{|{{\mathit{import}}^\ast}|}`.
+   * :math:`{|{\mathit{ixt*}}|}` must be equal to :math:`{|{\mathit{import*}}|}`.
 
-   * :math:`{|{{\mathit{gt}}^\ast}|}` must be equal to :math:`{|{{\mathit{global}}^\ast}|}`.
+   * :math:`{|{\mathit{gt*}}|}` must be equal to :math:`{|{\mathit{global*}}|}`.
 
-   * :math:`{|{{\mathit{tt}}^\ast}|}` must be equal to :math:`{|{{\mathit{table}}^\ast}|}`.
+   * :math:`{|{\mathit{tt*}}|}` must be equal to :math:`{|{\mathit{table*}}|}`.
 
-   * :math:`{|{{\mathit{mt}}^\ast}|}` must be equal to :math:`{|{{\mathit{mem}}^\ast}|}`.
+   * :math:`{|{\mathit{mt*}}|}` must be equal to :math:`{|{\mathit{mem*}}|}`.
 
-   * :math:`{|{{\mathit{rt}}^\ast}|}` must be equal to :math:`{|{{\mathit{elem}}^\ast}|}`.
+   * :math:`{|{\mathit{rt*}}|}` must be equal to :math:`{|{\mathit{elem*}}|}`.
 
-   * :math:`{|{{\mathit{func}}^\ast}|}` must be equal to :math:`{|{{\mathit{ft}}^\ast}|}`.
+   * :math:`{|{\mathit{func*}}|}` must be equal to :math:`{|{\mathit{ft*}}|}`.
 
-   * :math:`{|{{\mathit{xt}}^\ast}|}` must be equal to :math:`{|{{\mathit{export}}^\ast}|}`.
+   * :math:`{|{\mathit{xt*}}|}` must be equal to :math:`{|{\mathit{export*}}|}`.
 
    * For all :math:`{\mathit{ft}'}` in :math:`{{\mathit{ft}'}^\ast}` and :math:`{\mathit{type}}` in :math:`{{\mathit{type}}^\ast}`,
 
@@ -5248,9 +5191,9 @@ watsup 0.4 generator
 
 1. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
-#. Assert: Due to validation, a label is now on the top of the stack.
+#. Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{label}`.
 
-#. Pop the current label from the stack.
+#. Pop the current :math:`\mathsf{label}` context from the stack.
 
 #. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
 
@@ -5259,17 +5202,9 @@ watsup 0.4 generator
 .............................................................
 
 
-1. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+1. Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{label}`.
 
-#. Assert: Due to validation, the top of the stack is a :math:`\mathsf{label}`.
-
-#. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
-
-#. Let :math:`L` be the current label.
-
-#. Let :math:`n` be the arity of :math:`L`.
-
-#. Let :math:`{{\mathit{instr}'}^\ast}` be the continuation of :math:`L`.
+#. Let :math:`({{\mathsf{label}}_{n}}{\{}~{{\mathit{instr}'}^\ast}~\})` be the current :math:`\mathsf{label}` context.
 
 #. If :math:`n_{\mathit{u{\kern-0.1em\scriptstyle 0}}}` is :math:`0`, then:
 
@@ -5279,7 +5214,7 @@ watsup 0.4 generator
 
    #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
 
-   #. Pop the current label from the stack.
+   #. Pop the current :math:`\mathsf{label}` context from the stack.
 
    #. Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
 
@@ -5293,7 +5228,7 @@ watsup 0.4 generator
 
       1) Let :math:`l` be :math:`n_{\mathit{u{\kern-0.1em\scriptstyle 0}}} - 1`.
 
-      #) Pop the current label from the stack.
+      #) Pop the current :math:`\mathsf{label}` context from the stack.
 
       #) Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
 
@@ -5338,9 +5273,7 @@ watsup 0.4 generator
 ......................
 
 
-1. Let :math:`f` be the current frame.
-
-#. Let :math:`n` be the arity of :math:`f`.
+1. Let :math:`({{\mathsf{frame}}_{n}}{\{}~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
@@ -5348,9 +5281,9 @@ watsup 0.4 generator
 
 #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
 
-#. Assert: Due to validation, a frame is now on the top of the stack.
+#. Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{frame}`.
 
-#. Pop the current frame from the stack.
+#. Pop the current :math:`\mathsf{frame}` context from the stack.
 
 #. Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
 
@@ -5359,15 +5292,9 @@ watsup 0.4 generator
 .......................
 
 
-1. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+1. If the first non-value entry of the stack is a :math:`\mathsf{frame}`, then:
 
-#. If the top of the stack is a :math:`\mathsf{frame}`, then:
-
-   a. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
-
-   #. Let :math:`f` be the current frame.
-
-   #. Let :math:`n` be the arity of :math:`f`.
+   a. Let :math:`({{\mathsf{frame}}_{n}}{\{}~f~\})` be the current :math:`\mathsf{frame}` context.
 
    #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
@@ -5375,17 +5302,15 @@ watsup 0.4 generator
 
    #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
 
-   #. Pop the current frame from the stack.
+   #. Pop the current :math:`\mathsf{frame}` context from the stack.
 
    #. Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
 
-#. Else if the top of the stack is a :math:`\mathsf{label}`, then:
+#. Else if the first non-value entry of the stack is a :math:`\mathsf{label}`, then:
 
-   a. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
+   a. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
-   #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
-
-   #. Pop the current label from the stack.
+   #. Pop the current :math:`\mathsf{label}` context from the stack.
 
    #. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
 
@@ -5396,11 +5321,9 @@ watsup 0.4 generator
 .........................................
 
 
-1. Assert: Due to validation, a value of value type :math:`{\mathit{numtype}}_0` is on the top of the stack.
+1. Assert: Due to validation, a value of value type :math:`{\mathit{nt}}` is on the top of the stack.
 
 #. Pop the value :math:`({\mathit{numtype}}_0{.}\mathsf{const}~c_1)` from the stack.
-
-#. Assert: Due to validation, :math:`{\mathit{numtype}}_0` is :math:`{\mathit{nt}}`.
 
 #. If :math:`{|{{\mathit{unop}}}{{}_{{\mathit{nt}}}}{(c_1)}|}` is less than or equal to :math:`0`, then:
 
@@ -5415,11 +5338,9 @@ watsup 0.4 generator
 ..........................................
 
 
-1. Assert: Due to validation, a value of value type :math:`{\mathit{numtype}}_0` is on the top of the stack.
+1. Assert: Due to validation, a value of value type :math:`{\mathit{nt}}` is on the top of the stack.
 
 #. Pop the value :math:`({\mathit{numtype}}_0{.}\mathsf{const}~c_2)` from the stack.
-
-#. Assert: Due to validation, :math:`{\mathit{numtype}}_0` is :math:`{\mathit{nt}}`.
 
 #. Assert: Due to validation, a value of value type :math:`{\mathit{numtype}}_0` is on the top of the stack.
 
@@ -5438,11 +5359,9 @@ watsup 0.4 generator
 ...........................................
 
 
-1. Assert: Due to validation, a value of value type :math:`{\mathit{numtype}}_0` is on the top of the stack.
+1. Assert: Due to validation, a value of value type :math:`{\mathit{nt}}` is on the top of the stack.
 
 #. Pop the value :math:`({\mathit{numtype}}_0{.}\mathsf{const}~c_1)` from the stack.
-
-#. Assert: Due to validation, :math:`{\mathit{numtype}}_0` is :math:`{\mathit{nt}}`.
 
 #. Let :math:`c` be :math:`{{\mathit{testop}}}{{}_{{\mathit{nt}}}}{(c_1)}`.
 
@@ -5453,11 +5372,9 @@ watsup 0.4 generator
 ..........................................
 
 
-1. Assert: Due to validation, a value of value type :math:`{\mathit{numtype}}_0` is on the top of the stack.
+1. Assert: Due to validation, a value of value type :math:`{\mathit{nt}}` is on the top of the stack.
 
 #. Pop the value :math:`({\mathit{numtype}}_0{.}\mathsf{const}~c_2)` from the stack.
-
-#. Assert: Due to validation, :math:`{\mathit{numtype}}_0` is :math:`{\mathit{nt}}`.
 
 #. Assert: Due to validation, a value of value type :math:`{\mathit{numtype}}_0` is on the top of the stack.
 
@@ -5472,11 +5389,9 @@ watsup 0.4 generator
 ............................................................................
 
 
-1. Assert: Due to validation, a value of value type :math:`{\mathit{numtype}}_0` is on the top of the stack.
+1. Assert: Due to validation, a value of value type :math:`{\mathit{nt}}_1` is on the top of the stack.
 
 #. Pop the value :math:`({\mathit{numtype}}_0{.}\mathsf{const}~c_1)` from the stack.
-
-#. Assert: Due to validation, :math:`{\mathit{numtype}}_0` is :math:`{\mathit{nt}}_1`.
 
 #. If :math:`{|{{\mathit{cvtop}}}{{}_{{\mathit{nt}}_1, {\mathit{nt}}_2}}{(c_1)}|}` is less than or equal to :math:`0`, then:
 
@@ -5728,7 +5643,7 @@ watsup 0.4 generator
 ...........................................................
 
 
-1. Assert: Due to validation, a value of value type :math:`{\mathit{numtype}}_0` is on the top of the stack.
+1. Assert: Due to validation, a value is on the top of the stack.
 
 #. Pop the value :math:`({\mathit{numtype}}_0{.}\mathsf{const}~c_1)` from the stack.
 
@@ -5776,7 +5691,7 @@ watsup 0.4 generator
 .....................................................................
 
 
-1. Assert: Due to validation, a value of value type :math:`{\mathit{numtype}}_0` is on the top of the stack.
+1. Assert: Due to validation, a value is on the top of the stack.
 
 #. Pop the value :math:`({\mathit{numtype}}_0{.}\mathsf{const}~c_2)` from the stack.
 
@@ -5952,9 +5867,7 @@ watsup 0.4 generator
 
 #. Pop the values :math:`{{\mathit{val}}^{k}}` from the stack.
 
-#. Let :math:`L` be the label whose arity is :math:`n` and whose continuation is :math:`\epsilon`.
-
-#. Enter :math:`{{\mathit{val}}^{k}}~{{\mathit{instr}}^\ast}` with label :math:`L`.
+#. Enter :math:`{{\mathit{val}}^{k}}~{{\mathit{instr}}^\ast}` with label :math:`({{\mathsf{label}}_{n}}{\{}~\epsilon~\})`.
 
 
 :math:`\mathsf{loop}~{\mathit{bt}}~{{\mathit{instr}}^\ast}`
@@ -5969,9 +5882,7 @@ watsup 0.4 generator
 
 #. Pop the values :math:`{{\mathit{val}}^{k}}` from the stack.
 
-#. Let :math:`L` be the label whose arity is :math:`k` and whose continuation is :math:`(\mathsf{loop}~{\mathit{bt}}~{{\mathit{instr}}^\ast})`.
-
-#. Enter :math:`{{\mathit{val}}^{k}}~{{\mathit{instr}}^\ast}` with label :math:`L`.
+#. Enter :math:`{{\mathit{val}}^{k}}~{{\mathit{instr}}^\ast}` with label :math:`({{\mathsf{label}}_{k}}{\{}~(\mathsf{loop}~{\mathit{bt}}~{{\mathit{instr}}^\ast})~\})`.
 
 
 :math:`\mathsf{call}~x`
@@ -6032,21 +5943,17 @@ watsup 0.4 generator
 
 #. Assert: Due to validation, :math:`{\mathit{func}}` is of the case :math:`\mathsf{func}`.
 
-#. Let :math:`(\mathsf{func}~x~{\mathit{local}}_0~{{\mathit{instr}}^\ast})` be :math:`{\mathit{func}}`.
+#. Let :math:`(\mathsf{func}~x~{{\mathit{local}}_0^\ast}~{{\mathit{instr}}^\ast})` be :math:`{\mathit{func}}`.
 
-#. Assert: Due to validation, :math:`{\mathit{local}}_0` is of the case :math:`\mathsf{local}`.
+#. Assert: Due to validation, for all :math:`{({\mathit{local}}_0)^\ast}`, :math:`{\mathit{local}}_0` is of the case :math:`\mathsf{local}`.
 
-#. Let :math:`{(\mathsf{local}~t)^\ast}` be :math:`{\mathit{local}}_0`.
+#. Let :math:`{(\mathsf{local}~t)^\ast}` be :math:`{{\mathit{local}}_0^\ast}`.
 
 #. Let :math:`f` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{locals}~{{\mathit{val}}^{k}}~{{{\mathrm{default}}}_{t}^\ast},\; \mathsf{module}~{\mathit{mm}} \}\end{array}`.
 
-#. Let :math:`F` be the activation of :math:`f` with arity :math:`n`.
+#. Push the evaluation context :math:`({{\mathsf{frame}}_{n}}{\{}~f~\})` to the stack.
 
-#. Push :math:`F` to the stack.
-
-#. Let :math:`L` be the label whose arity is :math:`n` and whose continuation is :math:`\epsilon`.
-
-#. Enter :math:`{{\mathit{instr}}^\ast}` with label :math:`L`.
+#. Enter :math:`{{\mathit{instr}}^\ast}` with label :math:`({{\mathsf{label}}_{n}}{\{}~\epsilon~\})`.
 
 
 :math:`\mathsf{ref{.}func}~x`
@@ -6340,11 +6247,11 @@ watsup 0.4 generator
 
          a) Trap.
 
+      #) Let :math:`{j^{N}}` be the result for which for all :math:`{(k)^{k<N}}`, :math:`{{\mathrm{bytes}}}_{{\mathsf{i}}{M}}({j^{N}})` is :math:`z{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} + k \cdot M / 8 : M / 8]`.
+
       #) If the type of :math:`{\mathit{fresh}}` for which :math:`{|{\mathit{fresh}}|}` :math:`=` :math:`M \cdot 2` is Jnn, then:
 
          a) Let :math:`{\mathsf{i}}{n}` be the result for which :math:`{|{\mathsf{i}}{n}|}` :math:`=` :math:`M \cdot 2`.
-
-         #) Let :math:`{j^{N}}` be the result for which for all :math:`{(k)^{k<N}}`, :math:`{{\mathrm{bytes}}}_{{\mathsf{i}}{M}}({j^{N}})` is :math:`z{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} + k \cdot M / 8 : M / 8]`.
 
          #) Let :math:`c` be :math:`{{\mathrm{invlanes}}}_{({{\mathsf{i}}{n}}{\mathsf{x}}{N})}({{{{{\mathrm{extend}}}_{M, {|{\mathsf{i}}{n}|}}^{{\mathit{sx}}}}}{(j)}^{N}})`.
 
@@ -8800,7 +8707,7 @@ watsup 0.4 generator
 ........................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`f`.
 
@@ -8809,7 +8716,7 @@ watsup 0.4 generator
 ...........................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`f{.}\mathsf{module}{.}\mathsf{funcs}`.
 
@@ -8860,7 +8767,7 @@ watsup 0.4 generator
 .............................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`f{.}\mathsf{module}`.
 
@@ -8869,7 +8776,7 @@ watsup 0.4 generator
 ..........................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`f{.}\mathsf{module}{.}\mathsf{types}{}[x]`.
 
@@ -8878,7 +8785,7 @@ watsup 0.4 generator
 ..........................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`s{.}\mathsf{funcs}{}[f{.}\mathsf{module}{.}\mathsf{funcs}{}[x]]`.
 
@@ -8887,7 +8794,7 @@ watsup 0.4 generator
 ............................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`s{.}\mathsf{globals}{}[f{.}\mathsf{module}{.}\mathsf{globals}{}[x]]`.
 
@@ -8896,7 +8803,7 @@ watsup 0.4 generator
 ...........................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]`.
 
@@ -8905,7 +8812,7 @@ watsup 0.4 generator
 .........................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]`.
 
@@ -8914,7 +8821,7 @@ watsup 0.4 generator
 ..........................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`s{.}\mathsf{elems}{}[f{.}\mathsf{module}{.}\mathsf{elems}{}[x]]`.
 
@@ -8923,7 +8830,7 @@ watsup 0.4 generator
 ..........................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`s{.}\mathsf{datas}{}[f{.}\mathsf{module}{.}\mathsf{datas}{}[x]]`.
 
@@ -8932,7 +8839,7 @@ watsup 0.4 generator
 ...........................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`f{.}\mathsf{locals}{}[x]`.
 
@@ -8941,7 +8848,7 @@ watsup 0.4 generator
 ..............................................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Replace :math:`f{.}\mathsf{locals}{}[x]` with :math:`v`.
 
@@ -8950,7 +8857,7 @@ watsup 0.4 generator
 ...............................................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Replace :math:`s{.}\mathsf{globals}{}[f{.}\mathsf{module}{.}\mathsf{globals}{}[x]]{.}\mathsf{value}` with :math:`v`.
 
@@ -8959,7 +8866,7 @@ watsup 0.4 generator
 .................................................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Replace :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]{.}\mathsf{refs}{}[i]` with :math:`r`.
 
@@ -8968,7 +8875,7 @@ watsup 0.4 generator
 ..............................................................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Replace :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]` with :math:`{\mathit{ti}}`.
 
@@ -8977,7 +8884,7 @@ watsup 0.4 generator
 .........................................................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Replace :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]{.}\mathsf{bytes}{}[i : j]` with :math:`{b^\ast}`.
 
@@ -8986,7 +8893,7 @@ watsup 0.4 generator
 ............................................................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Replace :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]` with :math:`{\mathit{mi}}`.
 
@@ -8995,7 +8902,7 @@ watsup 0.4 generator
 ....................................................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Replace :math:`s{.}\mathsf{elems}{}[f{.}\mathsf{module}{.}\mathsf{elems}{}[x]]{.}\mathsf{refs}` with :math:`{r^\ast}`.
 
@@ -9004,7 +8911,7 @@ watsup 0.4 generator
 ....................................................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({\mathsf{frame}}_{}\,\{~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Replace :math:`s{.}\mathsf{datas}{}[f{.}\mathsf{module}{.}\mathsf{datas}{}[x]]{.}\mathsf{bytes}` with :math:`{b^\ast}`.
 
@@ -9013,13 +8920,13 @@ watsup 0.4 generator
 .................................................
 
 
-1. Let :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~((i, j), {\mathit{rt}}),\; \mathsf{refs}~{{r'}^\ast} \}\end{array}` be :math:`{\mathit{ti}}`.
+1. Let :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~(({}[~i~..~j~]), {\mathit{rt}}),\; \mathsf{refs}~{{r'}^\ast} \}\end{array}` be :math:`{\mathit{ti}}`.
 
 #. Let :math:`{i'}` be :math:`{|{{r'}^\ast}|} + n`.
 
 #. If :math:`{i'}` is less than or equal to :math:`j`, then:
 
-   a. Let :math:`{\mathit{ti}'}` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~(({i'}, j), {\mathit{rt}}),\; \mathsf{refs}~{{r'}^\ast}~{r^{n}} \}\end{array}`.
+   a. Let :math:`{\mathit{ti}'}` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~(({}[~{i'}~..~j~]), {\mathit{rt}}),\; \mathsf{refs}~{{r'}^\ast}~{r^{n}} \}\end{array}`.
 
    #. Return :math:`{\mathit{ti}'}`.
 
@@ -9028,13 +8935,13 @@ watsup 0.4 generator
 ...............................................
 
 
-1. Let :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~((i, j)~\mathsf{page}),\; \mathsf{bytes}~{b^\ast} \}\end{array}` be :math:`{\mathit{mi}}`.
+1. Let :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~(({}[~i~..~j~])~\mathsf{page}),\; \mathsf{bytes}~{b^\ast} \}\end{array}` be :math:`{\mathit{mi}}`.
 
 #. Let :math:`{i'}` be :math:`{|{b^\ast}|} / 64 \, {\mathrm{Ki}} + n`.
 
 #. If :math:`{i'}` is less than or equal to :math:`j`, then:
 
-   a. Let :math:`{\mathit{mi}'}` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~(({i'}, j)~\mathsf{page}),\; \mathsf{bytes}~{b^\ast}~{0^{n \cdot 64 \, {\mathrm{Ki}}}} \}\end{array}`.
+   a. Let :math:`{\mathit{mi}'}` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~(({}[~{i'}~..~j~])~\mathsf{page}),\; \mathsf{bytes}~{b^\ast}~{0^{n \cdot 64 \, {\mathrm{Ki}}}} \}\end{array}`.
 
    #. Return :math:`{\mathit{mi}'}`.
 
@@ -9220,11 +9127,11 @@ watsup 0.4 generator
    #. Return :math:`{\mathit{ga}}~{{\mathit{ga}'}^\ast}`.
 
 
-:math:`{\mathrm{alloctable}}(((i, j), {\mathit{rt}}))`
-......................................................
+:math:`{\mathrm{alloctable}}((({}[~i~..~j~]), {\mathit{rt}}))`
+..............................................................
 
 
-1. Let :math:`{\mathit{ti}}` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~((i, j), {\mathit{rt}}),\; \mathsf{refs}~{(\mathsf{ref{.}null}~{\mathit{rt}})^{i}} \}\end{array}`.
+1. Let :math:`{\mathit{ti}}` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~(({}[~i~..~j~]), {\mathit{rt}}),\; \mathsf{refs}~{(\mathsf{ref{.}null}~{\mathit{rt}})^{i}} \}\end{array}`.
 
 #. Let :math:`a` be :math:`{|s{.}\mathsf{tables}|}`.
 
@@ -9250,11 +9157,11 @@ watsup 0.4 generator
 #. Return :math:`{\mathit{ta}}~{{\mathit{ta}'}^\ast}`.
 
 
-:math:`{\mathrm{allocmem}}(((i, j)~\mathsf{page}))`
-...................................................
+:math:`{\mathrm{allocmem}}((({}[~i~..~j~])~\mathsf{page}))`
+...........................................................
 
 
-1. Let :math:`{\mathit{mi}}` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~((i, j)~\mathsf{page}),\; \mathsf{bytes}~{0^{i \cdot 64 \, {\mathrm{Ki}}}} \}\end{array}`.
+1. Let :math:`{\mathit{mi}}` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~(({}[~i~..~j~])~\mathsf{page}),\; \mathsf{bytes}~{0^{i \cdot 64 \, {\mathrm{Ki}}}} \}\end{array}`.
 
 #. Let :math:`a` be :math:`{|s{.}\mathsf{mems}|}`.
 
@@ -9389,31 +9296,31 @@ watsup 0.4 generator
 
 #. Assert: Due to validation, :math:`{\mathit{module}}` is of the case :math:`\mathsf{module}`.
 
-#. Let :math:`(\mathsf{module}~{\mathit{type}}_0~{{\mathit{import}}^\ast}~{{\mathit{func}}^{n_{\mathit{func}}}}~{\mathit{global}}_1~{\mathit{table}}_2~{\mathit{mem}}_3~{\mathit{elem}}_4~{\mathit{data}}_5~{{\mathit{start}}^?}~{{\mathit{export}}^\ast})` be :math:`{\mathit{module}}`.
+#. Let :math:`(\mathsf{module}~{{\mathit{type}}_0^\ast}~{{\mathit{import}}^\ast}~{{\mathit{func}}^{n_{\mathit{func}}}}~{{\mathit{global}}_1^{n_{\mathit{global}}}}~{{\mathit{table}}_2^{n_{\mathit{table}}}}~{{\mathit{mem}}_3^{n_{\mathit{mem}}}}~{{\mathit{elem}}_4^{n_{\mathit{elem}}}}~{{\mathit{data}}_5^{n_{\mathit{data}}}}~{{\mathit{start}}^?}~{{\mathit{export}}^\ast})` be :math:`{\mathit{module}}`.
 
-#. Assert: Due to validation, :math:`{\mathit{data}}_5` is of the case :math:`\mathsf{data}`.
+#. Assert: Due to validation, for all :math:`{({\mathit{data}}_5)^{n_{\mathit{data}}}}`, :math:`{\mathit{data}}_5` is of the case :math:`\mathsf{data}`.
 
-#. Let :math:`{(\mathsf{data}~{{\mathit{byte}}^\ast}~{\mathit{datamode}})^{n_{\mathit{data}}}}` be :math:`{\mathit{data}}_5`.
+#. Let :math:`{(\mathsf{data}~{{\mathit{byte}}^\ast}~{\mathit{datamode}})^{n_{\mathit{data}}}}` be :math:`{{\mathit{data}}_5^{n_{\mathit{data}}}}`.
 
-#. Assert: Due to validation, :math:`{\mathit{elem}}_4` is of the case :math:`\mathsf{elem}`.
+#. Assert: Due to validation, for all :math:`{({\mathit{elem}}_4)^{n_{\mathit{elem}}}}`, :math:`{\mathit{elem}}_4` is of the case :math:`\mathsf{elem}`.
 
-#. Let :math:`{(\mathsf{elem}~{\mathit{rt}}~{{\mathit{expr}}_2^\ast}~{\mathit{elemmode}})^{n_{\mathit{elem}}}}` be :math:`{\mathit{elem}}_4`.
+#. Let :math:`{(\mathsf{elem}~{\mathit{rt}}~{{\mathit{expr}}_2^\ast}~{\mathit{elemmode}})^{n_{\mathit{elem}}}}` be :math:`{{\mathit{elem}}_4^{n_{\mathit{elem}}}}`.
 
-#. Assert: Due to validation, :math:`{\mathit{mem}}_3` is of the case :math:`\mathsf{memory}`.
+#. Assert: Due to validation, for all :math:`{({\mathit{mem}}_3)^{n_{\mathit{mem}}}}`, :math:`{\mathit{mem}}_3` is of the case :math:`\mathsf{memory}`.
 
-#. Let :math:`{(\mathsf{memory}~{\mathit{memtype}})^{n_{\mathit{mem}}}}` be :math:`{\mathit{mem}}_3`.
+#. Let :math:`{(\mathsf{memory}~{\mathit{memtype}})^{n_{\mathit{mem}}}}` be :math:`{{\mathit{mem}}_3^{n_{\mathit{mem}}}}`.
 
-#. Assert: Due to validation, :math:`{\mathit{table}}_2` is of the case :math:`\mathsf{table}`.
+#. Assert: Due to validation, for all :math:`{({\mathit{table}}_2)^{n_{\mathit{table}}}}`, :math:`{\mathit{table}}_2` is of the case :math:`\mathsf{table}`.
 
-#. Let :math:`{(\mathsf{table}~{\mathit{tabletype}})^{n_{\mathit{table}}}}` be :math:`{\mathit{table}}_2`.
+#. Let :math:`{(\mathsf{table}~{\mathit{tabletype}})^{n_{\mathit{table}}}}` be :math:`{{\mathit{table}}_2^{n_{\mathit{table}}}}`.
 
-#. Assert: Due to validation, :math:`{\mathit{global}}_1` is of the case :math:`\mathsf{global}`.
+#. Assert: Due to validation, for all :math:`{({\mathit{global}}_1)^{n_{\mathit{global}}}}`, :math:`{\mathit{global}}_1` is of the case :math:`\mathsf{global}`.
 
-#. Let :math:`{(\mathsf{global}~{\mathit{globaltype}}~{\mathit{expr}}_1)^{n_{\mathit{global}}}}` be :math:`{\mathit{global}}_1`.
+#. Let :math:`{(\mathsf{global}~{\mathit{globaltype}}~{\mathit{expr}}_1)^{n_{\mathit{global}}}}` be :math:`{{\mathit{global}}_1^{n_{\mathit{global}}}}`.
 
-#. Assert: Due to validation, :math:`{\mathit{type}}_0` is of the case :math:`\mathsf{type}`.
+#. Assert: Due to validation, for all :math:`{({\mathit{type}}_0)^\ast}`, :math:`{\mathit{type}}_0` is of the case :math:`\mathsf{type}`.
 
-#. Let :math:`{(\mathsf{type}~{\mathit{ft}})^\ast}` be :math:`{\mathit{type}}_0`.
+#. Let :math:`{(\mathsf{type}~{\mathit{ft}})^\ast}` be :math:`{{\mathit{type}}_0^\ast}`.
 
 #. Let :math:`{{\mathit{fa}}^\ast}` be :math:`{{|s{.}\mathsf{funcs}|} + i_{\mathit{func}}^{i_{\mathit{func}}<n_{\mathit{func}}}}`.
 
@@ -9538,23 +9445,23 @@ watsup 0.4 generator
 
 #. Let :math:`z` be :math:`f_{\mathit{init}}`.
 
-#. Push the activation of :math:`z` to the stack.
+#. Push the value :math:`({\mathsf{frame}}_{0}\,\{~z~\})` to the stack.
 
 #. Let :math:`{{\mathit{val}}^\ast}` be :math:`{{\mathrm{eval}}_{\mathit{expr}}({\mathit{expr}}_{\mathsf{g}})^\ast}`.
 
-#. Pop the activation of :math:`f` from the stack.
+#. Pop the value :math:`({\mathsf{frame}}_{0}\,\{~f~\})` from the stack.
 
-#. Push the activation of :math:`z` to the stack.
+#. Push the value :math:`({\mathsf{frame}}_{0}\,\{~z~\})` to the stack.
 
 #. Let :math:`{{{\mathit{ref}}^\ast}^\ast}` be :math:`{{{\mathrm{eval}}_{\mathit{expr}}({\mathit{expr}}_{\mathsf{e}})^\ast}^\ast}`.
 
-#. Pop the activation of :math:`f` from the stack.
+#. Pop the value :math:`({\mathsf{frame}}_{0}\,\{~f~\})` from the stack.
 
 #. Let :math:`{\mathit{moduleinst}}` be :math:`{\mathrm{allocmodule}}({\mathit{module}}, {{\mathit{externaddr}}^\ast}, {{\mathit{val}}^\ast}, {{{\mathit{ref}}^\ast}^\ast})`.
 
 #. Let :math:`f` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{locals}~\epsilon,\; \mathsf{module}~{\mathit{moduleinst}} \}\end{array}`.
 
-#. Push the activation of :math:`f` with arity :math:`0` to the stack.
+#. Push the evaluation context :math:`({\mathsf{frame}}_{0}\,\{~f~\})` to the stack.
 
 #. Execute the sequence :math:`{{\mathit{instr}}_{\mathsf{e}}^\ast}`.
 
@@ -9564,7 +9471,7 @@ watsup 0.4 generator
 
    a. Execute the instruction :math:`(\mathsf{call}~x)`.
 
-#. Pop the activation of :math:`f` with arity :math:`0` from the stack.
+#. Pop the evaluation context :math:`({\mathsf{frame}}_{0}\,\{~f~\})` from the stack.
 
 #. Return :math:`f{.}\mathsf{module}`.
 
@@ -9575,15 +9482,15 @@ watsup 0.4 generator
 
 1. Let :math:`f` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{locals}~\epsilon,\; \mathsf{module}~\{ \begin{array}[t]{@{}l@{}}\mathsf{types}~\epsilon,\; \mathsf{funcs}~\epsilon,\; \mathsf{globals}~\epsilon,\; \mathsf{tables}~\epsilon,\; \mathsf{mems}~\epsilon,\; \mathsf{elems}~\epsilon,\; \mathsf{datas}~\epsilon,\; \mathsf{exports}~\epsilon \}\end{array} \}\end{array}`.
 
-#. Push the activation of :math:`f` to the stack.
+#. Push the value :math:`({\mathsf{frame}}_{0}\,\{~f~\})` to the stack.
 
 #. Let :math:`({t_1^{n}}~\rightarrow~{t_2^\ast})` be :math:`z{.}\mathsf{funcs}{}[{\mathit{fa}}]{.}\mathsf{type}`.
 
-#. Pop the activation of :math:`f` from the stack.
+#. Pop the value :math:`({\mathsf{frame}}_{0}\,\{~f~\})` from the stack.
 
 #. Let :math:`k` be :math:`{|{t_2^\ast}|}`.
 
-#. Push the activation of :math:`f` with arity :math:`k` to the stack.
+#. Push the evaluation context :math:`({\mathsf{frame}}_{k}\,\{~f~\})` to the stack.
 
 #. Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
 
@@ -9591,7 +9498,7 @@ watsup 0.4 generator
 
 #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
-#. Pop the activation of :math:`f` with arity :math:`k` from the stack.
+#. Pop the evaluation context :math:`({\mathsf{frame}}_{k}\,\{~f~\})` from the stack.
 
 #. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
 
@@ -9621,7 +9528,7 @@ watsup 0.4 generator
 == Translating to AL...
 == Prose Generation...
 Limits_ok
-- the limits (n, m) is valid with the nat k if and only if:
+- the limits ([ n .. m ]) is valid with the nat k if and only if:
   - n is less than or equal to m.
   - m is less than or equal to k.
 
@@ -9668,7 +9575,7 @@ Resulttype_sub
     - the value type t_1 matches the value type t_2.
 
 Limits_sub
-- the limits (n_11, n_12) matches the limits (n_21, n_22) if and only if:
+- the limits ([ n_11 .. n_12 ]) matches the limits ([ n_21 .. n_22 ]) if and only if:
   - n_11 is greater than or equal to n_21.
   - n_12 is less than or equal to n_22.
 
@@ -10057,7 +9964,7 @@ Instrs_ok
     - valtype_u1* is t_1*.
     - valtype_u2* is t_3*.
     - the instr instr_1 is valid with the function type (t_1* -> t_2*).
-    - the instr sequence [instr_2] is valid with the function type (t_2* -> t_3*).
+    - the instr sequence instr_2* is valid with the function type (t_2* -> t_3*).
   - Or:
     - instr_u0* is instr*.
     - valtype_u1* is t'_1*.
@@ -10262,29 +10169,25 @@ Step_pure/if bt instr_1* instr_2*
 
 Step_pure/label
 1. Pop all values val* from the top of the stack.
-2. Assert: Due to validation, a label is now on the top of the stack.
-3. Pop the current label from the stack.
+2. Assert: Due to validation, the first non-value entry of the stack is a LABEL_.
+3. Pop the current LABEL_ context from the stack.
 4. Push the values val* to the stack.
 
 Step_pure/br n_u0
-1. Pop all values val* from the top of the stack.
-2. Assert: Due to validation, the top of the stack is a LABEL_.
-3. Push the values val* to the stack.
-4. Let L be the current label.
-5. Let n be the arity of L.
-6. Let instr'* be the continuation of L.
-7. If (n_u0 is 0), then:
+1. Assert: Due to validation, the first non-value entry of the stack is a LABEL_.
+2. Let (LABEL_ n { instr'* }) be the current LABEL_ context.
+3. If (n_u0 is 0), then:
   a. Assert: Due to validation, there are at least n values on the top of the stack.
   b. Pop the values val^n from the stack.
   c. Pop all values val'* from the top of the stack.
-  d. Pop the current label from the stack.
+  d. Pop the current LABEL_ context from the stack.
   e. Push the values val^n to the stack.
   f. Execute the instruction instr'*.
-8. Else:
+4. Else:
   a. Pop all values val* from the top of the stack.
   b. If (n_u0 ≥ 1), then:
     1) Let l be (n_u0 - 1).
-    2) Pop the current label from the stack.
+    2) Pop the current LABEL_ context from the stack.
     3) Push the values val* to the stack.
     4) Execute the instruction (BR l).
 
@@ -10305,77 +10208,67 @@ Step_pure/br_table l* l'
   a. Execute the instruction (BR l').
 
 Step_pure/frame
-1. Let f be the current frame.
-2. Let n be the arity of f.
+1. Let (FRAME_ n { f }) be the current FRAME_ context.
+2. Assert: Due to validation, there are at least n values on the top of the stack.
 3. Assert: Due to validation, there are at least n values on the top of the stack.
-4. Assert: Due to validation, there are at least n values on the top of the stack.
-5. Pop the values val^n from the stack.
-6. Assert: Due to validation, a frame is now on the top of the stack.
-7. Pop the current frame from the stack.
-8. Push the values val^n to the stack.
+4. Pop the values val^n from the stack.
+5. Assert: Due to validation, the first non-value entry of the stack is a FRAME_.
+6. Pop the current FRAME_ context from the stack.
+7. Push the values val^n to the stack.
 
 Step_pure/return
-1. Pop all values val* from the top of the stack.
-2. If the top of the stack is a FRAME_, then:
-  a. Push the values val* to the stack.
-  b. Let f be the current frame.
-  c. Let n be the arity of f.
-  d. Assert: Due to validation, there are at least n values on the top of the stack.
-  e. Pop the values val^n from the stack.
-  f. Pop all values val'* from the top of the stack.
-  g. Pop the current frame from the stack.
-  h. Push the values val^n to the stack.
-3. Else if the top of the stack is a LABEL_, then:
-  a. Push the values val* to the stack.
-  b. Pop all values val* from the top of the stack.
-  c. Pop the current label from the stack.
-  d. Push the values val* to the stack.
-  e. Execute the instruction RETURN.
+1. If the first non-value entry of the stack is a FRAME_, then:
+  a. Let (FRAME_ n { f }) be the current FRAME_ context.
+  b. Assert: Due to validation, there are at least n values on the top of the stack.
+  c. Pop the values val^n from the stack.
+  d. Pop all values val'* from the top of the stack.
+  e. Pop the current FRAME_ context from the stack.
+  f. Push the values val^n to the stack.
+2. Else if the first non-value entry of the stack is a LABEL_, then:
+  a. Pop all values val* from the top of the stack.
+  b. Pop the current LABEL_ context from the stack.
+  c. Push the values val* to the stack.
+  d. Execute the instruction RETURN.
 
 Step_pure/unop nt unop
-1. Assert: Due to validation, a value of value type numtype_0 is on the top of the stack.
+1. Assert: Due to validation, a value of value type nt is on the top of the stack.
 2. Pop the value (numtype_0.CONST c_1) from the stack.
-3. Assert: Due to validation, (numtype_0 is nt).
-4. If (|$unop_(nt, unop, c_1)| ≤ 0), then:
+3. If (|$unop_(nt, unop, c_1)| ≤ 0), then:
   a. Trap.
-5. Let c be an element of $unop_(nt, unop, c_1).
-6. Push the value (nt.CONST c) to the stack.
+4. Let c be an element of $unop_(nt, unop, c_1).
+5. Push the value (nt.CONST c) to the stack.
 
 Step_pure/binop nt binop
-1. Assert: Due to validation, a value of value type numtype_0 is on the top of the stack.
+1. Assert: Due to validation, a value of value type nt is on the top of the stack.
 2. Pop the value (numtype_0.CONST c_2) from the stack.
-3. Assert: Due to validation, (numtype_0 is nt).
-4. Assert: Due to validation, a value of value type numtype_0 is on the top of the stack.
-5. Pop the value (numtype_0.CONST c_1) from the stack.
-6. If (|$binop_(nt, binop, c_1, c_2)| ≤ 0), then:
+3. Assert: Due to validation, a value of value type numtype_0 is on the top of the stack.
+4. Pop the value (numtype_0.CONST c_1) from the stack.
+5. If (|$binop_(nt, binop, c_1, c_2)| ≤ 0), then:
   a. Trap.
-7. Let c be an element of $binop_(nt, binop, c_1, c_2).
-8. Push the value (nt.CONST c) to the stack.
+6. Let c be an element of $binop_(nt, binop, c_1, c_2).
+7. Push the value (nt.CONST c) to the stack.
 
 Step_pure/testop nt testop
-1. Assert: Due to validation, a value of value type numtype_0 is on the top of the stack.
+1. Assert: Due to validation, a value of value type nt is on the top of the stack.
 2. Pop the value (numtype_0.CONST c_1) from the stack.
-3. Assert: Due to validation, (numtype_0 is nt).
-4. Let c be $testop_(nt, testop, c_1).
-5. Push the value (I32.CONST c) to the stack.
+3. Let c be $testop_(nt, testop, c_1).
+4. Push the value (I32.CONST c) to the stack.
 
 Step_pure/relop nt relop
-1. Assert: Due to validation, a value of value type numtype_0 is on the top of the stack.
+1. Assert: Due to validation, a value of value type nt is on the top of the stack.
 2. Pop the value (numtype_0.CONST c_2) from the stack.
-3. Assert: Due to validation, (numtype_0 is nt).
-4. Assert: Due to validation, a value of value type numtype_0 is on the top of the stack.
-5. Pop the value (numtype_0.CONST c_1) from the stack.
-6. Let c be $relop_(nt, relop, c_1, c_2).
-7. Push the value (I32.CONST c) to the stack.
+3. Assert: Due to validation, a value of value type numtype_0 is on the top of the stack.
+4. Pop the value (numtype_0.CONST c_1) from the stack.
+5. Let c be $relop_(nt, relop, c_1, c_2).
+6. Push the value (I32.CONST c) to the stack.
 
 Step_pure/cvtop nt_2 nt_1 cvtop
-1. Assert: Due to validation, a value of value type numtype_0 is on the top of the stack.
+1. Assert: Due to validation, a value of value type nt_1 is on the top of the stack.
 2. Pop the value (numtype_0.CONST c_1) from the stack.
-3. Assert: Due to validation, (numtype_0 is nt_1).
-4. If (|$cvtop__(nt_1, nt_2, cvtop, c_1)| ≤ 0), then:
+3. If (|$cvtop__(nt_1, nt_2, cvtop, c_1)| ≤ 0), then:
   a. Trap.
-5. Let c be an element of $cvtop__(nt_1, nt_2, cvtop, c_1).
-6. Push the value (nt_2.CONST c) to the stack.
+4. Let c be an element of $cvtop__(nt_1, nt_2, cvtop, c_1).
+5. Push the value (nt_2.CONST c) to the stack.
 
 Step_pure/ref.is_null
 1. Assert: Due to validation, a value is on the top of the stack.
@@ -10490,7 +10383,7 @@ Step_pure/vshuffle (Pnn X N) i*
 9. Push the value (V128.CONST c) to the stack.
 
 Step_pure/vsplat (Lnn X N)
-1. Assert: Due to validation, a value of value type numtype_0 is on the top of the stack.
+1. Assert: Due to validation, a value is on the top of the stack.
 2. Pop the value (numtype_0.CONST c_1) from the stack.
 3. Assert: Due to validation, (numtype_0 is $unpack(Lnn)).
 4. Let c be $invlanes_((Lnn X N), $packnum_(Lnn, c_1)^N).
@@ -10513,7 +10406,7 @@ Step_pure/vextract_lane (lanetype_u0 X N) sx_u1? i
       b) Push the value (I32.CONST c_2) to the stack.
 
 Step_pure/vreplace_lane (Lnn X N) i
-1. Assert: Due to validation, a value of value type numtype_0 is on the top of the stack.
+1. Assert: Due to validation, a value is on the top of the stack.
 2. Pop the value (numtype_0.CONST c_2) from the stack.
 3. Assert: Due to validation, (numtype_0 is $unpack(Lnn)).
 4. Assert: Due to validation, a value of value type V128 is on the top of the stack.
@@ -10598,16 +10491,14 @@ Step_read/block bt instr*
 2. Let (t_1^k -> t_2^n) be $blocktype(z, bt).
 3. Assert: Due to validation, there are at least k values on the top of the stack.
 4. Pop the values val^k from the stack.
-5. Let L be the label_n{[]}.
-6. Enter val^k :: instr* with label L.
+5. Enter val^k :: instr* with label (LABEL_ n { [] }).
 
 Step_read/loop bt instr*
 1. Let z be the current state.
 2. Let (t_1^k -> t_2^n) be $blocktype(z, bt).
 3. Assert: Due to validation, there are at least k values on the top of the stack.
 4. Pop the values val^k from the stack.
-5. Let L be the label_k{[(LOOP bt instr*)]}.
-6. Enter val^k :: instr* with label L.
+5. Enter val^k :: instr* with label (LABEL_ k { [(LOOP bt instr*)] }).
 
 Step_read/call x
 1. Let z be the current state.
@@ -10636,14 +10527,12 @@ Step_read/call_addr a
 4. Assert: Due to validation, there are at least k values on the top of the stack.
 5. Pop the values val^k from the stack.
 6. Assert: Due to validation, func is of the case FUNC.
-7. Let (FUNC x local_0 instr*) be func.
-8. Assert: Due to validation, local_0 is of the case LOCAL.
-9. Let (LOCAL t)* be local_0.
+7. Let (FUNC x local_0* instr*) be func.
+8. Assert: Due to validation, local_0 is of the case LOCAL*.
+9. Let (LOCAL t)* be local_0*.
 10. Let f be { LOCALS: val^k :: $default_(t)*; MODULE: mm; }.
-11. Let F be the activation of f with arity n.
-12. Push F to the stack.
-13. Let L be the label_n{[]}.
-14. Enter instr* with label L.
+11. Push the evaluation context (FRAME_ n { f }) to the stack.
+12. Enter instr* with label (LABEL_ n { [] }).
 
 Step_read/ref.func x
 1. Let z be the current state.
@@ -10785,11 +10674,11 @@ Step_read/vload V128 vloadop_u0? ao
     1) Let (SHAPE M X N sx) be vloadop_0.
     2) If (((i + ao.OFFSET) + ((M · N) / 8)) > |$mem(z, 0).BYTES|), then:
       a) Trap.
-    3) If the type of $lsize^-1((M · 2)) is Jnn, then:
+    3) Let j^N be $ibytes__1^-1(M, $mem(z, 0).BYTES[((i + ao.OFFSET) + ((k · M) / 8)) : (M / 8)])^(k<N).
+    4) If the type of $lsize^-1((M · 2)) is Jnn, then:
       a) Let Jnn be $lsize^-1((M · 2)).
-      b) Let j^N be $ibytes__1^-1(M, $mem(z, 0).BYTES[((i + ao.OFFSET) + ((k · M) / 8)) : (M / 8)])^(k<N).
-      c) Let c be $invlanes_((Jnn X N), $extend__(M, $lsize(Jnn), sx, j)^N).
-      d) Push the value (V128.CONST c) to the stack.
+      b) Let c be $invlanes_((Jnn X N), $extend__(M, $lsize(Jnn), sx, j)^N).
+      c) Push the value (V128.CONST c) to the stack.
   c. If vloadop_0 is of the case SPLAT, then:
     1) Let (SPLAT N) be vloadop_0.
     2) If (((i + ao.OFFSET) + (N / 8)) > |$mem(z, 0).BYTES|), then:
@@ -11971,11 +11860,11 @@ store
 1. Return.
 
 frame
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return f.
 
 funcaddr
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return f.MODULE.FUNCS.
 
 funcinst
@@ -11997,85 +11886,85 @@ datainst
 1. Return s.DATAS.
 
 moduleinst
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return f.MODULE.
 
 type x
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return f.MODULE.TYPES[x].
 
 func x
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return s.FUNCS[f.MODULE.FUNCS[x]].
 
 global x
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return s.GLOBALS[f.MODULE.GLOBALS[x]].
 
 table x
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return s.TABLES[f.MODULE.TABLES[x]].
 
 mem x
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return s.MEMS[f.MODULE.MEMS[x]].
 
 elem x
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return s.ELEMS[f.MODULE.ELEMS[x]].
 
 data x
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return s.DATAS[f.MODULE.DATAS[x]].
 
 local x
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return f.LOCALS[x].
 
 with_local x v
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Replace f.LOCALS[x] with v.
 
 with_global x v
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Replace s.GLOBALS[f.MODULE.GLOBALS[x]].VALUE with v.
 
 with_table x i r
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Replace s.TABLES[f.MODULE.TABLES[x]].REFS[i] with r.
 
 with_tableinst x ti
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Replace s.TABLES[f.MODULE.TABLES[x]] with ti.
 
 with_mem x i j b*
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Replace s.MEMS[f.MODULE.MEMS[x]].BYTES[i : j] with b*.
 
 with_meminst x mi
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Replace s.MEMS[f.MODULE.MEMS[x]] with mi.
 
 with_elem x r*
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Replace s.ELEMS[f.MODULE.ELEMS[x]].REFS with r*.
 
 with_data x b*
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Replace s.DATAS[f.MODULE.DATAS[x]].BYTES with b*.
 
 growtable ti n r
-1. Let { TYPE: ((i, j), rt); REFS: r'*; } be ti.
+1. Let { TYPE: (([ i .. j ]), rt); REFS: r'*; } be ti.
 2. Let i' be (|r'*| + n).
 3. If (i' ≤ j), then:
-  a. Let ti' be { TYPE: ((i', j), rt); REFS: r'* :: r^n; }.
+  a. Let ti' be { TYPE: (([ i' .. j ]), rt); REFS: r'* :: r^n; }.
   b. Return ti'.
 
 growmemory mi n
-1. Let { TYPE: ((i, j) PAGE); BYTES: b*; } be mi.
+1. Let { TYPE: (([ i .. j ]) PAGE); BYTES: b*; } be mi.
 2. Let i' be ((|b*| / (64 · $Ki())) + n).
 3. If (i' ≤ j), then:
-  a. Let mi' be { TYPE: ((i', j) PAGE); BYTES: b* :: 0^(n · (64 · $Ki())); }.
+  a. Let mi' be { TYPE: (([ i' .. j ]) PAGE); BYTES: b* :: 0^(n · (64 · $Ki())); }.
   b. Return mi'.
 
 blocktype z blocktype_u1
@@ -12164,8 +12053,8 @@ allocglobals globaltype_u0* val_u1*
   e. Let ga'* be $allocglobals(globaltype'*, val'*).
   f. Return [ga] :: ga'*.
 
-alloctable ((i, j), rt)
-1. Let ti be { TYPE: ((i, j), rt); REFS: (REF.NULL rt)^i; }.
+alloctable (([ i .. j ]), rt)
+1. Let ti be { TYPE: (([ i .. j ]), rt); REFS: (REF.NULL rt)^i; }.
 2. Let a be |s.TABLES|.
 3. Append ti to the s.TABLES.
 4. Return a.
@@ -12178,8 +12067,8 @@ alloctables tabletype_u0*
 4. Let ta'* be $alloctables(tabletype'*).
 5. Return [ta] :: ta'*.
 
-allocmem ((i, j) PAGE)
-1. Let mi be { TYPE: ((i, j) PAGE); BYTES: 0^(i · (64 · $Ki())); }.
+allocmem (([ i .. j ]) PAGE)
+1. Let mi be { TYPE: (([ i .. j ]) PAGE); BYTES: 0^(i · (64 · $Ki())); }.
 2. Let a be |s.MEMS|.
 3. Append mi to the s.MEMS.
 4. Return a.
@@ -12243,19 +12132,19 @@ allocmodule module externaddr* val* ref**
 3. Let ma_ex* be $mems(externaddr*).
 4. Let ta_ex* be $tables(externaddr*).
 5. Assert: Due to validation, module is of the case MODULE.
-6. Let (MODULE type_0 import* func^n_func global_1 table_2 mem_3 elem_4 data_5 start? export*) be module.
-7. Assert: Due to validation, data_5 is of the case DATA.
-8. Let (DATA byte* datamode)^n_data be data_5.
-9. Assert: Due to validation, elem_4 is of the case ELEM.
-10. Let (ELEM rt expr_2* elemmode)^n_elem be elem_4.
-11. Assert: Due to validation, mem_3 is of the case MEMORY.
-12. Let (MEMORY memtype)^n_mem be mem_3.
-13. Assert: Due to validation, table_2 is of the case TABLE.
-14. Let (TABLE tabletype)^n_table be table_2.
-15. Assert: Due to validation, global_1 is of the case GLOBAL.
-16. Let (GLOBAL globaltype expr_1)^n_global be global_1.
-17. Assert: Due to validation, type_0 is of the case TYPE.
-18. Let (TYPE ft)* be type_0.
+6. Let (MODULE type_0* import* func^n_func global_1^n_global table_2^n_table mem_3^n_mem elem_4^n_elem data_5^n_data start? export*) be module.
+7. Assert: Due to validation, data_5 is of the case DATA^n_data.
+8. Let (DATA byte* datamode)^n_data be data_5^n_data.
+9. Assert: Due to validation, elem_4 is of the case ELEM^n_elem.
+10. Let (ELEM rt expr_2* elemmode)^n_elem be elem_4^n_elem.
+11. Assert: Due to validation, mem_3 is of the case MEMORY^n_mem.
+12. Let (MEMORY memtype)^n_mem be mem_3^n_mem.
+13. Assert: Due to validation, table_2 is of the case TABLE^n_table.
+14. Let (TABLE tabletype)^n_table be table_2^n_table.
+15. Assert: Due to validation, global_1 is of the case GLOBAL^n_global.
+16. Let (GLOBAL globaltype expr_1)^n_global be global_1^n_global.
+17. Assert: Due to validation, type_0 is of the case TYPE*.
+18. Let (TYPE ft)* be type_0*.
 19. Let fa* be (|s.FUNCS| + i_func)^(i_func<n_func).
 20. Let ga* be (|s.GLOBALS| + i_global)^(i_global<n_global).
 21. Let ta* be (|s.TABLES| + i_table)^(i_table<n_table).
@@ -12316,33 +12205,33 @@ instantiate z module externaddr*
 16. Let moduleinst_init be { TYPES: functype*; FUNCS: $funcs(externaddr*) :: (|s.FUNCS| + i_F)^(i_F<n_F); GLOBALS: $globals(externaddr*); TABLES: []; MEMS: []; ELEMS: []; DATAS: []; EXPORTS: []; }.
 17. Let f_init be { LOCALS: []; MODULE: moduleinst_init; }.
 18. Let z be f_init.
-19. Push the activation of z to the stack.
+19. Push the value (FRAME_ 0 { z }) to the stack.
 20. Let [val]* be $eval_expr(expr_G)*.
-21. Pop the activation of _f from the stack.
-22. Push the activation of z to the stack.
+21. Pop the value (FRAME_ 0 { _f }) from the stack.
+22. Push the value (FRAME_ 0 { z }) to the stack.
 23. Let [ref]** be $eval_expr(expr_E)**.
-24. Pop the activation of _f from the stack.
+24. Pop the value (FRAME_ 0 { _f }) from the stack.
 25. Let moduleinst be $allocmodule(module, externaddr*, val*, ref**).
 26. Let f be { LOCALS: []; MODULE: moduleinst; }.
-27. Push the activation of f with arity 0 to the stack.
+27. Push the evaluation context (FRAME_ 0 { f }) to the stack.
 28. Execute the sequence (instr_E*).
 29. Execute the sequence (instr_D*).
 30. If (CALL x)? is defined, then:
   a. Execute the instruction (CALL x).
-31. Pop the activation of f with arity 0 from the stack.
+31. Pop the evaluation context (FRAME_ 0 { f }) from the stack.
 32. Return f.MODULE.
 
 invoke z fa val^n
 1. Let f be { LOCALS: []; MODULE: { TYPES: []; FUNCS: []; GLOBALS: []; TABLES: []; MEMS: []; ELEMS: []; DATAS: []; EXPORTS: []; }; }.
-2. Push the activation of f to the stack.
+2. Push the value (FRAME_ 0 { f }) to the stack.
 3. Let (t_1^n -> t_2*) be $funcinst(z)[fa].TYPE.
-4. Pop the activation of _f from the stack.
+4. Pop the value (FRAME_ 0 { _f }) from the stack.
 5. Let k be |t_2*|.
-6. Push the activation of f with arity k to the stack.
+6. Push the evaluation context (FRAME_ k { f }) to the stack.
 7. Push the values val^n to the stack.
 8. Execute the instruction (CALL_ADDR fa).
 9. Pop all values val* from the top of the stack.
-10. Pop the activation of f with arity k from the stack.
+10. Pop the evaluation context (FRAME_ k { f }) from the stack.
 11. Push the values val* to the stack.
 12. Pop the values val^k from the stack.
 13. Return val^k.
@@ -12363,7 +12252,7 @@ watsup 0.4 generator
 == Translating to AL...
 == Prose Generation...
 6-typing.watsup:195.10-195.32: if_expr_to_instrs: Yet `$before(typeuse, x, i)`
-6-typing.watsup:1378.9-1378.30: if_expr_to_instrs: Yet `$disjoint_(syntax name, nm*{nm : name})`
+6-typing.watsup:1380.9-1380.30: if_expr_to_instrs: Yet `$disjoint_(syntax name, nm*{nm <- `nm*`})`
 
 * :math:`{\mathit{numtype}}` is valid.
 
@@ -12432,7 +12321,7 @@ watsup 0.4 generator
 * :math:`({t_1^\ast}~{\rightarrow}_{{x^\ast}}\,{t_2^\ast})` is valid if and only if:
 
 
-   * :math:`{|{x^\ast}|}` must be equal to :math:`{|{{{\mathit{lt}}}^\ast}|}`.
+   * :math:`{|{\mathit{x*}}|}` must be equal to :math:`{|{\mathit{lct*}}|}`.
 
    * For all :math:`x` in :math:`{x^\ast}`,
 
@@ -12728,7 +12617,7 @@ watsup 0.4 generator
 * :math:`{t_1^\ast}` matches :math:`{t_2^\ast}` if and only if:
 
 
-   * :math:`{|{t_2^\ast}|}` must be equal to :math:`{|{t_1^\ast}|}`.
+   * :math:`{|t_{\mathit{{\scriptstyle 2}*}}|}` must be equal to :math:`{|t_{\mathit{{\scriptstyle 1}*}}|}`.
 
    * For all :math:`t_1` in :math:`{t_1^\ast}` and :math:`t_2` in :math:`{t_2^\ast}`,
 
@@ -12752,7 +12641,7 @@ watsup 0.4 generator
 
       * :math:`{\mathit{comptype}}_{\mathit{u{\kern-0.1em\scriptstyle 1}}}` must be equal to :math:`(\mathsf{struct}~{{\mathit{yt}}_2^\ast})`.
 
-      * :math:`{|{{\mathit{yt}}_2^\ast}|}` must be equal to :math:`{|{{\mathit{yt}}_1^\ast}|}`.
+      * :math:`{|{\mathit{yt}}_{\mathit{{\scriptstyle 2}*}}|}` must be equal to :math:`{|{\mathit{yt}}_{\mathit{{\scriptstyle 1}*}}|}`.
 
       * For all :math:`{\mathit{yt}}_1` in :math:`{{\mathit{yt}}_1^\ast}` and :math:`{\mathit{yt}}_2` in :math:`{{\mathit{yt}}_2^\ast}`,
 
@@ -12773,12 +12662,12 @@ watsup 0.4 generator
       * :math:`{\mathit{ft}}_1` matches :math:`{\mathit{ft}}_2`.
 
 
-* :math:`(\mathsf{sub}~(\mathsf{final}~{()^?}~{}^?)~{{\mathit{typeidx}}^\ast}~{\mathit{comptype}})` is valid with type :math:`({\mathsf{ok}}{x_0})` if and only if:
+* :math:`(\mathsf{sub}~(\mathsf{final}~{()^?}~{}^?)~{x^\ast}~{\mathit{comptype}})` is valid with type :math:`({\mathsf{ok}}{x_0})` if and only if:
 
 
-   * :math:`{|{x^\ast}|}` must be equal to :math:`{|{{\mathit{comptype}'}^\ast}|}`.
+   * :math:`{|{\mathit{x*}}|}` must be equal to :math:`{|{\mathit{comptype'*}}|}`.
 
-   * :math:`{|{{{x'}^\ast}^\ast}|}` must be equal to :math:`{|{{\mathit{comptype}'}^\ast}|}`.
+   * :math:`{|{\mathit{x'**}}|}` must be equal to :math:`{|{\mathit{comptype'*}}|}`.
 
    * For all :math:`x` in :math:`{x^\ast}`,
 
@@ -12790,7 +12679,7 @@ watsup 0.4 generator
 
       * :math:`x` must be less than :math:`x_0`.
 
-   * For all :math:`{\mathit{comptype}'}` in :math:`{{\mathit{comptype}'}^\ast}` and :math:`x` in :math:`{x^\ast}` and :math:`{x'}` in :math:`{{x'}^\ast}`,
+   * For all :math:`{\mathit{comptype}'}` in :math:`{{\mathit{comptype}'}^\ast}` and :math:`x` in :math:`{x^\ast}` and :math:`{\mathit{x'*}}` in :math:`{{\mathit{x'*}}^\ast}`,
 
       * :math:`{\mathrm{unroll}}(C{.}\mathsf{types}{}[x])` must be equal to :math:`(\mathsf{sub}~(\mathsf{final}~\epsilon~{}^?)~{{x'}^\ast}~{\mathit{comptype}'})`.
 
@@ -12804,9 +12693,9 @@ watsup 0.4 generator
 * :math:`(\mathsf{sub}~(\mathsf{final}~{()^?}~{}^?)~{{\mathit{typeuse}}^\ast}~{\mathit{compttype}})` is valid with type :math:`({\mathsf{ok}}{(x, i)})` if and only if:
 
 
-   * :math:`{|{{\mathit{typeuse}}^\ast}|}` must be equal to :math:`{|{{\mathit{comptype}'}^\ast}|}`.
+   * :math:`{|{\mathit{typeuse*}}|}` must be equal to :math:`{|{\mathit{comptype'*}}|}`.
 
-   * :math:`{|{{{\mathit{typeuse}'}^\ast}^\ast}|}` must be equal to :math:`{|{{\mathit{comptype}'}^\ast}|}`.
+   * :math:`{|{\mathit{typeuse'**}}|}` must be equal to :math:`{|{\mathit{comptype'*}}|}`.
 
    * :math:`{|{{\mathit{typeuse}}^\ast}|}` must be less than or equal to :math:`1`.
 
@@ -12814,7 +12703,7 @@ watsup 0.4 generator
 
       * YetI: $before(typeuse, x, i).
 
-   * For all :math:`{\mathit{comptype}'}` in :math:`{{\mathit{comptype}'}^\ast}` and :math:`{\mathit{typeuse}}` in :math:`{{\mathit{typeuse}}^\ast}` and :math:`{\mathit{typeuse}'}` in :math:`{{\mathit{typeuse}'}^\ast}`,
+   * For all :math:`{\mathit{comptype}'}` in :math:`{{\mathit{comptype}'}^\ast}` and :math:`{\mathit{typeuse}}` in :math:`{{\mathit{typeuse}}^\ast}` and :math:`{\mathit{typeuse'*}}` in :math:`{{\mathit{typeuse'*}}^\ast}`,
 
       * :math:`{{\mathrm{unroll}}}_{C}({\mathit{typeuse}})` must be equal to :math:`(\mathsf{sub}~(\mathsf{final}~\epsilon~{}^?)~{{\mathit{typeuse}'}^\ast}~{\mathit{comptype}'})`.
 
@@ -12871,7 +12760,7 @@ watsup 0.4 generator
    * :math:`i` must be less than :math:`n`.
 
 
-* :math:`(n, m)` is valid with type :math:`k` if and only if:
+* :math:`({}[~n~..~m~])` is valid with type :math:`k` if and only if:
 
 
    * :math:`n` must be less than or equal to :math:`m`.
@@ -12940,7 +12829,7 @@ watsup 0.4 generator
 * :math:`({t_{11}^\ast}~{\rightarrow}_{{x_1^\ast}}\,{t_{12}^\ast})` matches :math:`({t_{21}^\ast}~{\rightarrow}_{{x_2^\ast}}\,{t_{22}^\ast})` if and only if:
 
 
-   * :math:`{|{x^\ast}|}` must be equal to :math:`{|{t^\ast}|}`.
+   * :math:`{|{\mathit{x*}}|}` must be equal to :math:`{|{\mathit{t*}}|}`.
 
    * For all :math:`x` in :math:`{x^\ast}`,
 
@@ -12957,7 +12846,7 @@ watsup 0.4 generator
       * :math:`C{.}\mathsf{locals}{}[x]` must be equal to :math:`(\mathsf{set}, t)`.
 
 
-* :math:`(n_1, m_1)` matches :math:`(n_2, m_2)` if and only if:
+* :math:`({}[~n_1~..~m_1~])` matches :math:`({}[~n_2~..~m_2~])` if and only if:
 
 
    * :math:`n_1` must be greater than or equal to :math:`n_2`.
@@ -13456,7 +13345,7 @@ watsup 0.4 generator
 
    * :math:`{|C{.}\mathsf{types}|}` must be greater than :math:`x`.
 
-   * :math:`{|{{\mathit{zt}}^\ast}|}` must be equal to :math:`{|{{\mathsf{mut}^?}^\ast}|}`.
+   * :math:`{|{\mathit{zt*}}|}` must be equal to :math:`{|{\mathit{mut*}}|}`.
 
    * :math:`{\mathrm{expand}}(C{.}\mathsf{types}{}[x])` must be equal to :math:`(\mathsf{struct}~{({\mathsf{mut}^?}, {\mathit{zt}})^\ast})`.
 
@@ -13466,9 +13355,9 @@ watsup 0.4 generator
 
    * :math:`{|C{.}\mathsf{types}|}` must be greater than :math:`x`.
 
-   * :math:`{|{{\mathit{zt}}^\ast}|}` must be equal to :math:`{|{{\mathsf{mut}^?}^\ast}|}`.
+   * :math:`{|{\mathit{zt*}}|}` must be equal to :math:`{|{\mathit{mut*}}|}`.
 
-   * :math:`{|{{\mathit{zt}}^\ast}|}` must be equal to :math:`{|{{\mathit{val}}^\ast}|}`.
+   * :math:`{|{\mathit{zt*}}|}` must be equal to :math:`{|{\mathit{val*}}|}`.
 
    * :math:`{\mathrm{expand}}(C{.}\mathsf{types}{}[x])` must be equal to :math:`(\mathsf{struct}~{({\mathsf{mut}^?}, {\mathit{zt}})^\ast})`.
 
@@ -13641,10 +13530,16 @@ watsup 0.4 generator
    * :math:`C{.}\mathsf{datas}{}[y]` must be equal to :math:`\mathsf{ok}`.
 
 
-* :math:`\mathsf{extern{.}convert\_any}` is valid with type :math:`((\mathsf{ref}~{\mathsf{null}^?}~\mathsf{any})~{\rightarrow}_{\epsilon}\,(\mathsf{ref}~{\mathsf{null}^?}~\mathsf{extern}))`.
+* :math:`\mathsf{extern{.}convert\_any}` is valid with type :math:`((\mathsf{ref}~{\mathsf{null}}{{{}_{1}^?}}~\mathsf{any})~{\rightarrow}_{\epsilon}\,(\mathsf{ref}~{\mathsf{null}}{{{}_{2}^?}}~\mathsf{extern}))` if and only if:
 
 
-* :math:`\mathsf{any{.}convert\_extern}` is valid with type :math:`((\mathsf{ref}~{\mathsf{null}^?}~\mathsf{extern})~{\rightarrow}_{\epsilon}\,(\mathsf{ref}~{\mathsf{null}^?}~\mathsf{any}))`.
+   * :math:`{\mathsf{null}}{{{}_{1}^?}}` must be equal to :math:`{\mathsf{null}}{{{}_{2}^?}}`.
+
+
+* :math:`\mathsf{any{.}convert\_extern}` is valid with type :math:`((\mathsf{ref}~{\mathsf{null}}{{{}_{1}^?}}~\mathsf{extern})~{\rightarrow}_{\epsilon}\,(\mathsf{ref}~{\mathsf{null}}{{{}_{2}^?}}~\mathsf{any}))` if and only if:
+
+
+   * :math:`{\mathsf{null}}{{{}_{1}^?}}` must be equal to :math:`{\mathsf{null}}{{{}_{2}^?}}`.
 
 
 * :math:`(\mathsf{v{\scriptstyle 128}}{.}\mathsf{const}~c)` is valid with type :math:`(\epsilon~{\rightarrow}_{\epsilon}\,\mathsf{v{\scriptstyle 128}})`.
@@ -14023,9 +13918,9 @@ watsup 0.4 generator
 
       * :math:`{\mathit{instrtype}}_{\mathit{u{\kern-0.1em\scriptstyle 4}}}` must be equal to :math:`({t_1^\ast}~{\rightarrow}_{{x_1^\ast}~{x_2^\ast}}\,{t_3^\ast})`.
 
-      * :math:`{|{t^\ast}|}` must be equal to :math:`{|{{\mathit{init}}^\ast}|}`.
+      * :math:`{|{\mathit{t*}}|}` must be equal to :math:`{|{\mathit{init*}}|}`.
 
-      * :math:`{|{x_1^\ast}|}` must be equal to :math:`{|{{\mathit{init}}^\ast}|}`.
+      * :math:`{|x_{\mathit{{\scriptstyle 1}*}}|}` must be equal to :math:`{|{\mathit{init*}}|}`.
 
       * For all :math:`x_1` in :math:`{x_1^\ast}`,
 
@@ -14151,7 +14046,7 @@ watsup 0.4 generator
 
    * :math:`{|C{.}\mathsf{types}|}` must be greater than :math:`x`.
 
-   * :math:`{|{{\mathit{local}}^\ast}|}` must be equal to :math:`{|{{{\mathit{lt}}}^\ast}|}`.
+   * :math:`{|{\mathit{local*}}|}` must be equal to :math:`{|{\mathit{lct*}}|}`.
 
    * :math:`{\mathrm{expand}}(C{.}\mathsf{types}{}[x])` must be equal to :math:`(\mathsf{func}~({t_1^\ast}~\rightarrow~{t_2^\ast}))`.
 
@@ -14347,7 +14242,7 @@ watsup 0.4 generator
 
       * :math:`{{\mathit{globaltype}}_{\mathit{u{\kern-0.1em\scriptstyle 1}}}^\ast}` must be equal to :math:`{\mathit{gt}}_1~{{\mathit{gt}}^\ast}`.
 
-      * :math:`{\mathit{global}}` is valid with type :math:`{\mathit{gt}}_1`.
+      * :math:`{\mathit{global}}_1` is valid with type :math:`{\mathit{gt}}_1`.
 
       * Under the context :math:`C{}[{.}\mathsf{globals} \mathrel{{=}{\oplus}} {\mathit{gt}}_1]`, :math:`{{\mathit{global}}^\ast}` is valid with type :math:`{{\mathit{gt}}^\ast}`.
 
@@ -14375,23 +14270,23 @@ watsup 0.4 generator
 * :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\ast}~{{\mathit{func}}^\ast}~{{\mathit{global}}^\ast}~{{\mathit{table}}^\ast}~{{\mathit{mem}}^\ast}~{{\mathit{tag}}^\ast}~{{\mathit{elem}}^\ast}~{{\mathit{data}}^\ast}~{{\mathit{start}}^?}~{{\mathit{export}}^\ast})` is valid with type :math:`{{\mathrm{clos}}}_{C}(({{\mathit{xt}}_{\mathsf{i}}^\ast}~\rightarrow~{{\mathit{xt}}_{\mathsf{e}}^\ast}))` if and only if:
 
 
-   * :math:`{|{{\mathit{xt}}_{\mathsf{i}}^\ast}|}` must be equal to :math:`{|{{\mathit{import}}^\ast}|}`.
+   * :math:`{|{\mathit{xt}}_{\mathsf{i*}}|}` must be equal to :math:`{|{\mathit{import*}}|}`.
 
-   * :math:`{|{{\mathit{tt}}^\ast}|}` must be equal to :math:`{|{{\mathit{table}}^\ast}|}`.
+   * :math:`{|{\mathit{tt*}}|}` must be equal to :math:`{|{\mathit{table*}}|}`.
 
-   * :math:`{|{{\mathit{mt}}^\ast}|}` must be equal to :math:`{|{{\mathit{mem}}^\ast}|}`.
+   * :math:`{|{\mathit{mt*}}|}` must be equal to :math:`{|{\mathit{mem*}}|}`.
 
-   * :math:`{|{{\mathit{tag}}^\ast}|}` must be equal to :math:`{|{{\mathit{at}}^\ast}|}`.
+   * :math:`{|{\mathit{tag*}}|}` must be equal to :math:`{|{\mathit{at*}}|}`.
 
-   * :math:`{|{{\mathit{func}}^\ast}|}` must be equal to :math:`{|{{\mathit{dt}}^\ast}|}`.
+   * :math:`{|{\mathit{func*}}|}` must be equal to :math:`{|{\mathit{dt*}}|}`.
 
-   * :math:`{|{{\mathit{rt}}^\ast}|}` must be equal to :math:`{|{{\mathit{elem}}^\ast}|}`.
+   * :math:`{|{\mathit{rt*}}|}` must be equal to :math:`{|{\mathit{elem*}}|}`.
 
-   * :math:`{|{{\mathit{ok}}^\ast}|}` must be equal to :math:`{|{{\mathit{data}}^\ast}|}`.
+   * :math:`{|{\mathit{ok*}}|}` must be equal to :math:`{|{\mathit{data*}}|}`.
 
-   * :math:`{|{{\mathit{nm}}^\ast}|}` must be equal to :math:`{|{{\mathit{export}}^\ast}|}`.
+   * :math:`{|{\mathit{nm*}}|}` must be equal to :math:`{|{\mathit{export*}}|}`.
 
-   * :math:`{|{{\mathit{xt}}_{\mathsf{e}}^\ast}|}` must be equal to :math:`{|{{\mathit{export}}^\ast}|}`.
+   * :math:`{|{\mathit{xt}}_{\mathsf{e*}}|}` must be equal to :math:`{|{\mathit{export*}}|}`.
 
    * Under the context :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{types}~\epsilon,\; \mathsf{recs}~\epsilon,\; \mathsf{funcs}~\epsilon,\; \mathsf{globals}~\epsilon,\; \mathsf{tables}~\epsilon,\; \mathsf{mems}~\epsilon,\; \mathsf{tags}~\epsilon,\; \mathsf{elems}~\epsilon,\; \mathsf{datas}~\epsilon,\; \mathsf{locals}~\epsilon,\; \mathsf{labels}~\epsilon,\; \mathsf{return}~\epsilon,\; \mathsf{refs}~\epsilon \}\end{array}`, :math:`{{\mathit{type}}^\ast}` is valid with type :math:`{{\mathit{dt}'}^\ast}`.
 
@@ -14433,9 +14328,9 @@ watsup 0.4 generator
 
       * :math:`{\mathit{export}}` is valid with type :math:`{\mathit{nm}}` and :math:`{\mathit{xt}}_{\mathsf{e}}`.
 
-   * YetI: $disjoint_(syntax name, nm*{nm : name}).
+   * YetI: $disjoint_(syntax name, nm*{nm <- `nm*`}).
 
-   * :math:`C` must be equal to :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{types}~{{\mathit{dt}'}^\ast},\; \mathsf{recs}~\epsilon,\; \mathsf{funcs}~{{\mathit{dt}}_{\mathsf{i}}^\ast}~{{\mathit{dt}}^\ast},\; \mathsf{globals}~{{\mathit{gt}}_{\mathsf{i}}^\ast}~{{\mathit{gt}}^\ast},\; \mathsf{tables}~{{\mathit{tt}}_{\mathsf{i}}^\ast}~{{\mathit{tt}}^\ast},\; \mathsf{mems}~{{\mathit{mt}}_{\mathsf{i}}^\ast}~{{\mathit{mt}}^\ast},\; \mathsf{tags}~{{\mathit{at}}_{\mathsf{i}}^\ast}~{{\mathit{at}}^\ast},\; \mathsf{elems}~{{\mathit{rt}}^\ast},\; \mathsf{datas}~{{\mathit{ok}}^\ast},\; \mathsf{locals}~\epsilon,\; \mathsf{labels}~\epsilon,\; \mathsf{return}~\epsilon,\; \mathsf{refs}~{x^\ast} \}\end{array}`.
+   * :math:`C` must be equal to :math:`{C'}{}[{.}\mathsf{globals} \mathrel{{=}{\oplus}} {{\mathit{gt}}^\ast}]{}[{.}\mathsf{tables} \mathrel{{=}{\oplus}} {{\mathit{tt}}_{\mathsf{i}}^\ast}~{{\mathit{tt}}^\ast}]{}[{.}\mathsf{mems} \mathrel{{=}{\oplus}} {{\mathit{mt}}_{\mathsf{i}}^\ast}~{{\mathit{mt}}^\ast}]{}[{.}\mathsf{tags} \mathrel{{=}{\oplus}} {{\mathit{at}}_{\mathsf{i}}^\ast}~{{\mathit{at}}^\ast}]{}[{.}\mathsf{elems} \mathrel{{=}{\oplus}} {{\mathit{rt}}^\ast}]{}[{.}\mathsf{datas} \mathrel{{=}{\oplus}} {{\mathit{ok}}^\ast}]`.
 
    * :math:`{C'}` must be equal to :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{types}~{{\mathit{dt}'}^\ast},\; \mathsf{recs}~\epsilon,\; \mathsf{funcs}~{{\mathit{dt}}_{\mathsf{i}}^\ast}~{{\mathit{dt}}^\ast},\; \mathsf{globals}~{{\mathit{gt}}_{\mathsf{i}}^\ast},\; \mathsf{tables}~\epsilon,\; \mathsf{mems}~\epsilon,\; \mathsf{tags}~\epsilon,\; \mathsf{elems}~\epsilon,\; \mathsf{datas}~\epsilon,\; \mathsf{locals}~\epsilon,\; \mathsf{labels}~\epsilon,\; \mathsf{return}~\epsilon,\; \mathsf{refs}~{x^\ast} \}\end{array}`.
 
@@ -14559,9 +14454,9 @@ watsup 0.4 generator
 
 1. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
-#. Assert: Due to validation, a label is now on the top of the stack.
+#. Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{label}`.
 
-#. Pop the current label from the stack.
+#. Pop the current :math:`\mathsf{label}` context from the stack.
 
 #. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
 
@@ -14570,17 +14465,9 @@ watsup 0.4 generator
 .....................
 
 
-1. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+1. If the first non-value entry of the stack is a :math:`\mathsf{label}`, then:
 
-#. If the top of the stack is a :math:`\mathsf{label}`, then:
-
-   a. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
-
-   #. Let :math:`L` be the current label.
-
-   #. Let :math:`n` be the arity of :math:`L`.
-
-   #. Let :math:`{{\mathit{instr}'}^\ast}` be the continuation of :math:`L`.
+   a. Let :math:`({{\mathsf{label}}_{n}}{\{}~{{\mathit{instr}'}^\ast}~\})` be the current :math:`\mathsf{label}` context.
 
    #. If :math:`l` is :math:`0`, then:
 
@@ -14590,7 +14477,7 @@ watsup 0.4 generator
 
       #) Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
 
-      #) Pop the current label from the stack.
+      #) Pop the current :math:`\mathsf{label}` context from the stack.
 
       #) Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
 
@@ -14602,19 +14489,17 @@ watsup 0.4 generator
 
       #) If :math:`l` is greater than :math:`0`, then:
 
-         a) Pop the current label from the stack.
+         a) Pop the current :math:`\mathsf{label}` context from the stack.
 
          #) Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
 
          #) Execute the instruction :math:`(\mathsf{br}~l - 1)`.
 
-#. Else if the top of the stack is a :math:`\mathsf{handler}`, then:
+#. Else if the first non-value entry of the stack is a :math:`\mathsf{handler}`, then:
 
-   a. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
+   a. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
-   #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
-
-   #. Exit from :math:`\mathsf{handler}`.
+   #. Pop the current :math:`\mathsf{handler}` context from the stack.
 
    #. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
 
@@ -14717,9 +14602,7 @@ watsup 0.4 generator
 ......................
 
 
-1. Let :math:`f` be the current frame.
-
-#. Let :math:`n` be the arity of :math:`f`.
+1. Let :math:`({{\mathsf{frame}}_{n}}{\{}~f~\})` be the current :math:`\mathsf{frame}` context.
 
 #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
@@ -14727,9 +14610,9 @@ watsup 0.4 generator
 
 #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
 
-#. Assert: Due to validation, a frame is now on the top of the stack.
+#. Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{frame}`.
 
-#. Pop the current frame from the stack.
+#. Pop the current :math:`\mathsf{frame}` context from the stack.
 
 #. Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
 
@@ -14738,15 +14621,9 @@ watsup 0.4 generator
 .......................
 
 
-1. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+1. If the first non-value entry of the stack is a :math:`\mathsf{frame}`, then:
 
-#. If the top of the stack is a :math:`\mathsf{frame}`, then:
-
-   a. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
-
-   #. Let :math:`f` be the current frame.
-
-   #. Let :math:`n` be the arity of :math:`f`.
+   a. Let :math:`({{\mathsf{frame}}_{n}}{\{}~f~\})` be the current :math:`\mathsf{frame}` context.
 
    #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
@@ -14754,17 +14631,15 @@ watsup 0.4 generator
 
    #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
 
-   #. Pop the current frame from the stack.
+   #. Pop the current :math:`\mathsf{frame}` context from the stack.
 
    #. Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
 
-#. Else if the top of the stack is a :math:`\mathsf{label}`, then:
+#. Else if the first non-value entry of the stack is a :math:`\mathsf{label}`, then:
 
-   a. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
+   a. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
-   #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
-
-   #. Pop the current label from the stack.
+   #. Pop the current :math:`\mathsf{label}` context from the stack.
 
    #. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
 
@@ -14772,13 +14647,11 @@ watsup 0.4 generator
 
 #. Else:
 
-   a. If the top of the stack is a :math:`\mathsf{handler}`, then:
+   a. If the first non-value entry of the stack is a :math:`\mathsf{handler}`, then:
 
-      1) Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
+      1) Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
-      #) Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
-
-      #) Exit from :math:`\mathsf{handler}`.
+      #) Pop the current :math:`\mathsf{handler}` context from the stack.
 
       #) Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
 
@@ -14791,9 +14664,9 @@ watsup 0.4 generator
 
 1. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
-#. Assert: Due to validation, YetE: a handler is now on the top of the stack.
+#. Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{handler}`.
 
-#. Exit from :math:`\mathsf{handler}`.
+#. Pop the current :math:`\mathsf{handler}` context from the stack.
 
 #. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
 
@@ -14802,11 +14675,9 @@ watsup 0.4 generator
 .........................................
 
 
-1. Assert: Due to validation, a value of value type :math:`{\mathit{numtype}}_0` is on the top of the stack.
+1. Assert: Due to validation, a value of value type :math:`{\mathit{nt}}` is on the top of the stack.
 
 #. Pop the value :math:`({\mathit{numtype}}_0{.}\mathsf{const}~c_1)` from the stack.
-
-#. Assert: Due to validation, :math:`{\mathit{numtype}}_0` is :math:`{\mathit{nt}}`.
 
 #. If :math:`{|{{\mathit{unop}}}{{}_{{\mathit{nt}}}(c_1)}|}` is less than or equal to :math:`0`, then:
 
@@ -14821,11 +14692,9 @@ watsup 0.4 generator
 ..........................................
 
 
-1. Assert: Due to validation, a value of value type :math:`{\mathit{numtype}}_0` is on the top of the stack.
+1. Assert: Due to validation, a value of value type :math:`{\mathit{nt}}` is on the top of the stack.
 
 #. Pop the value :math:`({\mathit{numtype}}_0{.}\mathsf{const}~c_2)` from the stack.
-
-#. Assert: Due to validation, :math:`{\mathit{numtype}}_0` is :math:`{\mathit{nt}}`.
 
 #. Assert: Due to validation, a value of value type :math:`{\mathit{numtype}}_0` is on the top of the stack.
 
@@ -14844,11 +14713,9 @@ watsup 0.4 generator
 ...........................................
 
 
-1. Assert: Due to validation, a value of value type :math:`{\mathit{numtype}}_0` is on the top of the stack.
+1. Assert: Due to validation, a value of value type :math:`{\mathit{nt}}` is on the top of the stack.
 
 #. Pop the value :math:`({\mathit{numtype}}_0{.}\mathsf{const}~c_1)` from the stack.
-
-#. Assert: Due to validation, :math:`{\mathit{numtype}}_0` is :math:`{\mathit{nt}}`.
 
 #. Let :math:`c` be :math:`{{\mathit{testop}}}{{}_{{\mathit{nt}}}(c_1)}`.
 
@@ -14859,11 +14726,9 @@ watsup 0.4 generator
 ..........................................
 
 
-1. Assert: Due to validation, a value of value type :math:`{\mathit{numtype}}_0` is on the top of the stack.
+1. Assert: Due to validation, a value of value type :math:`{\mathit{nt}}` is on the top of the stack.
 
 #. Pop the value :math:`({\mathit{numtype}}_0{.}\mathsf{const}~c_2)` from the stack.
-
-#. Assert: Due to validation, :math:`{\mathit{numtype}}_0` is :math:`{\mathit{nt}}`.
 
 #. Assert: Due to validation, a value of value type :math:`{\mathit{numtype}}_0` is on the top of the stack.
 
@@ -14878,11 +14743,9 @@ watsup 0.4 generator
 ............................................................................
 
 
-1. Assert: Due to validation, a value of value type :math:`{\mathit{numtype}}_0` is on the top of the stack.
+1. Assert: Due to validation, a value of value type :math:`{\mathit{nt}}_1` is on the top of the stack.
 
 #. Pop the value :math:`({\mathit{numtype}}_0{.}\mathsf{const}~c_1)` from the stack.
-
-#. Assert: Due to validation, :math:`{\mathit{numtype}}_0` is :math:`{\mathit{nt}}_1`.
 
 #. If :math:`{|{{\mathit{cvtop}}}{{}_{{\mathit{nt}}_1, {\mathit{nt}}_2}(c_1)}|}` is less than or equal to :math:`0`, then:
 
@@ -15275,7 +15138,7 @@ watsup 0.4 generator
 .........................................................
 
 
-1. Assert: Due to validation, a value of value type :math:`{\mathit{numtype}}_0` is on the top of the stack.
+1. Assert: Due to validation, a value is on the top of the stack.
 
 #. Pop the value :math:`({\mathit{numtype}}_0{.}\mathsf{const}~c_1)` from the stack.
 
@@ -15323,7 +15186,7 @@ watsup 0.4 generator
 ...................................................................
 
 
-1. Assert: Due to validation, a value of value type :math:`{\mathit{numtype}}_0` is on the top of the stack.
+1. Assert: Due to validation, a value is on the top of the stack.
 
 #. Pop the value :math:`({\mathit{numtype}}_0{.}\mathsf{const}~c_2)` from the stack.
 
@@ -15499,9 +15362,7 @@ watsup 0.4 generator
 
 #. Pop the values :math:`{{\mathit{val}}^{m}}` from the stack.
 
-#. Let :math:`L` be the label whose arity is :math:`n` and whose continuation is :math:`\epsilon`.
-
-#. Enter :math:`{{\mathit{val}}^{m}}~{{\mathit{instr}}^\ast}` with label :math:`L`.
+#. Enter :math:`{{\mathit{val}}^{m}}~{{\mathit{instr}}^\ast}` with label :math:`({{\mathsf{label}}_{n}}{\{}~\epsilon~\})`.
 
 
 :math:`\mathsf{loop}~{\mathit{bt}}~{{\mathit{instr}}^\ast}`
@@ -15516,16 +15377,14 @@ watsup 0.4 generator
 
 #. Pop the values :math:`{{\mathit{val}}^{m}}` from the stack.
 
-#. Let :math:`L` be the label whose arity is :math:`m` and whose continuation is :math:`(\mathsf{loop}~{\mathit{bt}}~{{\mathit{instr}}^\ast})`.
-
-#. Enter :math:`{{\mathit{val}}^{m}}~{{\mathit{instr}}^\ast}` with label :math:`L`.
+#. Enter :math:`{{\mathit{val}}^{m}}~{{\mathit{instr}}^\ast}` with label :math:`({{\mathsf{label}}_{m}}{\{}~(\mathsf{loop}~{\mathit{bt}}~{{\mathit{instr}}^\ast})~\})`.
 
 
 :math:`\mathsf{br\_on\_cast}~l~{\mathit{rt}}_1~{\mathit{rt}}_2`
 ...............................................................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({{\mathsf{frame}}_{}}{\{})` be the current :math:`\mathsf{frame}` context.
 
 #. Assert: Due to validation, a value is on the top of the stack.
 
@@ -15548,7 +15407,7 @@ watsup 0.4 generator
 .....................................................................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({{\mathsf{frame}}_{}}{\{})` be the current :math:`\mathsf{frame}` context.
 
 #. Assert: Due to validation, a value is on the top of the stack.
 
@@ -15608,31 +15467,27 @@ watsup 0.4 generator
 
       #) Assert: Due to validation, :math:`{\mathit{fi}}{.}\mathsf{code}` is of the case :math:`\mathsf{func}`.
 
-      #) Let :math:`(\mathsf{func}~x~{\mathit{local}}_0~{{\mathit{instr}}^\ast})` be :math:`{\mathit{fi}}{.}\mathsf{code}`.
+      #) Let :math:`(\mathsf{func}~x~{{\mathit{local}}_0^\ast}~{{\mathit{instr}}^\ast})` be :math:`{\mathit{fi}}{.}\mathsf{code}`.
 
-      #) Assert: Due to validation, :math:`{\mathit{local}}_0` is of the case :math:`\mathsf{local}`.
+      #) If for all :math:`{({\mathit{local}}_0)^\ast}`, :math:`{\mathit{local}}_0` is of the case :math:`\mathsf{local}`, then:
 
-      #) Let :math:`{(\mathsf{local}~t)^\ast}` be :math:`{\mathit{local}}_0`.
+         a) Let :math:`{(\mathsf{local}~t)^\ast}` be :math:`{{\mathit{local}}_0^\ast}`.
 
-      #) Assert: Due to validation, :math:`{\mathrm{expand}}({\mathit{fi}}{.}\mathsf{type})` is of the case :math:`\mathsf{func}`.
+         #) Assert: Due to validation, :math:`{\mathrm{expand}}({\mathit{fi}}{.}\mathsf{type})` is of the case :math:`\mathsf{func}`.
 
-      #) Let :math:`(\mathsf{func}~{\mathit{functype}}_0)` be :math:`{\mathrm{expand}}({\mathit{fi}}{.}\mathsf{type})`.
+         #) Let :math:`(\mathsf{func}~{\mathit{functype}}_0)` be :math:`{\mathrm{expand}}({\mathit{fi}}{.}\mathsf{type})`.
 
-      #) Let :math:`({t_1^{n}}~\rightarrow~{t_2^{m}})` be :math:`{\mathit{functype}}_0`.
+         #) Let :math:`({t_1^{n}}~\rightarrow~{t_2^{m}})` be :math:`{\mathit{functype}}_0`.
 
-      #) Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
+         #) Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
-      #) Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
+         #) Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
 
-      #) Let :math:`f` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{locals}~{{\mathit{val}}^{n}}~{{{\mathrm{default}}}_{t}^\ast},\; \mathsf{module}~{\mathit{fi}}{.}\mathsf{module} \}\end{array}`.
+         #) Let :math:`f` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{locals}~{{\mathit{val}}^{n}}~{{{\mathrm{default}}}_{t}^\ast},\; \mathsf{module}~{\mathit{fi}}{.}\mathsf{module} \}\end{array}`.
 
-      #) Let :math:`F` be the activation of :math:`f` with arity :math:`m`.
+         #) Push the evaluation context :math:`({{\mathsf{frame}}_{m}}{\{}~f~\})` to the stack.
 
-      #) Push :math:`F` to the stack.
-
-      #) Let :math:`L` be the label whose arity is :math:`m` and whose continuation is :math:`\epsilon`.
-
-      #) Enter :math:`{{\mathit{instr}}^\ast}` with label :math:`L`.
+         #) Enter :math:`{{\mathit{instr}}^\ast}` with label :math:`({{\mathsf{label}}_{m}}{\{}~\epsilon~\})`.
 
 
 :math:`\mathsf{return\_call}~x`
@@ -15658,27 +15513,21 @@ watsup 0.4 generator
 
 1. Let :math:`z` be the current state.
 
-#. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+#. If the first non-value entry of the stack is a :math:`\mathsf{label}`, then:
 
-#. If the top of the stack is a :math:`\mathsf{label}`, then:
+   a. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
-   a. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
-
-   #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
-
-   #. Pop the current label from the stack.
+   #. Pop the current :math:`\mathsf{label}` context from the stack.
 
    #. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
 
    #. Execute the instruction :math:`(\mathsf{return\_call\_ref}~y)`.
 
-#. Else if the top of the stack is a :math:`\mathsf{handler}`, then:
+#. Else if the first non-value entry of the stack is a :math:`\mathsf{handler}`, then:
 
-   a. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
+   a. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
-   #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
-
-   #. Exit from :math:`\mathsf{handler}`.
+   #. Pop the current :math:`\mathsf{handler}` context from the stack.
 
    #. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
 
@@ -15686,11 +15535,9 @@ watsup 0.4 generator
 
 #. Else:
 
-   a. If the top of the stack is a :math:`\mathsf{frame}`, then:
+   a. If the first non-value entry of the stack is a :math:`\mathsf{frame}`, then:
 
-      1) Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
-
-      #) Assert: Due to validation, a value is on the top of the stack.
+      1) Assert: Due to validation, a value is on the top of the stack.
 
       #) Pop the value :math:`{\mathit{instr}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}` from the stack.
 
@@ -15698,7 +15545,7 @@ watsup 0.4 generator
 
       #) If :math:`{\mathit{instr}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}` is of the case :math:`\mathsf{ref{.}null}`, then:
 
-         a) Pop the current frame from the stack.
+         a) Pop the current :math:`\mathsf{frame}` context from the stack.
 
          #) Trap.
 
@@ -15720,7 +15567,7 @@ watsup 0.4 generator
 
             #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
 
-            #. Pop the current frame from the stack.
+            #. Pop the current :math:`\mathsf{frame}` context from the stack.
 
             #. Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
 
@@ -15745,11 +15592,21 @@ watsup 0.4 generator
 
 #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
-#. If :math:`{{\mathit{val}}^\ast}` is not :math:`\epsilon`, then:
+#. If :math:`{{\mathit{val}}^\ast}` is not :math:`\epsilon` and :math:`{\mathit{instr}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}` is of the case :math:`\mathsf{ref{.}exn}`, then:
+
+   a. Let :math:`(\mathsf{ref{.}exn}~a)` be :math:`{\mathit{instr}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}`.
+
+   #. Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
+
+   #. Execute the instruction :math:`\mathsf{throw\_ref}`.
+
+#. Else if the first non-value entry of the stack is a :math:`\mathsf{label}`, then:
 
    a. If :math:`{\mathit{instr}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}` is of the case :math:`\mathsf{ref{.}exn}`, then:
 
       1) Let :math:`(\mathsf{ref{.}exn}~a)` be :math:`{\mathit{instr}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}`.
+
+      #) Pop the current :math:`\mathsf{label}` context from the stack.
 
       #) Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
 
@@ -15757,79 +15614,87 @@ watsup 0.4 generator
 
 #. Else:
 
-   a. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+   a. If the first non-value entry of the stack is a :math:`\mathsf{frame}`, then:
 
-   #. If the top of the stack is a :math:`\mathsf{label}`, then:
-
-      1) Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
-
-      #) If :math:`{\mathit{instr}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}` is of the case :math:`\mathsf{ref{.}exn}`, then:
+      1) If :math:`{\mathit{instr}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}` is of the case :math:`\mathsf{ref{.}exn}`, then:
 
          a) Let :math:`(\mathsf{ref{.}exn}~a)` be :math:`{\mathit{instr}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}`.
 
-         #) Pop the current label from the stack.
+         #) Pop the current :math:`\mathsf{frame}` context from the stack.
 
          #) Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
 
          #) Execute the instruction :math:`\mathsf{throw\_ref}`.
 
-   #. Else if the top of the stack is a :math:`\mathsf{frame}`, then:
+   #. Else if not the first non-value entry of the stack is a :math:`\mathsf{handler}`, then:
 
-      1) Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
-
-      #) If :math:`{\mathit{instr}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}` is of the case :math:`\mathsf{ref{.}exn}`, then:
-
-         a) Let :math:`(\mathsf{ref{.}exn}~a)` be :math:`{\mathit{instr}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}`.
-
-         #) Pop the current frame from the stack.
-
-         #) Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
-
-         #) Execute the instruction :math:`\mathsf{throw\_ref}`.
+      1) Throw the exception :math:`{\mathit{instr}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}` as a result.
 
    #. Else:
 
-      1) If not the top of the stack is a :math:`\mathsf{handler}`, then:
+      1) Let :math:`({{\mathsf{handler}}_{n}}{\{}~{{\mathit{catch}}_{\mathit{u{\kern-0.1em\scriptstyle 1}}}^\ast}~\})` be the current :math:`\mathsf{handler}` context.
 
-         a) Throw the exception :math:`{\mathit{instr}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}` as a result.
+      #) If :math:`{\mathit{instr}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}` is of the case :math:`\mathsf{ref{.}exn}`, then:
 
-      #) Else:
+         a) Let :math:`(\mathsf{ref{.}exn}~a)` be :math:`{\mathit{instr}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}`.
 
-         a) Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
+         #) If :math:`{{\mathit{catch}}_{\mathit{u{\kern-0.1em\scriptstyle 1}}}^\ast}` is :math:`\epsilon`, then:
 
-         #) Let :math:`({{\mathsf{handler}}_{n}}{\{}~{{\mathit{catch}}_{\mathit{u{\kern-0.1em\scriptstyle 1}}}^\ast}~\})` be the current context.
+            1. Pop the current :math:`\mathsf{handler}` context from the stack.
 
-         #) If :math:`{\mathit{instr}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}` is of the case :math:`\mathsf{ref{.}exn}`, then:
+            #. Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
 
-            1. Let :math:`(\mathsf{ref{.}exn}~a)` be :math:`{\mathit{instr}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}`.
+            #. Execute the instruction :math:`\mathsf{throw\_ref}`.
 
-            #. If :math:`{{\mathit{catch}}_{\mathit{u{\kern-0.1em\scriptstyle 1}}}^\ast}` is :math:`\epsilon`, then:
+         #) Else if :math:`a` is greater than or equal to :math:`{|z{.}\mathsf{exns}|}`, then:
 
-               a. Exit from :math:`\mathsf{handler}`.
+            1. Let :math:`{\mathit{catch}}_0~{{\mathit{catch}'}^\ast}` be :math:`{{\mathit{catch}}_{\mathit{u{\kern-0.1em\scriptstyle 1}}}^\ast}`.
+
+            #. If :math:`{\mathit{catch}}_0` is of the case :math:`\mathsf{catch\_all}`, then:
+
+               a. Let :math:`(\mathsf{catch\_all}~l)` be :math:`{\mathit{catch}}_0`.
+
+               #. Pop the current :math:`\mathsf{handler}` context from the stack.
+
+               #. Execute the instruction :math:`(\mathsf{br}~l)`.
+
+            #. Else if :math:`{\mathit{catch}}_0` is not of the case :math:`\mathsf{catch\_all\_ref}`, then:
+
+               a. Let :math:`{\mathit{catch}}~{{\mathit{catch}'}^\ast}` be :math:`{{\mathit{catch}}_{\mathit{u{\kern-0.1em\scriptstyle 1}}}^\ast}`.
+
+               #. Pop the current :math:`\mathsf{handler}` context from the stack.
+
+               #. Push the evaluation context :math:`({{\mathsf{handler}}_{n}}{\{}~{{\mathit{catch}'}^\ast}~\})` to the stack.
 
                #. Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
 
                #. Execute the instruction :math:`\mathsf{throw\_ref}`.
 
-            #. Else if :math:`a` is greater than or equal to :math:`{|z{.}\mathsf{exns}|}`, then:
+            #. Else:
 
-               a. Let :math:`{\mathit{catch}}_0~{{\mathit{catch}'}^\ast}` be :math:`{{\mathit{catch}}_{\mathit{u{\kern-0.1em\scriptstyle 1}}}^\ast}`.
+               a. Let :math:`(\mathsf{catch\_all\_ref}~l)` be :math:`{\mathit{catch}}_0`.
 
-               #. If :math:`{\mathit{catch}}_0` is of the case :math:`\mathsf{catch\_all}`, then:
+               #. Pop the current :math:`\mathsf{handler}` context from the stack.
 
-                  1) Let :math:`(\mathsf{catch\_all}~l)` be :math:`{\mathit{catch}}_0`.
+               #. Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
 
-                  #) Exit from :math:`\mathsf{handler}`.
+               #. Execute the instruction :math:`(\mathsf{br}~l)`.
 
-                  #) Execute the instruction :math:`(\mathsf{br}~l)`.
+         #) Else:
 
-               #. Else if :math:`{\mathit{catch}}_0` is of the case :math:`\mathsf{catch\_all\_ref}`, then:
+            1. Let :math:`{{\mathit{val}}^\ast}` be :math:`z{.}\mathsf{exns}{}[a]{.}\mathsf{fields}`.
 
-                  1) Let :math:`(\mathsf{catch\_all\_ref}~l)` be :math:`{\mathit{catch}}_0`.
+            #. Let :math:`{\mathit{catch}}_0~{{\mathit{catch}'}^\ast}` be :math:`{{\mathit{catch}}_{\mathit{u{\kern-0.1em\scriptstyle 1}}}^\ast}`.
 
-                  #) Exit from :math:`\mathsf{handler}`.
+            #. If :math:`{\mathit{catch}}_0` is of the case :math:`\mathsf{catch}`, then:
 
-                  #) Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
+               a. Let :math:`(\mathsf{catch}~x~l)` be :math:`{\mathit{catch}}_0`.
+
+               #. If :math:`x` is less than :math:`{|z{.}\mathsf{tags}|}` and :math:`z{.}\mathsf{exns}{}[a]{.}\mathsf{tag}` is :math:`z{.}\mathsf{tags}{}[x]`, then:
+
+                  1) Pop the current :math:`\mathsf{handler}` context from the stack.
+
+                  #) Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
 
                   #) Execute the instruction :math:`(\mathsf{br}~l)`.
 
@@ -15837,109 +15702,83 @@ watsup 0.4 generator
 
                   1) Let :math:`{\mathit{catch}}~{{\mathit{catch}'}^\ast}` be :math:`{{\mathit{catch}}_{\mathit{u{\kern-0.1em\scriptstyle 1}}}^\ast}`.
 
-                  #) Exit from :math:`\mathsf{handler}`.
+                  #) Pop the current :math:`\mathsf{handler}` context from the stack.
 
-                  #) Let :math:`H` be :math:`({{\mathsf{handler}}_{n}}{\{}~{{\mathit{catch}'}^\ast}~\})`.
-
-                  #) Push the handler :math:`H` to the stack.
+                  #) Push the evaluation context :math:`({{\mathsf{handler}}_{n}}{\{}~{{\mathit{catch}'}^\ast}~\})` to the stack.
 
                   #) Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
 
                   #) Execute the instruction :math:`\mathsf{throw\_ref}`.
 
-            #. Else:
+            #. Else if :math:`{\mathit{catch}}_0` is of the case :math:`\mathsf{catch\_ref}`, then:
 
-               a. Let :math:`{{\mathit{val}}^\ast}` be :math:`z{.}\mathsf{exns}{}[a]{.}\mathsf{fields}`.
+               a. Let :math:`(\mathsf{catch\_ref}~x~l)` be :math:`{\mathit{catch}}_0`.
 
-               #. Let :math:`{\mathit{catch}}_0~{{\mathit{catch}'}^\ast}` be :math:`{{\mathit{catch}}_{\mathit{u{\kern-0.1em\scriptstyle 1}}}^\ast}`.
+               #. If :math:`x` is greater than or equal to :math:`{|z{.}\mathsf{tags}|}`, then:
 
-               #. If :math:`{\mathit{catch}}_0` is of the case :math:`\mathsf{catch}`, then:
+                  1) Let :math:`{\mathit{catch}}~{{\mathit{catch}'}^\ast}` be :math:`{{\mathit{catch}}_{\mathit{u{\kern-0.1em\scriptstyle 1}}}^\ast}`.
 
-                  1) Let :math:`(\mathsf{catch}~x~l)` be :math:`{\mathit{catch}}_0`.
+                  #) Pop the current :math:`\mathsf{handler}` context from the stack.
 
-                  #) If :math:`x` is less than :math:`{|z{.}\mathsf{tags}|}` and :math:`z{.}\mathsf{exns}{}[a]{.}\mathsf{tag}` is :math:`z{.}\mathsf{tags}{}[x]`, then:
+                  #) Push the evaluation context :math:`({{\mathsf{handler}}_{n}}{\{}~{{\mathit{catch}'}^\ast}~\})` to the stack.
 
-                     a) Exit from :math:`\mathsf{handler}`.
+                  #) Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
 
-                     #) Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
+                  #) Execute the instruction :math:`\mathsf{throw\_ref}`.
 
-                     #) Execute the instruction :math:`(\mathsf{br}~l)`.
+               #. Else if :math:`z{.}\mathsf{exns}{}[a]{.}\mathsf{tag}` is not :math:`z{.}\mathsf{tags}{}[x]`, then:
 
-                  #) Else:
+                  1) Let :math:`{\mathit{catch}}~{{\mathit{catch}'}^\ast}` be :math:`{{\mathit{catch}}_{\mathit{u{\kern-0.1em\scriptstyle 1}}}^\ast}`.
 
-                     a) Let :math:`{\mathit{catch}}~{{\mathit{catch}'}^\ast}` be :math:`{{\mathit{catch}}_{\mathit{u{\kern-0.1em\scriptstyle 1}}}^\ast}`.
+                  #) Pop the current :math:`\mathsf{handler}` context from the stack.
 
-                     #) Exit from :math:`\mathsf{handler}`.
+                  #) Push the evaluation context :math:`({{\mathsf{handler}}_{n}}{\{}~{{\mathit{catch}'}^\ast}~\})` to the stack.
 
-                     #) Let :math:`H` be :math:`({{\mathsf{handler}}_{n}}{\{}~{{\mathit{catch}'}^\ast}~\})`.
+                  #) Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
 
-                     #) Push the handler :math:`H` to the stack.
-
-                     #) Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
-
-                     #) Execute the instruction :math:`\mathsf{throw\_ref}`.
-
-               #. Else if :math:`{\mathit{catch}}_0` is of the case :math:`\mathsf{catch\_ref}`, then:
-
-                  1) Let :math:`(\mathsf{catch\_ref}~x~l)` be :math:`{\mathit{catch}}_0`.
-
-                  #) If :math:`x` is less than :math:`{|z{.}\mathsf{tags}|}` and :math:`z{.}\mathsf{exns}{}[a]{.}\mathsf{tag}` is :math:`z{.}\mathsf{tags}{}[x]`, then:
-
-                     a) Exit from :math:`\mathsf{handler}`.
-
-                     #) Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
-
-                     #) Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
-
-                     #) Execute the instruction :math:`(\mathsf{br}~l)`.
-
-                  #) Else:
-
-                     a) Let :math:`{\mathit{catch}}~{{\mathit{catch}'}^\ast}` be :math:`{{\mathit{catch}}_{\mathit{u{\kern-0.1em\scriptstyle 1}}}^\ast}`.
-
-                     #) Exit from :math:`\mathsf{handler}`.
-
-                     #) Let :math:`H` be :math:`({{\mathsf{handler}}_{n}}{\{}~{{\mathit{catch}'}^\ast}~\})`.
-
-                     #) Push the handler :math:`H` to the stack.
-
-                     #) Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
-
-                     #) Execute the instruction :math:`\mathsf{throw\_ref}`.
+                  #) Execute the instruction :math:`\mathsf{throw\_ref}`.
 
                #. Else:
 
-                  1) If :math:`{\mathit{catch}}_0` is of the case :math:`\mathsf{catch\_all}`, then:
+                  1) Pop the current :math:`\mathsf{handler}` context from the stack.
 
-                     a) Let :math:`(\mathsf{catch\_all}~l)` be :math:`{\mathit{catch}}_0`.
+                  #) Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
 
-                     #) Exit from :math:`\mathsf{handler}`.
+                  #) Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
 
-                     #) Execute the instruction :math:`(\mathsf{br}~l)`.
+                  #) Execute the instruction :math:`(\mathsf{br}~l)`.
 
-                  #) Else if :math:`{\mathit{catch}}_0` is of the case :math:`\mathsf{catch\_all\_ref}`, then:
+            #. Else:
 
-                     a) Let :math:`(\mathsf{catch\_all\_ref}~l)` be :math:`{\mathit{catch}}_0`.
+               a. If :math:`{\mathit{catch}}_0` is of the case :math:`\mathsf{catch\_all}`, then:
 
-                     #) Exit from :math:`\mathsf{handler}`.
+                  1) Let :math:`(\mathsf{catch\_all}~l)` be :math:`{\mathit{catch}}_0`.
 
-                     #) Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
+                  #) Pop the current :math:`\mathsf{handler}` context from the stack.
 
-                     #) Execute the instruction :math:`(\mathsf{br}~l)`.
+                  #) Execute the instruction :math:`(\mathsf{br}~l)`.
 
-                  #) Else:
+               #. Else if :math:`{\mathit{catch}}_0` is not of the case :math:`\mathsf{catch\_all\_ref}`, then:
 
-                     a) Let :math:`{\mathit{catch}}~{{\mathit{catch}'}^\ast}` be :math:`{{\mathit{catch}}_{\mathit{u{\kern-0.1em\scriptstyle 1}}}^\ast}`.
+                  1) Let :math:`{\mathit{catch}}~{{\mathit{catch}'}^\ast}` be :math:`{{\mathit{catch}}_{\mathit{u{\kern-0.1em\scriptstyle 1}}}^\ast}`.
 
-                     #) Exit from :math:`\mathsf{handler}`.
+                  #) Pop the current :math:`\mathsf{handler}` context from the stack.
 
-                     #) Let :math:`H` be :math:`({{\mathsf{handler}}_{n}}{\{}~{{\mathit{catch}'}^\ast}~\})`.
+                  #) Push the evaluation context :math:`({{\mathsf{handler}}_{n}}{\{}~{{\mathit{catch}'}^\ast}~\})` to the stack.
 
-                     #) Push the handler :math:`H` to the stack.
+                  #) Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
 
-                     #) Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
+                  #) Execute the instruction :math:`\mathsf{throw\_ref}`.
 
-                     #) Execute the instruction :math:`\mathsf{throw\_ref}`.
+               #. Else:
+
+                  1) Let :math:`(\mathsf{catch\_all\_ref}~l)` be :math:`{\mathit{catch}}_0`.
+
+                  #) Pop the current :math:`\mathsf{handler}` context from the stack.
+
+                  #) Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
+
+                  #) Execute the instruction :math:`(\mathsf{br}~l)`.
 
 
 :math:`\mathsf{try\_table}~{\mathit{bt}}~{{\mathit{catch}}^\ast}~{{\mathit{instr}}^\ast}`
@@ -15954,13 +15793,9 @@ watsup 0.4 generator
 
 #. Pop the values :math:`{{\mathit{val}}^{m}}` from the stack.
 
-#. Let :math:`H` be :math:`({{\mathsf{handler}}_{n}}{\{}~{{\mathit{catch}}^\ast}~\})`.
+#. Push the evaluation context :math:`({{\mathsf{handler}}_{n}}{\{}~{{\mathit{catch}}^\ast}~\})` to the stack.
 
-#. Push the handler :math:`H` to the stack.
-
-#. Let :math:`L` be the label whose arity is :math:`n` and whose continuation is :math:`\epsilon`.
-
-#. Enter :math:`{{\mathit{val}}^{m}}~{{\mathit{instr}}^\ast}` with label :math:`L`.
+#. Enter :math:`{{\mathit{val}}^{m}}~{{\mathit{instr}}^\ast}` with label :math:`({{\mathsf{label}}_{n}}{\{}~\epsilon~\})`.
 
 
 :math:`\mathsf{ref{.}null}~x`
@@ -15987,7 +15822,7 @@ watsup 0.4 generator
 .........................................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({{\mathsf{frame}}_{}}{\{})` be the current :math:`\mathsf{frame}` context.
 
 #. Assert: Due to validation, a value is on the top of the stack.
 
@@ -16008,7 +15843,7 @@ watsup 0.4 generator
 .........................................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({{\mathsf{frame}}_{}}{\{})` be the current :math:`\mathsf{frame}` context.
 
 #. Assert: Due to validation, a value is on the top of the stack.
 
@@ -16031,17 +15866,17 @@ watsup 0.4 generator
 
 #. Assert: Due to validation, :math:`{\mathrm{expand}}(z{.}\mathsf{types}{}[x])` is of the case :math:`\mathsf{struct}`.
 
-#. Let :math:`(\mathsf{struct}~{\mathit{fieldtype}}_0)` be :math:`{\mathrm{expand}}(z{.}\mathsf{types}{}[x])`.
+#. Let :math:`(\mathsf{struct}~{{\mathit{fieldtype}}_0^\ast})` be :math:`{\mathrm{expand}}(z{.}\mathsf{types}{}[x])`.
 
-#. Let :math:`{({\mathsf{mut}^?}, {\mathit{zt}})^\ast}` be :math:`{\mathit{fieldtype}}_0`.
+#. Let :math:`{({\mathsf{mut}^?}, {\mathit{zt}})^\ast}` be :math:`{{\mathit{fieldtype}}_0^\ast}`.
 
-#. Assert: Due to validation, :math:`{|{{\mathsf{mut}^?}^\ast}|}` is :math:`{|{{\mathit{zt}}^\ast}|}`.
+#. Assert: Due to validation, :math:`{|{\mathit{mut*}}|}` is :math:`{|{\mathit{zt*}}|}`.
 
 #. Assert: Due to validation, for all :math:`{({\mathit{zt}})^\ast}`, :math:`{{\mathrm{default}}}_{{\mathrm{unpack}}({\mathit{zt}})}` is defined.
 
 #. Let :math:`{{\mathit{val}}^\ast}` be :math:`{{{\mathrm{default}}}_{{\mathrm{unpack}}({\mathit{zt}})}^\ast}`.
 
-#. Assert: Due to validation, :math:`{|{{\mathit{val}}^\ast}|}` is :math:`{|{{\mathit{zt}}^\ast}|}`.
+#. Assert: Due to validation, :math:`{|{\mathit{val*}}|}` is :math:`{|{\mathit{zt*}}|}`.
 
 #. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
 
@@ -16070,11 +15905,11 @@ watsup 0.4 generator
 
       1) Assert: Due to validation, :math:`{\mathrm{expand}}(z{.}\mathsf{types}{}[x])` is of the case :math:`\mathsf{struct}`.
 
-      #) Let :math:`(\mathsf{struct}~{\mathit{fieldtype}}_0)` be :math:`{\mathrm{expand}}(z{.}\mathsf{types}{}[x])`.
+      #) Let :math:`(\mathsf{struct}~{{\mathit{fieldtype}}_0^\ast})` be :math:`{\mathrm{expand}}(z{.}\mathsf{types}{}[x])`.
 
-      #) Let :math:`{({\mathsf{mut}^?}, {\mathit{zt}})^\ast}` be :math:`{\mathit{fieldtype}}_0`.
+      #) Let :math:`{({\mathsf{mut}^?}, {\mathit{zt}})^\ast}` be :math:`{{\mathit{fieldtype}}_0^\ast}`.
 
-      #) If :math:`{|{{\mathsf{mut}^?}^\ast}|}` is :math:`{|{{\mathit{zt}}^\ast}|}` and :math:`i` is less than :math:`{|{{\mathit{zt}}^\ast}|}`, then:
+      #) If :math:`{|{\mathit{mut*}}|}` is :math:`{|{\mathit{zt*}}|}` and :math:`i` is less than :math:`{|{{\mathit{zt}}^\ast}|}`, then:
 
          a) Push the value :math:`{{{{\mathrm{unpack}}}_{{{\mathit{zt}}^\ast}{}[i]}^{{{\mathit{sx}}^?}}}}{(z{.}\mathsf{structs}{}[a]{.}\mathsf{fields}{}[i])}` to the stack.
 
@@ -16844,11 +16679,11 @@ watsup 0.4 generator
 
          a) Trap.
 
+      #) Let :math:`{j^{K}}` be the result for which for all :math:`{(k)^{k<K}}`, :math:`{{\mathrm{bytes}}}_{{\mathsf{i}}{M}}({j^{K}})` is :math:`z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} + k \cdot M / 8 : M / 8]`.
+
       #) If the type of :math:`N` for which :math:`N` :math:`=` :math:`M \cdot 2` is Jnn, then:
 
          a) Let :math:`{\mathsf{i}}{N}` be the result for which :math:`N` :math:`=` :math:`M \cdot 2`.
-
-         #) Let :math:`{j^{K}}` be the result for which for all :math:`{(k)^{k<K}}`, :math:`{{\mathrm{bytes}}}_{{\mathsf{i}}{M}}({j^{K}})` is :math:`z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}{}[i + {\mathit{ao}}{.}\mathsf{offset} + k \cdot M / 8 : M / 8]`.
 
          #) Let :math:`c` be :math:`{{{{\mathrm{lanes}}}_{({{\mathsf{i}}{N}}{\mathsf{x}}{K})}^{{-1}}}}{({{{{{\mathrm{extend}}}_{M, N}^{{\mathit{sx}}}}}{(j)}^{K}})}`.
 
@@ -17127,9 +16962,9 @@ watsup 0.4 generator
 
 #. Assert: Due to validation, :math:`{\mathrm{expand}}(z{.}\mathsf{types}{}[x])` is of the case :math:`\mathsf{struct}`.
 
-#. Let :math:`(\mathsf{struct}~{\mathit{fieldtype}}_0)` be :math:`{\mathrm{expand}}(z{.}\mathsf{types}{}[x])`.
+#. Let :math:`(\mathsf{struct}~{{\mathit{fieldtype}}_0^{n}})` be :math:`{\mathrm{expand}}(z{.}\mathsf{types}{}[x])`.
 
-#. Let :math:`{({\mathsf{mut}^?}, {\mathit{zt}})^{n}}` be :math:`{\mathit{fieldtype}}_0`.
+#. Let :math:`{({\mathsf{mut}^?}, {\mathit{zt}})^{n}}` be :math:`{{\mathit{fieldtype}}_0^{n}}`.
 
 #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
@@ -17166,11 +17001,11 @@ watsup 0.4 generator
 
    #. Assert: Due to validation, :math:`{\mathrm{expand}}(z{.}\mathsf{types}{}[x])` is of the case :math:`\mathsf{struct}`.
 
-   #. Let :math:`(\mathsf{struct}~{\mathit{fieldtype}}_0)` be :math:`{\mathrm{expand}}(z{.}\mathsf{types}{}[x])`.
+   #. Let :math:`(\mathsf{struct}~{{\mathit{fieldtype}}_0^\ast})` be :math:`{\mathrm{expand}}(z{.}\mathsf{types}{}[x])`.
 
-   #. Let :math:`{({\mathsf{mut}^?}, {\mathit{zt}})^\ast}` be :math:`{\mathit{fieldtype}}_0`.
+   #. Let :math:`{({\mathsf{mut}^?}, {\mathit{zt}})^\ast}` be :math:`{{\mathit{fieldtype}}_0^\ast}`.
 
-   #. If :math:`{|{{\mathsf{mut}^?}^\ast}|}` is :math:`{|{{\mathit{zt}}^\ast}|}` and :math:`i` is less than :math:`{|{{\mathit{zt}}^\ast}|}`, then:
+   #. If :math:`{|{\mathit{mut*}}|}` is :math:`{|{\mathit{zt*}}|}` and :math:`i` is less than :math:`{|{{\mathit{zt}}^\ast}|}`, then:
 
       1) Perform :math:`z{}[{.}\mathsf{structs}{}[a]{.}\mathsf{fields}{}[i] = {{\mathrm{pack}}}_{{{\mathit{zt}}^\ast}{}[i]}({\mathit{val}})]`.
 
@@ -17562,7 +17397,7 @@ watsup 0.4 generator
 
 #. Let :math:`w~{{w'}^\ast}` be :math:`{X_{\mathit{u{\kern-0.1em\scriptstyle 0}}}^\ast}`.
 
-#. Return not `w <- w'*` and :math:`{{w'}^\ast}~{\mathrm{disjoint}}`.
+#. Return not `w <- w'*{w' <- w'*}` and :math:`{{w'}^\ast}~{\mathrm{disjoint}}`.
 
 
 :math:`{{\mathrm{setminus{\kern-0.1em\scriptstyle 1}}}}_{{\mathit{TODO}}}(w, {X_{\mathit{u{\kern-0.1em\scriptstyle 0}}}^\ast})`
@@ -18112,13 +17947,6 @@ watsup 0.4 generator
 #. Return :math:`(\mathsf{ref}~{\mathsf{null}}{{{}_{1}^?}}~{\mathit{ht}}_1)`.
 
 
-:math:`x`
-.........
-
-
-1. Return :math:`x`.
-
-
 :math:`{\mathrm{free}}_{\mathit{opt}}({{\mathit{free}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}^?})`
 ...................................................................................................
 
@@ -18142,7 +17970,7 @@ watsup 0.4 generator
 
 #. Let :math:`{\mathit{free}}~{{\mathit{free}'}^\ast}` be :math:`{{\mathit{free}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}^\ast}`.
 
-#. Return `free ++ $free_list(free'*)`.
+#. Return `free ++ $free_list(free'*{free' <- free'*})`.
 
 
 :math:`{\mathrm{free}}_{\mathit{typeidx}}({\mathit{typeidx}})`
@@ -18464,7 +18292,7 @@ watsup 0.4 generator
 ...........................................................................................................................
 
 
-1. Return `$free_list($free_typeuse(typeuse)*) ++ $free_comptype(comptype)`.
+1. Return `$free_list($free_typeuse(typeuse)*{typeuse <- typeuse*}) ++ $free_comptype(comptype)`.
 
 
 :math:`{\mathrm{free}}_{\mathit{globaltype}}(({\mathsf{mut}^?}, {\mathit{valtype}}))`
@@ -18535,7 +18363,7 @@ watsup 0.4 generator
 ..........................................................................................................................
 
 
-1. Return `$free_list($free_externtype(externtype_1)*) ++ $free_list($free_externtype(externtype_2)*)`.
+1. Return `$free_list($free_externtype(externtype_1)*{externtype_1 <- externtype_1*}) ++ $free_list($free_externtype(externtype_2)*{externtype_2 <- externtype_2*})`.
 
 
 :math:`{\mathrm{free}}_{\mathit{blocktype}}({\mathit{blocktype}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}})`
@@ -18616,19 +18444,19 @@ watsup 0.4 generator
 
    a. Let :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{instr}}^\ast})` be :math:`{\mathit{instr}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}`.
 
-   #. Return `$free_blocktype(blocktype) ++ $free_block(instr*)`.
+   #. Return `$free_blocktype(blocktype) ++ $free_block(instr*{instr <- instr*})`.
 
 #. If :math:`{\mathit{instr}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}` is of the case :math:`\mathsf{loop}`, then:
 
    a. Let :math:`(\mathsf{loop}~{\mathit{blocktype}}~{{\mathit{instr}}^\ast})` be :math:`{\mathit{instr}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}`.
 
-   #. Return `$free_blocktype(blocktype) ++ $free_block(instr*)`.
+   #. Return `$free_blocktype(blocktype) ++ $free_block(instr*{instr <- instr*})`.
 
 #. If :math:`{\mathit{instr}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}` is of the case :math:`\mathsf{if}`, then:
 
    a. Let :math:`(\mathsf{if}~{\mathit{blocktype}}~{{\mathit{instr}}_1^\ast}~\mathsf{else}~{{\mathit{instr}}_2^\ast})` be :math:`{\mathit{instr}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}`.
 
-   #. Return `$free_blocktype(blocktype) ++ $free_block(instr_1*) ++ $free_block(instr_2*)`.
+   #. Return `$free_blocktype(blocktype) ++ $free_block(instr_1*{instr_1 <- instr_1*}) ++ $free_block(instr_2*{instr_2 <- instr_2*})`.
 
 #. If :math:`{\mathit{instr}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}` is of the case :math:`\mathsf{br}`, then:
 
@@ -18646,7 +18474,7 @@ watsup 0.4 generator
 
    a. Let :math:`(\mathsf{br\_table}~{{\mathit{labelidx}}^\ast}~{\mathit{labelidx}'})` be :math:`{\mathit{instr}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}`.
 
-   #. Return `$free_list($free_labelidx(labelidx)*) ++ $free_labelidx(labelidx)`.
+   #. Return `$free_list($free_labelidx(labelidx)*{}) ++ $free_labelidx(labelidx)`.
 
 #. If :math:`{\mathit{instr}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}` is of the case :math:`\mathsf{br\_on\_null}`, then:
 
@@ -19190,7 +19018,7 @@ watsup 0.4 generator
 ...................................................................................................................
 
 
-1. Return `$free_typeidx(typeidx) ++ $free_list($free_local(local)*) ++ update($free_block(expr).LOCALS, [])`.
+1. Return `$free_typeidx(typeidx) ++ $free_list($free_local(local)*{local <- local*}) ++ update($free_block(expr).LOCALS, [])`.
 
 
 :math:`{\mathrm{free}}_{\mathit{global}}((\mathsf{global}~{\mathit{globaltype}}~{\mathit{expr}}))`
@@ -19259,7 +19087,7 @@ watsup 0.4 generator
 ......................................................................................................................
 
 
-1. Return `$free_reftype(reftype) ++ $free_list($free_expr(expr)*) ++ $free_elemmode(elemmode)`.
+1. Return `$free_reftype(reftype) ++ $free_list($free_expr(expr)*{expr <- expr*}) ++ $free_elemmode(elemmode)`.
 
 
 :math:`{\mathrm{free}}_{\mathit{data}}((\mathsf{data}~{{\mathit{byte}}^\ast}~{\mathit{datamode}}))`
@@ -19294,7 +19122,7 @@ watsup 0.4 generator
 ............................................................................................................................................................................................................................................................................................................................
 
 
-1. Return `$free_list($free_type(type)*) ++ $free_list($free_import(import)*) ++ $free_list($free_func(func)*) ++ $free_list($free_global(global)*) ++ $free_list($free_table(table)*) ++ $free_list($free_mem(mem)*) ++ $free_list($free_tag(tag)*) ++ $free_list($free_elem(elem)*) ++ $free_list($free_data(data)*) ++ $free_opt($free_start(start)?) ++ $free_list($free_export(export)*)`.
+1. Return `$free_list($free_type(type)*{type <- type*}) ++ $free_list($free_import(import)*{import <- import*}) ++ $free_list($free_func(func)*{func <- func*}) ++ $free_list($free_global(global)*{global <- global*}) ++ $free_list($free_table(table)*{table <- table*}) ++ $free_list($free_mem(mem)*{mem <- mem*}) ++ $free_list($free_tag(tag)*{tag <- tag*}) ++ $free_list($free_elem(elem)*{elem <- elem*}) ++ $free_list($free_data(data)*{data <- data*}) ++ $free_opt($free_start(start)?{start <- start?}) ++ $free_list($free_export(export)*{export <- export*})`.
 
 
 :math:`{\mathrm{funcidx}}({\mathit{module}})`
@@ -19578,6 +19406,27 @@ watsup 0.4 generator
 
 
 1. Return :math:`{{\mathit{dt}}}{{}[ {i^{i<n}} := {{\mathit{tu}}^{n}} ]}`.
+
+
+:math:`{{\mathit{gt}}}{{}[ {:=}\, {{\mathit{tu}}^{n}} ]}`
+.........................................................
+
+
+1. Return :math:`{{\mathit{gt}}}{{}[ {i^{i<n}} := {{\mathit{tu}}^{n}} ]}`.
+
+
+:math:`{{\mathit{tt}}}{{}[ {:=}\, {{\mathit{tu}}^{n}} ]}`
+.........................................................
+
+
+1. Return :math:`{{\mathit{tt}}}{{}[ {i^{i<n}} := {{\mathit{tu}}^{n}} ]}`.
+
+
+:math:`{{\mathit{mt}}}{{}[ {:=}\, {{\mathit{tu}}^{n}} ]}`
+.........................................................
+
+
+1. Return :math:`{{\mathit{mt}}}{{}[ {i^{i<n}} := {{\mathit{tu}}^{n}} ]}`.
 
 
 :math:`{{\mathit{mmt}}}{{}[ {:=}\, {{\mathit{tu}}^{n}} ]}`
@@ -21119,6 +20968,33 @@ watsup 0.4 generator
 #. Return :math:`{{\mathit{rt}}}{{}[ {:=}\, {{\mathit{dt}}^\ast} ]}`.
 
 
+:math:`{{\mathrm{inst}}}_{{\mathit{moduleinst}}}({\mathit{gt}})`
+................................................................
+
+
+1. Let :math:`{{\mathit{dt}}^\ast}` be :math:`{\mathit{moduleinst}}{.}\mathsf{types}`.
+
+#. Return :math:`{{\mathit{gt}}}{{}[ {:=}\, {{\mathit{dt}}^\ast} ]}`.
+
+
+:math:`{{\mathrm{inst}}}_{{\mathit{moduleinst}}}({\mathit{tt}})`
+................................................................
+
+
+1. Let :math:`{{\mathit{dt}}^\ast}` be :math:`{\mathit{moduleinst}}{.}\mathsf{types}`.
+
+#. Return :math:`{{\mathit{tt}}}{{}[ {:=}\, {{\mathit{dt}}^\ast} ]}`.
+
+
+:math:`{{\mathrm{inst}}}_{{\mathit{moduleinst}}}({\mathit{mt}})`
+................................................................
+
+
+1. Let :math:`{{\mathit{dt}}^\ast}` be :math:`{\mathit{moduleinst}}{.}\mathsf{types}`.
+
+#. Return :math:`{{\mathit{mt}}}{{}[ {:=}\, {{\mathit{dt}}^\ast} ]}`.
+
+
 :math:`{{\mathrm{default}}}_{{\mathit{valtype}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}}`
 .........................................................................................
 
@@ -21320,7 +21196,7 @@ watsup 0.4 generator
 ........................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({{\mathsf{frame}}_{}}{\{})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`f`.
 
@@ -21329,7 +21205,7 @@ watsup 0.4 generator
 ..........................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({{\mathsf{frame}}_{}}{\{})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`f{.}\mathsf{module}{.}\mathsf{tags}`.
 
@@ -21338,7 +21214,7 @@ watsup 0.4 generator
 .............................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({{\mathsf{frame}}_{}}{\{})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`f{.}\mathsf{module}`.
 
@@ -21417,7 +21293,7 @@ watsup 0.4 generator
 ..........................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({{\mathsf{frame}}_{}}{\{})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`f{.}\mathsf{module}{.}\mathsf{types}{}[x]`.
 
@@ -21426,7 +21302,7 @@ watsup 0.4 generator
 ..........................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({{\mathsf{frame}}_{}}{\{})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`s{.}\mathsf{funcs}{}[f{.}\mathsf{module}{.}\mathsf{funcs}{}[x]]`.
 
@@ -21435,7 +21311,7 @@ watsup 0.4 generator
 ............................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({{\mathsf{frame}}_{}}{\{})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`s{.}\mathsf{globals}{}[f{.}\mathsf{module}{.}\mathsf{globals}{}[x]]`.
 
@@ -21444,7 +21320,7 @@ watsup 0.4 generator
 ...........................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({{\mathsf{frame}}_{}}{\{})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]`.
 
@@ -21453,7 +21329,7 @@ watsup 0.4 generator
 .........................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({{\mathsf{frame}}_{}}{\{})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]`.
 
@@ -21462,7 +21338,7 @@ watsup 0.4 generator
 .........................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({{\mathsf{frame}}_{}}{\{})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`s{.}\mathsf{tags}{}[f{.}\mathsf{module}{.}\mathsf{tags}{}[x]]`.
 
@@ -21471,7 +21347,7 @@ watsup 0.4 generator
 ..........................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({{\mathsf{frame}}_{}}{\{})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`s{.}\mathsf{elems}{}[f{.}\mathsf{module}{.}\mathsf{elems}{}[x]]`.
 
@@ -21480,7 +21356,7 @@ watsup 0.4 generator
 ..........................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({{\mathsf{frame}}_{}}{\{})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`s{.}\mathsf{datas}{}[f{.}\mathsf{module}{.}\mathsf{datas}{}[x]]`.
 
@@ -21489,7 +21365,7 @@ watsup 0.4 generator
 ...........................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({{\mathsf{frame}}_{}}{\{})` be the current :math:`\mathsf{frame}` context.
 
 #. Return :math:`f{.}\mathsf{locals}{}[x]`.
 
@@ -21498,7 +21374,7 @@ watsup 0.4 generator
 ..............................................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({{\mathsf{frame}}_{}}{\{})` be the current :math:`\mathsf{frame}` context.
 
 #. Replace :math:`f{.}\mathsf{locals}{}[x]` with :math:`v`.
 
@@ -21507,7 +21383,7 @@ watsup 0.4 generator
 ...............................................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({{\mathsf{frame}}_{}}{\{})` be the current :math:`\mathsf{frame}` context.
 
 #. Replace :math:`s{.}\mathsf{globals}{}[f{.}\mathsf{module}{.}\mathsf{globals}{}[x]]{.}\mathsf{value}` with :math:`v`.
 
@@ -21516,7 +21392,7 @@ watsup 0.4 generator
 .................................................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({{\mathsf{frame}}_{}}{\{})` be the current :math:`\mathsf{frame}` context.
 
 #. Replace :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]{.}\mathsf{refs}{}[i]` with :math:`r`.
 
@@ -21525,7 +21401,7 @@ watsup 0.4 generator
 ..............................................................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({{\mathsf{frame}}_{}}{\{})` be the current :math:`\mathsf{frame}` context.
 
 #. Replace :math:`s{.}\mathsf{tables}{}[f{.}\mathsf{module}{.}\mathsf{tables}{}[x]]` with :math:`{\mathit{ti}}`.
 
@@ -21534,7 +21410,7 @@ watsup 0.4 generator
 .........................................................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({{\mathsf{frame}}_{}}{\{})` be the current :math:`\mathsf{frame}` context.
 
 #. Replace :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]{.}\mathsf{bytes}{}[i : j]` with :math:`{b^\ast}`.
 
@@ -21543,7 +21419,7 @@ watsup 0.4 generator
 ............................................................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({{\mathsf{frame}}_{}}{\{})` be the current :math:`\mathsf{frame}` context.
 
 #. Replace :math:`s{.}\mathsf{mems}{}[f{.}\mathsf{module}{.}\mathsf{mems}{}[x]]` with :math:`{\mathit{mi}}`.
 
@@ -21552,7 +21428,7 @@ watsup 0.4 generator
 ....................................................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({{\mathsf{frame}}_{}}{\{})` be the current :math:`\mathsf{frame}` context.
 
 #. Replace :math:`s{.}\mathsf{elems}{}[f{.}\mathsf{module}{.}\mathsf{elems}{}[x]]{.}\mathsf{refs}` with :math:`{r^\ast}`.
 
@@ -21561,7 +21437,7 @@ watsup 0.4 generator
 ....................................................
 
 
-1. Let :math:`f` be the current frame.
+1. Let :math:`({{\mathsf{frame}}_{}}{\{})` be the current :math:`\mathsf{frame}` context.
 
 #. Replace :math:`s{.}\mathsf{datas}{}[f{.}\mathsf{module}{.}\mathsf{datas}{}[x]]{.}\mathsf{bytes}` with :math:`{b^\ast}`.
 
@@ -21605,13 +21481,13 @@ watsup 0.4 generator
 ........................................................
 
 
-1. Let :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~((i, j), {\mathit{rt}}),\; \mathsf{refs}~{{r'}^\ast} \}\end{array}` be :math:`{\mathit{tableinst}}`.
+1. Let :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~(({}[~i~..~j~]), {\mathit{rt}}),\; \mathsf{refs}~{{r'}^\ast} \}\end{array}` be :math:`{\mathit{tableinst}}`.
 
 #. If :math:`{|{{r'}^\ast}|} + n` is less than or equal to :math:`j`, then:
 
    a. Let :math:`{i'}` be :math:`{|{{r'}^\ast}|} + n`.
 
-   #. Let :math:`{\mathit{tableinst}'}` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~(({i'}, j), {\mathit{rt}}),\; \mathsf{refs}~{{r'}^\ast}~{r^{n}} \}\end{array}`.
+   #. Let :math:`{\mathit{tableinst}'}` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~(({}[~{i'}~..~j~]), {\mathit{rt}}),\; \mathsf{refs}~{{r'}^\ast}~{r^{n}} \}\end{array}`.
 
    #. Return :math:`{\mathit{tableinst}'}`.
 
@@ -21620,13 +21496,13 @@ watsup 0.4 generator
 .................................................
 
 
-1. Let :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~((i, j)~\mathsf{page}),\; \mathsf{bytes}~{b^\ast} \}\end{array}` be :math:`{\mathit{meminst}}`.
+1. Let :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~(({}[~i~..~j~])~\mathsf{page}),\; \mathsf{bytes}~{b^\ast} \}\end{array}` be :math:`{\mathit{meminst}}`.
 
 #. If :math:`{|{b^\ast}|} / 64 \, {\mathrm{Ki}} + n` is less than or equal to :math:`j`, then:
 
    a. Let :math:`{i'}` be :math:`{|{b^\ast}|} / 64 \, {\mathrm{Ki}} + n`.
 
-   #. Let :math:`{\mathit{meminst}'}` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~(({i'}, j)~\mathsf{page}),\; \mathsf{bytes}~{b^\ast}~{0^{n \cdot 64 \, {\mathrm{Ki}}}} \}\end{array}`.
+   #. Let :math:`{\mathit{meminst}'}` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~(({}[~{i'}~..~j~])~\mathsf{page}),\; \mathsf{bytes}~{b^\ast}~{0^{n \cdot 64 \, {\mathrm{Ki}}}} \}\end{array}`.
 
    #. Return :math:`{\mathit{meminst}'}`.
 
@@ -21757,11 +21633,11 @@ watsup 0.4 generator
    #. Return :math:`{\mathit{ga}}~{{\mathit{ga}'}^\ast}`.
 
 
-:math:`{\mathrm{alloctable}}(((i, j), {\mathit{rt}}), {\mathit{ref}})`
-......................................................................
+:math:`{\mathrm{alloctable}}((({}[~i~..~j~]), {\mathit{rt}}), {\mathit{ref}})`
+..............................................................................
 
 
-1. Let :math:`{\mathit{tableinst}}` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~((i, j), {\mathit{rt}}),\; \mathsf{refs}~{{\mathit{ref}}^{i}} \}\end{array}`.
+1. Let :math:`{\mathit{tableinst}}` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~(({}[~i~..~j~]), {\mathit{rt}}),\; \mathsf{refs}~{{\mathit{ref}}^{i}} \}\end{array}`.
 
 #. Let :math:`a` be :math:`{|s{.}\mathsf{tables}|}`.
 
@@ -21793,11 +21669,11 @@ watsup 0.4 generator
 #. Return :math:`{\mathit{ta}}~{{\mathit{ta}'}^\ast}`.
 
 
-:math:`{\mathrm{allocmem}}(((i, j)~\mathsf{page}))`
-...................................................
+:math:`{\mathrm{allocmem}}((({}[~i~..~j~])~\mathsf{page}))`
+...........................................................
 
 
-1. Let :math:`{\mathit{meminst}}` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~((i, j)~\mathsf{page}),\; \mathsf{bytes}~{0^{i \cdot 64 \, {\mathrm{Ki}}}} \}\end{array}`.
+1. Let :math:`{\mathit{meminst}}` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~(({}[~i~..~j~])~\mathsf{page}),\; \mathsf{bytes}~{0^{i \cdot 64 \, {\mathrm{Ki}}}} \}\end{array}`.
 
 #. Let :math:`a` be :math:`{|s{.}\mathsf{mems}|}`.
 
@@ -21823,11 +21699,11 @@ watsup 0.4 generator
 #. Return :math:`{\mathit{ma}}~{{\mathit{ma}'}^\ast}`.
 
 
-:math:`{\mathrm{alloctag}}({\mathit{at}})`
-..........................................
+:math:`{\mathrm{alloctag}}({\mathit{tagtype}})`
+...............................................
 
 
-1. Let :math:`{\mathit{taginst}}` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~{\mathit{at}} \}\end{array}`.
+1. Let :math:`{\mathit{taginst}}` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~{\mathit{tagtype}} \}\end{array}`.
 
 #. Let :math:`a` be :math:`{|s{.}\mathsf{tags}|}`.
 
@@ -22037,15 +21913,15 @@ watsup 0.4 generator
 
 #. Assert: Due to validation, :math:`n_0` is :math:`{{\mathit{fa}}^\ast}`.
 
-#. Let :math:`n_0` be :math:`{\mathrm{allocglobals}}({{\mathit{globaltype}}^\ast}, {{\mathit{val}}_{\mathsf{g}}^\ast})`.
+#. Let :math:`n_0` be :math:`{\mathrm{allocglobals}}({{{\mathit{globaltype}}}{{}[ {:=}\, {{\mathit{dt}}^\ast} ]}^\ast}, {{\mathit{val}}_{\mathsf{g}}^\ast})`.
 
 #. Assert: Due to validation, :math:`n_0` is :math:`{{\mathit{ga}}^\ast}`.
 
-#. Let :math:`n_0` be :math:`{\mathrm{alloctables}}({{\mathit{tabletype}}^\ast}, {{\mathit{ref}}_{\mathsf{t}}^\ast})`.
+#. Let :math:`n_0` be :math:`{\mathrm{alloctables}}({{{\mathit{tabletype}}}{{}[ {:=}\, {{\mathit{dt}}^\ast} ]}^\ast}, {{\mathit{ref}}_{\mathsf{t}}^\ast})`.
 
 #. Assert: Due to validation, :math:`n_0` is :math:`{{\mathit{ta}}^\ast}`.
 
-#. Let :math:`n_0` be :math:`{\mathrm{allocmems}}({{\mathit{memtype}}^\ast})`.
+#. Let :math:`n_0` be :math:`{\mathrm{allocmems}}({{{\mathit{memtype}}}{{}[ {:=}\, {{\mathit{dt}}^\ast} ]}^\ast})`.
 
 #. Assert: Due to validation, :math:`n_0` is :math:`{{\mathit{ma}}^\ast}`.
 
@@ -22053,7 +21929,7 @@ watsup 0.4 generator
 
 #. Assert: Due to validation, :math:`n_0` is :math:`{{\mathit{aa}}^\ast}`.
 
-#. Let :math:`n_0` be :math:`{\mathrm{allocelems}}({{\mathit{elemtype}}^\ast}, {{{\mathit{ref}}_{\mathsf{e}}^\ast}^\ast})`.
+#. Let :math:`n_0` be :math:`{\mathrm{allocelems}}({{{\mathit{elemtype}}}{{}[ {:=}\, {{\mathit{dt}}^\ast} ]}^\ast}, {{{\mathit{ref}}_{\mathsf{e}}^\ast}^\ast})`.
 
 #. Assert: Due to validation, :math:`n_0` is :math:`{{\mathit{ea}}^\ast}`.
 
@@ -22102,7 +21978,7 @@ watsup 0.4 generator
 .................................................................................................................................................................................
 
 
-1. Let :math:`z` be the current frame.
+1. Let :math:`({{\mathsf{frame}}_{}}{\{})` be the current :math:`\mathsf{frame}` context.
 
 #. If :math:`{{\mathit{globaltype}}_{\mathit{u{\kern-0.1em\scriptstyle 0}}}^\ast}` is :math:`\epsilon` and :math:`{{\mathit{expr}}_{\mathit{u{\kern-0.1em\scriptstyle 1}}}^\ast}` is :math:`\epsilon`, then:
 
@@ -22139,7 +22015,7 @@ watsup 0.4 generator
 
 #. Let :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\ast}~{{\mathit{func}}^\ast}~{{\mathit{global}}^\ast}~{{\mathit{table}}^\ast}~{{\mathit{mem}}^\ast}~{{\mathit{tag}}^\ast}~{{\mathit{elem}}^\ast}~{{\mathit{data}}^\ast}~{{\mathit{start}}^?}~{{\mathit{export}}^\ast})` be :math:`{\mathit{module}}`.
 
-#. Assert: Due to validation, for all :math:`{({\mathit{externaddr}}, {\mathit{xt}}_{\mathsf{i}})^\ast}`, :math:`{\mathrm{Externaddr}}_{\mathit{type}}({\mathit{externaddr}})` is :math:`{\mathit{xt}}_{\mathsf{i}}`.
+#. Assert: Due to validation, :math:`{{\mathrm{Externaddr}}_{\mathit{type}}({\mathit{externaddr}}, {\mathit{xt}}_{\mathsf{i}})^\ast}`.
 
 #. Let :math:`{{\mathit{instr}}_{\mathsf{d}}^\ast}` be :math:`{\bigoplus}\, {{{\mathrm{rundata}}}_{i_{\mathsf{d}}}({{\mathit{data}}^\ast}{}[i_{\mathsf{d}}])^{i_{\mathsf{d}}<{|{{\mathit{data}}^\ast}|}}}`.
 
@@ -22169,29 +22045,29 @@ watsup 0.4 generator
 
 #. Let :math:`z` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{locals}~\epsilon,\; \mathsf{module}~{\mathit{moduleinst}}_0 \}\end{array}`.
 
-#. Push the activation of :math:`z` to the stack.
+#. Push the value :math:`({{\mathsf{frame}}_{0}}{\{})` to the stack.
 
 #. Let :math:`{{\mathit{val}}_{\mathsf{g}}^\ast}` be :math:`{{{\mathrm{evalglobal}}^\ast}}{(z, {{\mathit{globaltype}}^\ast}, {{\mathit{expr}}_{\mathsf{g}}^\ast})}`.
 
-#. Pop the activation of :math:`{z'}` from the stack.
+#. Pop the value :math:`({{\mathsf{frame}}_{0}}{\{})` from the stack.
 
-#. Push the activation of :math:`{z'}` to the stack.
+#. Push the value :math:`({{\mathsf{frame}}_{0}}{\{})` to the stack.
 
 #. Let :math:`{{\mathit{ref}}_{\mathsf{t}}^\ast}` be :math:`{{\mathrm{eval}}_{\mathit{expr}}({\mathit{expr}}_{\mathsf{t}})^\ast}`.
 
-#. Pop the activation of :math:`f` from the stack.
+#. Pop the value :math:`({{\mathsf{frame}}_{0}}{\{})` from the stack.
 
-#. Push the activation of :math:`{z'}` to the stack.
+#. Push the value :math:`({{\mathsf{frame}}_{0}}{\{})` to the stack.
 
 #. Let :math:`{{{\mathit{ref}}_{\mathsf{e}}^\ast}^\ast}` be :math:`{{{\mathrm{eval}}_{\mathit{expr}}({\mathit{expr}}_{\mathsf{e}})^\ast}^\ast}`.
 
-#. Pop the activation of :math:`f` from the stack.
+#. Pop the value :math:`({{\mathsf{frame}}_{0}}{\{})` from the stack.
 
 #. Let :math:`{\mathit{moduleinst}}` be :math:`{\mathrm{allocmodule}}({\mathit{module}}, {{\mathit{externaddr}}^\ast}, {{\mathit{val}}_{\mathsf{g}}^\ast}, {{\mathit{ref}}_{\mathsf{t}}^\ast}, {{{\mathit{ref}}_{\mathsf{e}}^\ast}^\ast})`.
 
 #. Let :math:`f` be :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{locals}~\epsilon,\; \mathsf{module}~{\mathit{moduleinst}} \}\end{array}`.
 
-#. Push the activation of :math:`f` with arity :math:`0` to the stack.
+#. Push the evaluation context :math:`({{\mathsf{frame}}_{0}}{\{})` to the stack.
 
 #. Execute the sequence :math:`{{\mathit{instr}}_{\mathsf{e}}^\ast}`.
 
@@ -22201,7 +22077,7 @@ watsup 0.4 generator
 
    a. Execute the instruction :math:`{\mathit{instr}}_{\mathsf{s}}`.
 
-#. Pop the activation of :math:`f` with arity :math:`0` from the stack.
+#. Pop the evaluation context :math:`({{\mathsf{frame}}_{0}}{\{})` from the stack.
 
 #. Return :math:`f{.}\mathsf{module}`.
 
@@ -22218,11 +22094,11 @@ watsup 0.4 generator
 
 #. Let :math:`({t_1^\ast}~\rightarrow~{t_2^\ast})` be :math:`{\mathit{functype}}_0`.
 
-#. Assert: Due to validation, for all :math:`{(t_1, {\mathit{val}})^\ast}`, :math:`{\mathrm{Val}}_{\mathit{type}}({\mathit{val}})` is :math:`t_1`.
+#. Assert: Due to validation, :math:`{{\mathrm{Val}}_{\mathit{type}}({\mathit{val}}, t_1)^\ast}`.
 
 #. Let :math:`k` be :math:`{|{t_2^\ast}|}`.
 
-#. Push the activation of :math:`f` with arity :math:`k` to the stack.
+#. Push the evaluation context :math:`({{\mathsf{frame}}_{k}}{\{})` to the stack.
 
 #. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
 
@@ -22232,7 +22108,7 @@ watsup 0.4 generator
 
 #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
-#. Pop the activation of :math:`f` with arity :math:`k` from the stack.
+#. Pop the evaluation context :math:`({{\mathsf{frame}}_{k}}{\{})` from the stack.
 
 #. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
 
@@ -22294,7 +22170,7 @@ watsup 0.4 generator
 == Translating to AL...
 == Prose Generation...
 6-typing.watsup:195.10-195.32: if_expr_to_instrs: Yet `$before(typeuse, x, i)`
-6-typing.watsup:1378.9-1378.30: if_expr_to_instrs: Yet `$disjoint_(syntax name, nm*{nm : name})`
+6-typing.watsup:1380.9-1380.30: if_expr_to_instrs: Yet `$disjoint_(syntax name, nm*{nm <- `nm*`})`
 Numtype_ok
 - the number type numtype is valid.
 
@@ -22549,7 +22425,7 @@ Comptype_sub
     - the function type ft_1 matches the function type ft_2.
 
 Subtype_ok
-- the sub type (SUB (FINAL ()? ?) $idx(typeidx)* comptype) is valid with the oktypeidx (OK x_0) if and only if:
+- the sub type (SUB (FINAL ()? ?) (_IDX x)* comptype) is valid with the oktypeidx (OK x_0) if and only if:
   - |x*| is |comptype'*|.
   - |x'**| is |comptype'*|.
   - For all x in x*,
@@ -22557,8 +22433,8 @@ Subtype_ok
   - |x*| is less than or equal to 1.
   - For all x in x*,
     - x is less than x_0.
-  - For all comptype' in comptype'* and x in x* and x' in x'*,
-    - $unrolldt(C.TYPES[x]) is (SUB (FINAL ?() ?) $idx(x')* comptype').
+  - For all comptype' in comptype'* and x in x* and x'* in x'**,
+    - $unrolldt(C.TYPES[x]) is (SUB (FINAL ?() ?) (_IDX x')* comptype').
   - the composite type comptype is valid.
   - For all comptype' in comptype'*,
     - the composite type comptype matches the composite type comptype'.
@@ -22570,7 +22446,7 @@ Subtype_ok2
   - |typeuse*| is less than or equal to 1.
   - For all typeuse in typeuse*,
     - Yet: $before(typeuse, x, i)
-  - For all comptype' in comptype'* and typeuse in typeuse* and typeuse' in typeuse'*,
+  - For all comptype' in comptype'* and typeuse in typeuse* and typeuse'* in typeuse'**,
     - $unrollht(C, typeuse) is (SUB (FINAL ?() ?) typeuse'* comptype').
   - the composite type comptype is valid.
   - For all comptype' in comptype'*,
@@ -22604,7 +22480,7 @@ Deftype_ok
   - i is less than n.
 
 Limits_ok
-- the limits (n, m) is valid with the nat k if and only if:
+- the limits ([ n .. m ]) is valid with the nat k if and only if:
   - n is less than or equal to m.
   - m is less than or equal to k.
 
@@ -22657,7 +22533,7 @@ Instrtype_sub
     - C.LOCALS[x] is (SET, t).
 
 Limits_sub
-- the limits (n_1, m_1) matches the limits (n_2, m_2) if and only if:
+- the limits ([ n_1 .. m_1 ]) matches the limits ([ n_2 .. m_2 ]) if and only if:
   - n_1 is greater than or equal to n_2.
   - m_1 is less than or equal to m_2.
 
@@ -22841,12 +22717,12 @@ Instr_ok/call
   - $expanddt(C.FUNCS[x]) is (FUNC (t_1* -> t_2*)).
 
 Instr_ok/call_ref
-- the instr (CALL_REF $idx(x)) is valid with the instruction type (t_1* :: [(REF (NULL ?(()) ?) $idx(x))] ->_ [] t_2*) if and only if:
+- the instr (CALL_REF (_IDX x)) is valid with the instruction type (t_1* :: [(REF (NULL ?(()) ?) (_IDX x))] ->_ [] t_2*) if and only if:
   - |C.TYPES| is greater than x.
   - $expanddt(C.TYPES[x]) is (FUNC (t_1* -> t_2*)).
 
 Instr_ok/call_indirect
-- the instr (CALL_INDIRECT x $idx(y)) is valid with the instruction type (t_1* :: [I32] ->_ [] t_2*) if and only if:
+- the instr (CALL_INDIRECT x (_IDX y)) is valid with the instruction type (t_1* :: [I32] ->_ [] t_2*) if and only if:
   - |C.TABLES| is greater than x.
   - |C.TYPES| is greater than y.
   - C.TABLES[x] is (lim, rt).
@@ -22867,7 +22743,7 @@ Instr_ok/return_call
   - the instruction type (t_3* ->_ [] t_4*) is valid.
 
 Instr_ok/return_call_ref
-- the instr (RETURN_CALL_REF $idx(x)) is valid with the instruction type (t_3* :: t_1* :: [(REF (NULL ?(()) ?) $idx(x))] ->_ [] t_4*) if and only if:
+- the instr (RETURN_CALL_REF (_IDX x)) is valid with the instruction type (t_3* :: t_1* :: [(REF (NULL ?(()) ?) (_IDX x))] ->_ [] t_4*) if and only if:
   - |C.TYPES| is greater than x.
   - $expanddt(C.TYPES[x]) is (FUNC (t_1* -> t_2*)).
   - C.RETURN is ?(t'_2*).
@@ -22875,7 +22751,7 @@ Instr_ok/return_call_ref
   - the instruction type (t_3* ->_ [] t_4*) is valid.
 
 Instr_ok/return_call_indirect
-- the instr (RETURN_CALL_INDIRECT x $idx(y)) is valid with the instruction type (t_3* :: t_1* :: [I32] ->_ [] t_4*) if and only if:
+- the instr (RETURN_CALL_INDIRECT x (_IDX y)) is valid with the instruction type (t_3* :: t_1* :: [I32] ->_ [] t_4*) if and only if:
   - |C.TABLES| is greater than x.
   - |C.TYPES| is greater than y.
   - C.TABLES[x] is (lim, rt).
@@ -22961,13 +22837,13 @@ Instr_ok/i31.get
 - the instr (I31.GET sx) is valid with the instruction type ([(REF (NULL ?(()) ?) I31)] ->_ [] [I32]).
 
 Instr_ok/struct.new
-- the instr (STRUCT.NEW x) is valid with the instruction type ($unpack(zt)* ->_ [] [(REF (NULL ?() ?) $idx(x))]) if and only if:
+- the instr (STRUCT.NEW x) is valid with the instruction type ($unpack(zt)* ->_ [] [(REF (NULL ?() ?) (_IDX x))]) if and only if:
   - |C.TYPES| is greater than x.
   - |zt*| is |mut*|.
   - $expanddt(C.TYPES[x]) is (STRUCT (mut, zt)*).
 
 Instr_ok/struct.new_default
-- the instr (STRUCT.NEW_DEFAULT x) is valid with the instruction type ([] ->_ [] [(REF (NULL ?() ?) $idx(x))]) if and only if:
+- the instr (STRUCT.NEW_DEFAULT x) is valid with the instruction type ([] ->_ [] [(REF (NULL ?() ?) (_IDX x))]) if and only if:
   - |C.TYPES| is greater than x.
   - |zt*| is |mut*|.
   - |zt*| is |val*|.
@@ -22976,7 +22852,7 @@ Instr_ok/struct.new_default
     - $default_($unpack(zt)) is ?(val).
 
 Instr_ok/struct.get
-- the instr (STRUCT.GET sx? x i) is valid with the instruction type ([(REF (NULL ?(()) ?) $idx(x))] ->_ [] [$unpack(zt)]) if and only if:
+- the instr (STRUCT.GET sx? x i) is valid with the instruction type ([(REF (NULL ?(()) ?) (_IDX x))] ->_ [] [$unpack(zt)]) if and only if:
   - |C.TYPES| is greater than x.
   - |yt*| is greater than i.
   - $expanddt(C.TYPES[x]) is (STRUCT yt*).
@@ -22984,37 +22860,37 @@ Instr_ok/struct.get
   - ((zt is $unpack(zt))) if and only if ((sx? is ?())).
 
 Instr_ok/struct.set
-- the instr (STRUCT.SET x i) is valid with the instruction type ([(REF (NULL ?(()) ?) $idx(x)), $unpack(zt)] ->_ [] []) if and only if:
+- the instr (STRUCT.SET x i) is valid with the instruction type ([(REF (NULL ?(()) ?) (_IDX x)), $unpack(zt)] ->_ [] []) if and only if:
   - |C.TYPES| is greater than x.
   - |yt*| is greater than i.
   - $expanddt(C.TYPES[x]) is (STRUCT yt*).
   - yt*[i] is ((MUT ?(()) ?), zt).
 
 Instr_ok/array.new
-- the instr (ARRAY.NEW x) is valid with the instruction type ([$unpack(zt), I32] ->_ [] [(REF (NULL ?() ?) $idx(x))]) if and only if:
+- the instr (ARRAY.NEW x) is valid with the instruction type ([$unpack(zt), I32] ->_ [] [(REF (NULL ?() ?) (_IDX x))]) if and only if:
   - |C.TYPES| is greater than x.
   - $expanddt(C.TYPES[x]) is (ARRAY (mut, zt)).
 
 Instr_ok/array.new_default
-- the instr (ARRAY.NEW_DEFAULT x) is valid with the instruction type ([I32] ->_ [] [(REF (NULL ?() ?) $idx(x))]) if and only if:
+- the instr (ARRAY.NEW_DEFAULT x) is valid with the instruction type ([I32] ->_ [] [(REF (NULL ?() ?) (_IDX x))]) if and only if:
   - |C.TYPES| is greater than x.
   - $expanddt(C.TYPES[x]) is (ARRAY (mut, zt)).
   - $default_($unpack(zt)) is ?(val).
 
 Instr_ok/array.new_fixed
-- the instr (ARRAY.NEW_FIXED x n) is valid with the instruction type ($unpack(zt)^n ->_ [] [(REF (NULL ?() ?) $idx(x))]) if and only if:
+- the instr (ARRAY.NEW_FIXED x n) is valid with the instruction type ($unpack(zt)^n ->_ [] [(REF (NULL ?() ?) (_IDX x))]) if and only if:
   - |C.TYPES| is greater than x.
   - $expanddt(C.TYPES[x]) is (ARRAY (mut, zt)).
 
 Instr_ok/array.new_elem
-- the instr (ARRAY.NEW_ELEM x y) is valid with the instruction type ([I32, I32] ->_ [] [(REF (NULL ?() ?) $idx(x))]) if and only if:
+- the instr (ARRAY.NEW_ELEM x y) is valid with the instruction type ([I32, I32] ->_ [] [(REF (NULL ?() ?) (_IDX x))]) if and only if:
   - |C.TYPES| is greater than x.
   - |C.ELEMS| is greater than y.
   - $expanddt(C.TYPES[x]) is (ARRAY (mut, rt)).
   - the reference type C.ELEMS[y] matches the reference type rt.
 
 Instr_ok/array.new_data
-- the instr (ARRAY.NEW_DATA x y) is valid with the instruction type ([I32, I32] ->_ [] [(REF (NULL ?() ?) $idx(x))]) if and only if:
+- the instr (ARRAY.NEW_DATA x y) is valid with the instruction type ([I32, I32] ->_ [] [(REF (NULL ?() ?) (_IDX x))]) if and only if:
   - |C.TYPES| is greater than x.
   - |C.DATAS| is greater than y.
   - $expanddt(C.TYPES[x]) is (ARRAY (mut, zt)).
@@ -23025,13 +22901,13 @@ Instr_ok/array.new_data
   - C.DATAS[y] is OK.
 
 Instr_ok/array.get
-- the instr (ARRAY.GET sx? x) is valid with the instruction type ([(REF (NULL ?(()) ?) $idx(x)), I32] ->_ [] [$unpack(zt)]) if and only if:
+- the instr (ARRAY.GET sx? x) is valid with the instruction type ([(REF (NULL ?(()) ?) (_IDX x)), I32] ->_ [] [$unpack(zt)]) if and only if:
   - |C.TYPES| is greater than x.
   - $expanddt(C.TYPES[x]) is (ARRAY (mut, zt)).
   - ((zt is $unpack(zt))) if and only if ((sx? is ?())).
 
 Instr_ok/array.set
-- the instr (ARRAY.SET x) is valid with the instruction type ([(REF (NULL ?(()) ?) $idx(x)), I32, $unpack(zt)] ->_ [] []) if and only if:
+- the instr (ARRAY.SET x) is valid with the instruction type ([(REF (NULL ?(()) ?) (_IDX x)), I32, $unpack(zt)] ->_ [] []) if and only if:
   - |C.TYPES| is greater than x.
   - $expanddt(C.TYPES[x]) is (ARRAY ((MUT ?(()) ?), zt)).
 
@@ -23041,12 +22917,12 @@ Instr_ok/array.len
   - $expanddt(C.TYPES[x]) is (ARRAY ((MUT ?(()) ?), zt)).
 
 Instr_ok/array.fill
-- the instr (ARRAY.FILL x) is valid with the instruction type ([(REF (NULL ?(()) ?) $idx(x)), I32, $unpack(zt), I32] ->_ [] []) if and only if:
+- the instr (ARRAY.FILL x) is valid with the instruction type ([(REF (NULL ?(()) ?) (_IDX x)), I32, $unpack(zt), I32] ->_ [] []) if and only if:
   - |C.TYPES| is greater than x.
   - $expanddt(C.TYPES[x]) is (ARRAY ((MUT ?(()) ?), zt)).
 
 Instr_ok/array.copy
-- the instr (ARRAY.COPY x_1 x_2) is valid with the instruction type ([(REF (NULL ?(()) ?) $idx(x_1)), I32, (REF (NULL ?(()) ?) $idx(x_2)), I32, I32] ->_ [] []) if and only if:
+- the instr (ARRAY.COPY x_1 x_2) is valid with the instruction type ([(REF (NULL ?(()) ?) (_IDX x_1)), I32, (REF (NULL ?(()) ?) (_IDX x_2)), I32, I32] ->_ [] []) if and only if:
   - |C.TYPES| is greater than x_1.
   - |C.TYPES| is greater than x_2.
   - $expanddt(C.TYPES[x_1]) is (ARRAY ((MUT ?(()) ?), zt_1)).
@@ -23054,14 +22930,14 @@ Instr_ok/array.copy
   - the storage type zt_2 matches the storage type zt_1.
 
 Instr_ok/array.init_elem
-- the instr (ARRAY.INIT_ELEM x y) is valid with the instruction type ([(REF (NULL ?(()) ?) $idx(x)), I32, I32, I32] ->_ [] []) if and only if:
+- the instr (ARRAY.INIT_ELEM x y) is valid with the instruction type ([(REF (NULL ?(()) ?) (_IDX x)), I32, I32, I32] ->_ [] []) if and only if:
   - |C.TYPES| is greater than x.
   - |C.ELEMS| is greater than y.
   - $expanddt(C.TYPES[x]) is (ARRAY ((MUT ?(()) ?), zt)).
   - the element type C.ELEMS[y] matches the storage type zt.
 
 Instr_ok/array.init_data
-- the instr (ARRAY.INIT_DATA x y) is valid with the instruction type ([(REF (NULL ?(()) ?) $idx(x)), I32, I32, I32] ->_ [] []) if and only if:
+- the instr (ARRAY.INIT_DATA x y) is valid with the instruction type ([(REF (NULL ?(()) ?) (_IDX x)), I32, I32, I32] ->_ [] []) if and only if:
   - |C.TYPES| is greater than x.
   - |C.DATAS| is greater than y.
   - $expanddt(C.TYPES[x]) is (ARRAY ((MUT ?(()) ?), zt)).
@@ -23072,10 +22948,12 @@ Instr_ok/array.init_data
   - C.DATAS[y] is OK.
 
 Instr_ok/extern.convert_any
-- the instr EXTERN.CONVERT_ANY is valid with the instruction type ([(REF nul ANY)] ->_ [] [(REF nul EXTERN)]).
+- the instr EXTERN.CONVERT_ANY is valid with the instruction type ([(REF nul1 ANY)] ->_ [] [(REF nul2 EXTERN)]) if and only if:
+  - nul1 is nul2.
 
 Instr_ok/any.convert_extern
-- the instr ANY.CONVERT_EXTERN is valid with the instruction type ([(REF nul EXTERN)] ->_ [] [(REF nul ANY)]).
+- the instr ANY.CONVERT_EXTERN is valid with the instruction type ([(REF nul1 EXTERN)] ->_ [] [(REF nul2 ANY)]) if and only if:
+  - nul1 is nul2.
 
 Instr_ok/vconst
 - the instr (V128.CONST c) is valid with the instruction type ([] ->_ [] [V128]).
@@ -23520,7 +23398,7 @@ Globals_ok
   - Or:
     - global_u0* is [global_1] :: global*.
     - globaltype_u1* is [gt_1] :: gt*.
-    - the global global is valid with the global type gt_1.
+    - the global global_1 is valid with the global type gt_1.
     - Under the context C with .GLOBALS appended by [gt_1], the global sequence global* is valid with the global type sequence gt*.
 
 Types_ok
@@ -23565,8 +23443,8 @@ Module_ok
     - the start function start is valid.
   - For all export in export* and nm in nm* and xt_E in xt_E*,
     - the export export is valid with the name nm and the external type xt_E.
-  - Yet: $disjoint_(syntax name, nm*{nm : name})
-  - C is { TYPES: dt'*; RECS: []; FUNCS: dt_I* :: dt*; GLOBALS: gt_I* :: gt*; TABLES: tt_I* :: tt*; MEMS: mt_I* :: mt*; TAGS: at_I* :: at*; ELEMS: rt*; DATAS: ok*; LOCALS: []; LABELS: []; RETURN: ?(); REFS: x*; }.
+  - Yet: $disjoint_(syntax name, nm*{nm <- `nm*`})
+  - C is C' with .GLOBALS appended by gt* with .TABLES appended by tt_I* :: tt* with .MEMS appended by mt_I* :: mt* with .TAGS appended by at_I* :: at* with .ELEMS appended by rt* with .DATAS appended by ok*.
   - C' is { TYPES: dt'*; RECS: []; FUNCS: dt_I* :: dt*; GLOBALS: gt_I*; TABLES: []; MEMS: []; TAGS: []; ELEMS: []; DATAS: []; LOCALS: []; LABELS: []; RETURN: ?(); REFS: x*; }.
   - x* is $funcidx_nonfuncs((global* table* mem* elem* data*)).
   - dt_I* is $funcsxt(xt_I*).
@@ -23627,36 +23505,31 @@ Step_pure/if bt instr_1* instr_2*
 
 Step_pure/label
 1. Pop all values val* from the top of the stack.
-2. Assert: Due to validation, a label is now on the top of the stack.
-3. Pop the current label from the stack.
+2. Assert: Due to validation, the first non-value entry of the stack is a LABEL_.
+3. Pop the current LABEL_ context from the stack.
 4. Push the values val* to the stack.
 
 Step_pure/br l
-1. Pop all values val* from the top of the stack.
-2. If the top of the stack is a LABEL_, then:
-  a. Push the values val* to the stack.
-  b. Let L be the current label.
-  c. Let n be the arity of L.
-  d. Let instr'* be the continuation of L.
-  e. If (l is 0), then:
+1. If the first non-value entry of the stack is a LABEL_, then:
+  a. Let (LABEL_ n { instr'* }) be the current LABEL_ context.
+  b. If (l is 0), then:
     1) Assert: Due to validation, there are at least n values on the top of the stack.
     2) Pop the values val^n from the stack.
     3) Pop all values val'* from the top of the stack.
-    4) Pop the current label from the stack.
+    4) Pop the current LABEL_ context from the stack.
     5) Push the values val^n to the stack.
     6) Execute the instruction instr'*.
-  f. Else:
+  c. Else:
     1) Pop all values val* from the top of the stack.
     2) If (l > 0), then:
-      a) Pop the current label from the stack.
+      a) Pop the current LABEL_ context from the stack.
       b) Push the values val* to the stack.
       c) Execute the instruction (BR (l - 1)).
-3. Else if the top of the stack is a HANDLER_, then:
-  a. Push the values val* to the stack.
-  b. Pop all values val* from the top of the stack.
-  c. Exit from HANDLER_.
-  d. Push the values val* to the stack.
-  e. Execute the instruction (BR l).
+2. Else if the first non-value entry of the stack is a HANDLER_, then:
+  a. Pop all values val* from the top of the stack.
+  b. Pop the current HANDLER_ context from the stack.
+  c. Push the values val* to the stack.
+  d. Execute the instruction (BR l).
 
 Step_pure/br_if l
 1. Assert: Due to validation, a value of value type I32 is on the top of the stack.
@@ -23702,89 +23575,78 @@ Step_pure/return_call_indirect x yy
 3. Execute the instruction (RETURN_CALL_REF yy).
 
 Step_pure/frame
-1. Let f be the current frame.
-2. Let n be the arity of f.
+1. Let (FRAME_ n { f }) be the current FRAME_ context.
+2. Assert: Due to validation, there are at least n values on the top of the stack.
 3. Assert: Due to validation, there are at least n values on the top of the stack.
-4. Assert: Due to validation, there are at least n values on the top of the stack.
-5. Pop the values val^n from the stack.
-6. Assert: Due to validation, a frame is now on the top of the stack.
-7. Pop the current frame from the stack.
-8. Push the values val^n to the stack.
+4. Pop the values val^n from the stack.
+5. Assert: Due to validation, the first non-value entry of the stack is a FRAME_.
+6. Pop the current FRAME_ context from the stack.
+7. Push the values val^n to the stack.
 
 Step_pure/return
-1. Pop all values val* from the top of the stack.
-2. If the top of the stack is a FRAME_, then:
-  a. Push the values val* to the stack.
-  b. Let f be the current frame.
-  c. Let n be the arity of f.
-  d. Assert: Due to validation, there are at least n values on the top of the stack.
-  e. Pop the values val^n from the stack.
-  f. Pop all values val'* from the top of the stack.
-  g. Pop the current frame from the stack.
-  h. Push the values val^n to the stack.
-3. Else if the top of the stack is a LABEL_, then:
-  a. Push the values val* to the stack.
-  b. Pop all values val* from the top of the stack.
-  c. Pop the current label from the stack.
-  d. Push the values val* to the stack.
-  e. Execute the instruction RETURN.
-4. Else if the top of the stack is a HANDLER_, then:
-  a. Push the values val* to the stack.
-  b. Pop all values val* from the top of the stack.
-  c. Exit from HANDLER_.
-  d. Push the values val* to the stack.
-  e. Execute the instruction RETURN.
+1. If the first non-value entry of the stack is a FRAME_, then:
+  a. Let (FRAME_ n { f }) be the current FRAME_ context.
+  b. Assert: Due to validation, there are at least n values on the top of the stack.
+  c. Pop the values val^n from the stack.
+  d. Pop all values val'* from the top of the stack.
+  e. Pop the current FRAME_ context from the stack.
+  f. Push the values val^n to the stack.
+2. Else if the first non-value entry of the stack is a LABEL_, then:
+  a. Pop all values val* from the top of the stack.
+  b. Pop the current LABEL_ context from the stack.
+  c. Push the values val* to the stack.
+  d. Execute the instruction RETURN.
+3. Else if the first non-value entry of the stack is a HANDLER_, then:
+  a. Pop all values val* from the top of the stack.
+  b. Pop the current HANDLER_ context from the stack.
+  c. Push the values val* to the stack.
+  d. Execute the instruction RETURN.
 
 Step_pure/handler
 1. Pop all values val* from the top of the stack.
-2. Assert: Due to validation, YetE (a handler is now on the top of the stack).
-3. Exit from HANDLER_.
+2. Assert: Due to validation, the first non-value entry of the stack is a HANDLER_.
+3. Pop the current HANDLER_ context from the stack.
 4. Push the values val* to the stack.
 
 Step_pure/unop nt unop
-1. Assert: Due to validation, a value of value type numtype_0 is on the top of the stack.
+1. Assert: Due to validation, a value of value type nt is on the top of the stack.
 2. Pop the value (numtype_0.CONST c_1) from the stack.
-3. Assert: Due to validation, (numtype_0 is nt).
-4. If (|$unop_(nt, unop, c_1)| ≤ 0), then:
+3. If (|$unop_(nt, unop, c_1)| ≤ 0), then:
   a. Trap.
-5. Let c be an element of $unop_(nt, unop, c_1).
-6. Push the value (nt.CONST c) to the stack.
+4. Let c be an element of $unop_(nt, unop, c_1).
+5. Push the value (nt.CONST c) to the stack.
 
 Step_pure/binop nt binop
-1. Assert: Due to validation, a value of value type numtype_0 is on the top of the stack.
+1. Assert: Due to validation, a value of value type nt is on the top of the stack.
 2. Pop the value (numtype_0.CONST c_2) from the stack.
-3. Assert: Due to validation, (numtype_0 is nt).
-4. Assert: Due to validation, a value of value type numtype_0 is on the top of the stack.
-5. Pop the value (numtype_0.CONST c_1) from the stack.
-6. If (|$binop_(nt, binop, c_1, c_2)| ≤ 0), then:
+3. Assert: Due to validation, a value of value type numtype_0 is on the top of the stack.
+4. Pop the value (numtype_0.CONST c_1) from the stack.
+5. If (|$binop_(nt, binop, c_1, c_2)| ≤ 0), then:
   a. Trap.
-7. Let c be an element of $binop_(nt, binop, c_1, c_2).
-8. Push the value (nt.CONST c) to the stack.
+6. Let c be an element of $binop_(nt, binop, c_1, c_2).
+7. Push the value (nt.CONST c) to the stack.
 
 Step_pure/testop nt testop
-1. Assert: Due to validation, a value of value type numtype_0 is on the top of the stack.
+1. Assert: Due to validation, a value of value type nt is on the top of the stack.
 2. Pop the value (numtype_0.CONST c_1) from the stack.
-3. Assert: Due to validation, (numtype_0 is nt).
-4. Let c be $testop_(nt, testop, c_1).
-5. Push the value (I32.CONST c) to the stack.
+3. Let c be $testop_(nt, testop, c_1).
+4. Push the value (I32.CONST c) to the stack.
 
 Step_pure/relop nt relop
-1. Assert: Due to validation, a value of value type numtype_0 is on the top of the stack.
+1. Assert: Due to validation, a value of value type nt is on the top of the stack.
 2. Pop the value (numtype_0.CONST c_2) from the stack.
-3. Assert: Due to validation, (numtype_0 is nt).
-4. Assert: Due to validation, a value of value type numtype_0 is on the top of the stack.
-5. Pop the value (numtype_0.CONST c_1) from the stack.
-6. Let c be $relop_(nt, relop, c_1, c_2).
-7. Push the value (I32.CONST c) to the stack.
+3. Assert: Due to validation, a value of value type numtype_0 is on the top of the stack.
+4. Pop the value (numtype_0.CONST c_1) from the stack.
+5. Let c be $relop_(nt, relop, c_1, c_2).
+6. Push the value (I32.CONST c) to the stack.
 
 Step_pure/cvtop nt_2 nt_1 cvtop
-1. Assert: Due to validation, a value of value type numtype_0 is on the top of the stack.
+1. Assert: Due to validation, a value of value type nt_1 is on the top of the stack.
 2. Pop the value (numtype_0.CONST c_1) from the stack.
-3. Assert: Due to validation, (numtype_0 is nt_1).
-4. If (|$cvtop__(nt_1, nt_2, cvtop, c_1)| ≤ 0), then:
+3. If (|$cvtop__(nt_1, nt_2, cvtop, c_1)| ≤ 0), then:
   a. Trap.
-5. Let c be an element of $cvtop__(nt_1, nt_2, cvtop, c_1).
-6. Push the value (nt_2.CONST c) to the stack.
+4. Let c be an element of $cvtop__(nt_1, nt_2, cvtop, c_1).
+5. Push the value (nt_2.CONST c) to the stack.
 
 Step_pure/ref.i31
 1. Assert: Due to validation, a value of value type I32 is on the top of the stack.
@@ -23966,7 +23828,7 @@ Step_pure/vshuffle (Pnn X M) i*
 9. Push the value (V128.CONST c) to the stack.
 
 Step_pure/vsplat (Lnn X M)
-1. Assert: Due to validation, a value of value type numtype_0 is on the top of the stack.
+1. Assert: Due to validation, a value is on the top of the stack.
 2. Pop the value (numtype_0.CONST c_1) from the stack.
 3. Assert: Due to validation, (numtype_0 is $lunpack(Lnn)).
 4. Let c be $invlanes_((Lnn X M), $lpacknum_(Lnn, c_1)^M).
@@ -23989,7 +23851,7 @@ Step_pure/vextract_lane (lanetype_u0 X M) sx_u1? i
       b) Push the value (I32.CONST c_2) to the stack.
 
 Step_pure/vreplace_lane (Lnn X M) i
-1. Assert: Due to validation, a value of value type numtype_0 is on the top of the stack.
+1. Assert: Due to validation, a value is on the top of the stack.
 2. Pop the value (numtype_0.CONST c_2) from the stack.
 3. Assert: Due to validation, (numtype_0 is $lunpack(Lnn)).
 4. Assert: Due to validation, a value of value type V128 is on the top of the stack.
@@ -24074,19 +23936,17 @@ Step_read/block bt instr*
 2. Let (t_1^m -> t_2^n) be $blocktype_(z, bt).
 3. Assert: Due to validation, there are at least m values on the top of the stack.
 4. Pop the values val^m from the stack.
-5. Let L be the label_n{[]}.
-6. Enter val^m :: instr* with label L.
+5. Enter val^m :: instr* with label (LABEL_ n { [] }).
 
 Step_read/loop bt instr*
 1. Let z be the current state.
 2. Let (t_1^m -> t_2^n) be $blocktype_(z, bt).
 3. Assert: Due to validation, there are at least m values on the top of the stack.
 4. Pop the values val^m from the stack.
-5. Let L be the label_m{[(LOOP bt instr*)]}.
-6. Enter val^m :: instr* with label L.
+5. Enter val^m :: instr* with label (LABEL_ m { [(LOOP bt instr*)] }).
 
 Step_read/br_on_cast l rt_1 rt_2
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Assert: Due to validation, a value is on the top of the stack.
 3. Pop the value ref from the stack.
 4. Let rt be $Ref_type(ref).
@@ -24097,7 +23957,7 @@ Step_read/br_on_cast l rt_1 rt_2
   a. Execute the instruction (BR l).
 
 Step_read/br_on_cast_fail l rt_1 rt_2
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Assert: Due to validation, a value is on the top of the stack.
 3. Pop the value ref from the stack.
 4. Let rt be $Ref_type(ref).
@@ -24126,19 +23986,17 @@ Step_read/call_ref yy
   b. If (a < |$funcinst(z)|), then:
     1) Let fi be $funcinst(z)[a].
     2) Assert: Due to validation, fi.CODE is of the case FUNC.
-    3) Let (FUNC x local_0 instr*) be fi.CODE.
-    4) Assert: Due to validation, local_0 is of the case LOCAL.
-    5) Let (LOCAL t)* be local_0.
-    6) Assert: Due to validation, $expanddt(fi.TYPE) is of the case FUNC.
-    7) Let (FUNC functype_0) be $expanddt(fi.TYPE).
-    8) Let (t_1^n -> t_2^m) be functype_0.
-    9) Assert: Due to validation, there are at least n values on the top of the stack.
-    10) Pop the values val^n from the stack.
-    11) Let f be { LOCALS: ?(val)^n :: $default_(t)*; MODULE: fi.MODULE; }.
-    12) Let F be the activation of f with arity m.
-    13) Push F to the stack.
-    14) Let L be the label_m{[]}.
-    15) Enter instr* with label L.
+    3) Let (FUNC x local_0* instr*) be fi.CODE.
+    4) If local_0 is of the case LOCAL*, then:
+      a) Let (LOCAL t)* be local_0*.
+      b) Assert: Due to validation, $expanddt(fi.TYPE) is of the case FUNC.
+      c) Let (FUNC functype_0) be $expanddt(fi.TYPE).
+      d) Let (t_1^n -> t_2^m) be functype_0.
+      e) Assert: Due to validation, there are at least n values on the top of the stack.
+      f) Pop the values val^n from the stack.
+      g) Let f be { LOCALS: ?(val)^n :: $default_(t)*; MODULE: fi.MODULE; }.
+      h) Push the evaluation context (FRAME_ m { f }) to the stack.
+      i) Enter instr* with label (LABEL_ m { [] }).
 
 Step_read/return_call x
 1. Let z be the current state.
@@ -24150,28 +24008,24 @@ Step_read/return_call x
 
 Step_read/return_call_ref yy
 1. Let z be the current state.
-2. Pop all values val* from the top of the stack.
-3. If the top of the stack is a LABEL_, then:
-  a. Push the values val* to the stack.
-  b. Pop all values val* from the top of the stack.
-  c. Pop the current label from the stack.
-  d. Push the values val* to the stack.
-  e. Execute the instruction (RETURN_CALL_REF yy).
-4. Else if the top of the stack is a HANDLER_, then:
-  a. Push the values val* to the stack.
-  b. Pop all values val* from the top of the stack.
-  c. Exit from HANDLER_.
-  d. Push the values val* to the stack.
-  e. Execute the instruction (RETURN_CALL_REF yy).
-5. Else if the top of the stack is a FRAME_, then:
-  a. Push the values val* to the stack.
-  b. Assert: Due to validation, a value is on the top of the stack.
-  c. Pop the value instr_u0 from the stack.
-  d. Pop all values val* from the top of the stack.
-  e. If instr_u0 is of the case REF.NULL, then:
-    1) Pop the current frame from the stack.
+2. If the first non-value entry of the stack is a LABEL_, then:
+  a. Pop all values val* from the top of the stack.
+  b. Pop the current LABEL_ context from the stack.
+  c. Push the values val* to the stack.
+  d. Execute the instruction (RETURN_CALL_REF yy).
+3. Else if the first non-value entry of the stack is a HANDLER_, then:
+  a. Pop all values val* from the top of the stack.
+  b. Pop the current HANDLER_ context from the stack.
+  c. Push the values val* to the stack.
+  d. Execute the instruction (RETURN_CALL_REF yy).
+4. Else if the first non-value entry of the stack is a FRAME_, then:
+  a. Assert: Due to validation, a value is on the top of the stack.
+  b. Pop the value instr_u0 from the stack.
+  c. Pop all values val* from the top of the stack.
+  d. If instr_u0 is of the case REF.NULL, then:
+    1) Pop the current FRAME_ context from the stack.
     2) Trap.
-  f. If instr_u0 is of the case REF.FUNC_ADDR, then:
+  e. If instr_u0 is of the case REF.FUNC_ADDR, then:
     1) Let (REF.FUNC_ADDR a) be instr_u0.
     2) If (a < |$funcinst(z)|), then:
       a) Assert: Due to validation, $expanddt($funcinst(z)[a].TYPE) is of the case FUNC.
@@ -24180,7 +24034,7 @@ Step_read/return_call_ref yy
       d) Assert: Due to validation, there are at least n values on the top of the stack.
       e) Pop the values val^n from the stack.
       f) Pop all values val'* from the top of the stack.
-      g) Pop the current frame from the stack.
+      g) Pop the current FRAME_ context from the stack.
       h) Push the values val^n to the stack.
       i) Push the value (REF.FUNC_ADDR a) to the stack.
       j) Execute the instruction (CALL_REF yy).
@@ -24192,114 +24046,108 @@ Step_read/throw_ref
 4. If instr_u0 is of the case REF.NULL, then:
   a. Trap.
 5. Pop all values val* from the top of the stack.
-6. If (val* is not []), then:
+6. If ((val* is not []) and instr_u0 is of the case REF.EXN_ADDR), then:
+  a. Let (REF.EXN_ADDR a) be instr_u0.
+  b. Push the value (REF.EXN_ADDR a) to the stack.
+  c. Execute the instruction THROW_REF.
+7. Else if the first non-value entry of the stack is a LABEL_, then:
   a. If instr_u0 is of the case REF.EXN_ADDR, then:
     1) Let (REF.EXN_ADDR a) be instr_u0.
-    2) Push the value (REF.EXN_ADDR a) to the stack.
-    3) Execute the instruction THROW_REF.
-7. Else:
-  a. Pop all values val* from the top of the stack.
-  b. If the top of the stack is a LABEL_, then:
-    1) Push the values val* to the stack.
-    2) If instr_u0 is of the case REF.EXN_ADDR, then:
-      a) Let (REF.EXN_ADDR a) be instr_u0.
-      b) Pop the current label from the stack.
-      c) Push the value (REF.EXN_ADDR a) to the stack.
-      d) Execute the instruction THROW_REF.
-  c. Else if the top of the stack is a FRAME_, then:
-    1) Push the values val* to the stack.
-    2) If instr_u0 is of the case REF.EXN_ADDR, then:
-      a) Let (REF.EXN_ADDR a) be instr_u0.
-      b) Pop the current frame from the stack.
-      c) Push the value (REF.EXN_ADDR a) to the stack.
-      d) Execute the instruction THROW_REF.
-  d. Else if not the top of the stack is a HANDLER_, then:
-    1) Throw the exception instr_u0 as a result.
-  e. Else:
-    1) Push the values val* to the stack.
-    2) Let (HANDLER_ n { catch_u1* }) be the current context.
-    3) If instr_u0 is of the case REF.EXN_ADDR, then:
-      a) Let (REF.EXN_ADDR a) be instr_u0.
-      b) If (catch_u1* is []), then:
-        1. Exit from HANDLER_.
-        2. Push the value (REF.EXN_ADDR a) to the stack.
-        3. Execute the instruction THROW_REF.
-      c) Else if (a ≥ |$exninst(z)|), then:
-        1. Let [catch_0] :: catch'* be catch_u1*.
-        2. If catch_0 is of the case CATCH_ALL, then:
-          a. Let (CATCH_ALL l) be catch_0.
-          b. Exit from HANDLER_.
-          c. Execute the instruction (BR l).
-        3. Else if catch_0 is of the case CATCH_ALL_REF, then:
-          a. Let (CATCH_ALL_REF l) be catch_0.
-          b. Exit from HANDLER_.
-          c. Push the value (REF.EXN_ADDR a) to the stack.
-          d. Execute the instruction (BR l).
-        4. Else:
-          a. Let [catch] :: catch'* be catch_u1*.
-          b. Exit from HANDLER_.
-          c. Let H be (HANDLER_ n { catch'* }).
-          d. Push the handler H to the stack.
-          e. Push the value (REF.EXN_ADDR a) to the stack.
-          f. Execute the instruction THROW_REF.
+    2) Pop the current LABEL_ context from the stack.
+    3) Push the value (REF.EXN_ADDR a) to the stack.
+    4) Execute the instruction THROW_REF.
+8. Else if the first non-value entry of the stack is a FRAME_, then:
+  a. If instr_u0 is of the case REF.EXN_ADDR, then:
+    1) Let (REF.EXN_ADDR a) be instr_u0.
+    2) Pop the current FRAME_ context from the stack.
+    3) Push the value (REF.EXN_ADDR a) to the stack.
+    4) Execute the instruction THROW_REF.
+9. Else if not the first non-value entry of the stack is a HANDLER_, then:
+  a. Throw the exception instr_u0 as a result.
+10. Else:
+  a. Let (HANDLER_ n { catch_u1* }) be the current HANDLER_ context.
+  b. If instr_u0 is of the case REF.EXN_ADDR, then:
+    1) Let (REF.EXN_ADDR a) be instr_u0.
+    2) If (catch_u1* is []), then:
+      a) Pop the current HANDLER_ context from the stack.
+      b) Push the value (REF.EXN_ADDR a) to the stack.
+      c) Execute the instruction THROW_REF.
+    3) Else if (a ≥ |$exninst(z)|), then:
+      a) Let [catch_0] :: catch'* be catch_u1*.
+      b) If catch_0 is of the case CATCH_ALL, then:
+        1. Let (CATCH_ALL l) be catch_0.
+        2. Pop the current HANDLER_ context from the stack.
+        3. Execute the instruction (BR l).
+      c) Else if catch_0 is not of the case CATCH_ALL_REF, then:
+        1. Let [catch] :: catch'* be catch_u1*.
+        2. Pop the current HANDLER_ context from the stack.
+        3. Push the evaluation context (HANDLER_ n { catch'* }) to the stack.
+        4. Push the value (REF.EXN_ADDR a) to the stack.
+        5. Execute the instruction THROW_REF.
       d) Else:
-        1. Let val* be $exninst(z)[a].FIELDS.
-        2. Let [catch_0] :: catch'* be catch_u1*.
-        3. If catch_0 is of the case CATCH, then:
-          a. Let (CATCH x l) be catch_0.
-          b. If ((x < |$tagaddr(z)|) and ($exninst(z)[a].TAG is $tagaddr(z)[x])), then:
-            1) Exit from HANDLER_.
-            2) Push the values val* to the stack.
-            3) Execute the instruction (BR l).
-          c. Else:
-            1) Let [catch] :: catch'* be catch_u1*.
-            2) Exit from HANDLER_.
-            3) Let H be (HANDLER_ n { catch'* }).
-            4) Push the handler H to the stack.
-            5) Push the value (REF.EXN_ADDR a) to the stack.
-            6) Execute the instruction THROW_REF.
-        4. Else if catch_0 is of the case CATCH_REF, then:
-          a. Let (CATCH_REF x l) be catch_0.
-          b. If ((x < |$tagaddr(z)|) and ($exninst(z)[a].TAG is $tagaddr(z)[x])), then:
-            1) Exit from HANDLER_.
-            2) Push the values val* to the stack.
-            3) Push the value (REF.EXN_ADDR a) to the stack.
-            4) Execute the instruction (BR l).
-          c. Else:
-            1) Let [catch] :: catch'* be catch_u1*.
-            2) Exit from HANDLER_.
-            3) Let H be (HANDLER_ n { catch'* }).
-            4) Push the handler H to the stack.
-            5) Push the value (REF.EXN_ADDR a) to the stack.
-            6) Execute the instruction THROW_REF.
-        5. Else if catch_0 is of the case CATCH_ALL, then:
-          a. Let (CATCH_ALL l) be catch_0.
-          b. Exit from HANDLER_.
+        1. Let (CATCH_ALL_REF l) be catch_0.
+        2. Pop the current HANDLER_ context from the stack.
+        3. Push the value (REF.EXN_ADDR a) to the stack.
+        4. Execute the instruction (BR l).
+    4) Else:
+      a) Let val* be $exninst(z)[a].FIELDS.
+      b) Let [catch_0] :: catch'* be catch_u1*.
+      c) If catch_0 is of the case CATCH, then:
+        1. Let (CATCH x l) be catch_0.
+        2. If ((x < |$tagaddr(z)|) and ($exninst(z)[a].TAG is $tagaddr(z)[x])), then:
+          a. Pop the current HANDLER_ context from the stack.
+          b. Push the values val* to the stack.
           c. Execute the instruction (BR l).
-        6. Else if catch_0 is of the case CATCH_ALL_REF, then:
-          a. Let (CATCH_ALL_REF l) be catch_0.
-          b. Exit from HANDLER_.
+        3. Else:
+          a. Let [catch] :: catch'* be catch_u1*.
+          b. Pop the current HANDLER_ context from the stack.
+          c. Push the evaluation context (HANDLER_ n { catch'* }) to the stack.
+          d. Push the value (REF.EXN_ADDR a) to the stack.
+          e. Execute the instruction THROW_REF.
+      d) Else if catch_0 is of the case CATCH_REF, then:
+        1. Let (CATCH_REF x l) be catch_0.
+        2. If (x ≥ |$tagaddr(z)|), then:
+          a. Let [catch] :: catch'* be catch_u1*.
+          b. Pop the current HANDLER_ context from the stack.
+          c. Push the evaluation context (HANDLER_ n { catch'* }) to the stack.
+          d. Push the value (REF.EXN_ADDR a) to the stack.
+          e. Execute the instruction THROW_REF.
+        3. Else if ($exninst(z)[a].TAG is not $tagaddr(z)[x]), then:
+          a. Let [catch] :: catch'* be catch_u1*.
+          b. Pop the current HANDLER_ context from the stack.
+          c. Push the evaluation context (HANDLER_ n { catch'* }) to the stack.
+          d. Push the value (REF.EXN_ADDR a) to the stack.
+          e. Execute the instruction THROW_REF.
+        4. Else:
+          a. Pop the current HANDLER_ context from the stack.
+          b. Push the values val* to the stack.
           c. Push the value (REF.EXN_ADDR a) to the stack.
           d. Execute the instruction (BR l).
-        7. Else:
-          a. Let [catch] :: catch'* be catch_u1*.
-          b. Exit from HANDLER_.
-          c. Let H be (HANDLER_ n { catch'* }).
-          d. Push the handler H to the stack.
-          e. Push the value (REF.EXN_ADDR a) to the stack.
-          f. Execute the instruction THROW_REF.
+      e) Else if catch_0 is of the case CATCH_ALL, then:
+        1. Let (CATCH_ALL l) be catch_0.
+        2. Pop the current HANDLER_ context from the stack.
+        3. Execute the instruction (BR l).
+      f) Else if catch_0 is not of the case CATCH_ALL_REF, then:
+        1. Let [catch] :: catch'* be catch_u1*.
+        2. Pop the current HANDLER_ context from the stack.
+        3. Push the evaluation context (HANDLER_ n { catch'* }) to the stack.
+        4. Push the value (REF.EXN_ADDR a) to the stack.
+        5. Execute the instruction THROW_REF.
+      g) Else:
+        1. Let (CATCH_ALL_REF l) be catch_0.
+        2. Pop the current HANDLER_ context from the stack.
+        3. Push the value (REF.EXN_ADDR a) to the stack.
+        4. Execute the instruction (BR l).
 
 Step_read/try_table bt catch* instr*
 1. Let z be the current state.
 2. Let (t_1^m -> t_2^n) be $blocktype_(z, bt).
 3. Assert: Due to validation, there are at least m values on the top of the stack.
 4. Pop the values val^m from the stack.
-5. Let H be (HANDLER_ n { catch* }).
-6. Push the handler H to the stack.
-7. Let L be the label_n{[]}.
-8. Enter val^m :: instr* with label L.
+5. Push the evaluation context (HANDLER_ n { catch* }) to the stack.
+6. Enter val^m :: instr* with label (LABEL_ n { [] }).
 
-Step_read/ref.null $idx(x)
+Step_read/ref.null (_IDX x)
 1. Let z be the current state.
 2. Push the value (REF.NULL $type(z, x)) to the stack.
 
@@ -24309,7 +24157,7 @@ Step_read/ref.func x
 3. Push the value (REF.FUNC_ADDR $moduleinst(z).FUNCS[x]) to the stack.
 
 Step_read/ref.test rt
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Assert: Due to validation, a value is on the top of the stack.
 3. Pop the value ref from the stack.
 4. Let rt' be $Ref_type(ref).
@@ -24319,7 +24167,7 @@ Step_read/ref.test rt
   a. Push the value (I32.CONST 0) to the stack.
 
 Step_read/ref.cast rt
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Assert: Due to validation, a value is on the top of the stack.
 3. Pop the value ref from the stack.
 4. Let rt' be $Ref_type(ref).
@@ -24330,8 +24178,8 @@ Step_read/ref.cast rt
 Step_read/struct.new_default x
 1. Let z be the current state.
 2. Assert: Due to validation, $expanddt($type(z, x)) is of the case STRUCT.
-3. Let (STRUCT fieldtype_0) be $expanddt($type(z, x)).
-4. Let (mut, zt)* be fieldtype_0.
+3. Let (STRUCT fieldtype_0*) be $expanddt($type(z, x)).
+4. Let (mut, zt)* be fieldtype_0*.
 5. Assert: Due to validation, (|mut*| is |zt*|).
 6. Assert: Due to validation, $default_($unpack(zt)) is defined*.
 7. Let ?(val)* be $default_($unpack(zt))*.
@@ -24349,8 +24197,8 @@ Step_read/struct.get sx? x i
   a. Let (REF.STRUCT_ADDR a) be instr_u0.
   b. If ((i < |$structinst(z)[a].FIELDS|) and (a < |$structinst(z)|)), then:
     1) Assert: Due to validation, $expanddt($type(z, x)) is of the case STRUCT.
-    2) Let (STRUCT fieldtype_0) be $expanddt($type(z, x)).
-    3) Let (mut, zt)* be fieldtype_0.
+    2) Let (STRUCT fieldtype_0*) be $expanddt($type(z, x)).
+    3) Let (mut, zt)* be fieldtype_0*.
     4) If ((|mut*| is |zt*|) and (i < |zt*|)), then:
       a) Push the value $unpackfield_(zt*[i], sx?, $structinst(z)[a].FIELDS[i]) to the stack.
 
@@ -24726,11 +24574,11 @@ Step_read/vload V128 vloadop__u0? x ao
     1) Let (SHAPE M X K sx) be vloadop__0.
     2) If (((i + ao.OFFSET) + ((M · K) / 8)) > |$mem(z, x).BYTES|), then:
       a) Trap.
-    3) If the type of $lsizenn^-1((M · 2)) is Jnn, then:
+    3) Let j^K be $ibytes__1^-1(M, $mem(z, x).BYTES[((i + ao.OFFSET) + ((k · M) / 8)) : (M / 8)])^(k<K).
+    4) If the type of $lsizenn^-1((M · 2)) is Jnn, then:
       a) Let Jnn be $lsizenn^-1((M · 2)).
-      b) Let j^K be $ibytes__1^-1(M, $mem(z, x).BYTES[((i + ao.OFFSET) + ((k · M) / 8)) : (M / 8)])^(k<K).
-      c) Let c be $invlanes_((Jnn X K), $extend__(M, $lsizenn(Jnn), sx, j)^K).
-      d) Push the value (V128.CONST c) to the stack.
+      b) Let c be $invlanes_((Jnn X K), $extend__(M, $lsizenn(Jnn), sx, j)^K).
+      c) Push the value (V128.CONST c) to the stack.
   c. If vloadop__0 is of the case SPLAT, then:
     1) Let (SPLAT N) be vloadop__0.
     2) If (((i + ao.OFFSET) + (N / 8)) > |$mem(z, x).BYTES|), then:
@@ -24864,8 +24712,8 @@ Step/struct.new x
 1. Let z be the current state.
 2. Let a be |$structinst(z)|.
 3. Assert: Due to validation, $expanddt($type(z, x)) is of the case STRUCT.
-4. Let (STRUCT fieldtype_0) be $expanddt($type(z, x)).
-5. Let (mut, zt)^n be fieldtype_0.
+4. Let (STRUCT fieldtype_0^n) be $expanddt($type(z, x)).
+5. Let (mut, zt)^n be fieldtype_0^n.
 6. Assert: Due to validation, there are at least n values on the top of the stack.
 7. Pop the values val^n from the stack.
 8. Let si be { TYPE: $type(z, x); FIELDS: $packfield_(zt, val)^n; }.
@@ -24883,8 +24731,8 @@ Step/struct.set x i
 7. If instr_u0 is of the case REF.STRUCT_ADDR, then:
   a. Let (REF.STRUCT_ADDR a) be instr_u0.
   b. Assert: Due to validation, $expanddt($type(z, x)) is of the case STRUCT.
-  c. Let (STRUCT fieldtype_0) be $expanddt($type(z, x)).
-  d. Let (mut, zt)* be fieldtype_0.
+  c. Let (STRUCT fieldtype_0*) be $expanddt($type(z, x)).
+  d. Let (mut, zt)* be fieldtype_0*.
   e. If ((|mut*| is |zt*|) and (i < |zt*|)), then:
     1) Perform $with_struct(z, a, i, $packfield_(zt*[i], val)).
 
@@ -25320,9 +25168,6 @@ diffrt (REF nul1 ht_1) (REF (NULL _u0? ?) ht_2)
   a. Return (REF (NULL ?() ?) ht_1).
 2. Assert: Due to validation, _u0? is not defined.
 3. Return (REF nul1 ht_1).
-
-idx x
-1. Return (_IDX x).
 
 free_opt free_u0?
 1. If free_u0? is not defined, then:
@@ -26004,16 +25849,25 @@ subst_moduletype (xt_1* -> xt_2*) tv* tu*
 1. Return ($subst_externtype(xt_1, tv*, tu*)* -> $subst_externtype(xt_2, tv*, tu*)*).
 
 subst_all_valtype t tu^n
-1. Return $subst_valtype(t, $idx(i)^(i<n), tu^n).
+1. Return $subst_valtype(t, (_IDX i)^(i<n), tu^n).
 
 subst_all_reftype rt tu^n
-1. Return $subst_reftype(rt, $idx(i)^(i<n), tu^n).
+1. Return $subst_reftype(rt, (_IDX i)^(i<n), tu^n).
 
 subst_all_deftype dt tu^n
-1. Return $subst_deftype(dt, $idx(i)^(i<n), tu^n).
+1. Return $subst_deftype(dt, (_IDX i)^(i<n), tu^n).
+
+subst_all_globaltype gt tu^n
+1. Return $subst_globaltype(gt, (_IDX i)^(i<n), tu^n).
+
+subst_all_tabletype tt tu^n
+1. Return $subst_tabletype(tt, (_IDX i)^(i<n), tu^n).
+
+subst_all_memtype mt tu^n
+1. Return $subst_memtype(mt, (_IDX i)^(i<n), tu^n).
 
 subst_all_moduletype mmt tu^n
-1. Return $subst_moduletype(mmt, $idx(i)^(i<n), tu^n).
+1. Return $subst_moduletype(mmt, (_IDX i)^(i<n), tu^n).
 
 subst_all_deftypes deftype_u0* tu*
 1. If (deftype_u0* is []), then:
@@ -26024,7 +25878,7 @@ subst_all_deftypes deftype_u0* tu*
 rollrt x rectype
 1. Assert: Due to validation, rectype is of the case REC.
 2. Let (REC subtype^n) be rectype.
-3. Return (REC $subst_subtype(subtype, $idx((x + i))^(i<n), (REC i)^(i<n))^n).
+3. Return (REC $subst_subtype(subtype, (_IDX (x + i))^(i<n), (REC i)^(i<n))^n).
 
 unrollrt rectype
 1. Assert: Due to validation, rectype is of the case REC.
@@ -26755,6 +26609,18 @@ inst_reftype moduleinst rt
 1. Let dt* be moduleinst.TYPES.
 2. Return $subst_all_reftype(rt, dt*).
 
+inst_globaltype moduleinst gt
+1. Let dt* be moduleinst.TYPES.
+2. Return $subst_all_globaltype(gt, dt*).
+
+inst_tabletype moduleinst tt
+1. Let dt* be moduleinst.TYPES.
+2. Return $subst_all_tabletype(tt, dt*).
+
+inst_memtype moduleinst mt
+1. Let dt* be moduleinst.TYPES.
+2. Return $subst_all_memtype(mt, dt*).
+
 default_ valtype_u0
 1. If the type of valtype_u0 is Inn, then:
   a. Let Inn be valtype_u0.
@@ -26850,15 +26716,15 @@ store
 1. Return.
 
 frame
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return f.
 
 tagaddr
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return f.MODULE.TAGS.
 
 moduleinst
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return f.MODULE.
 
 funcinst
@@ -26892,71 +26758,71 @@ exninst
 1. Return s.EXNS.
 
 type x
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return f.MODULE.TYPES[x].
 
 func x
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return s.FUNCS[f.MODULE.FUNCS[x]].
 
 global x
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return s.GLOBALS[f.MODULE.GLOBALS[x]].
 
 table x
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return s.TABLES[f.MODULE.TABLES[x]].
 
 mem x
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return s.MEMS[f.MODULE.MEMS[x]].
 
 tag x
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return s.TAGS[f.MODULE.TAGS[x]].
 
 elem x
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return s.ELEMS[f.MODULE.ELEMS[x]].
 
 data x
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return s.DATAS[f.MODULE.DATAS[x]].
 
 local x
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Return f.LOCALS[x].
 
 with_local x v
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Replace f.LOCALS[x] with ?(v).
 
 with_global x v
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Replace s.GLOBALS[f.MODULE.GLOBALS[x]].VALUE with v.
 
 with_table x i r
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Replace s.TABLES[f.MODULE.TABLES[x]].REFS[i] with r.
 
 with_tableinst x ti
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Replace s.TABLES[f.MODULE.TABLES[x]] with ti.
 
 with_mem x i j b*
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Replace s.MEMS[f.MODULE.MEMS[x]].BYTES[i : j] with b*.
 
 with_meminst x mi
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Replace s.MEMS[f.MODULE.MEMS[x]] with mi.
 
 with_elem x r*
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Replace s.ELEMS[f.MODULE.ELEMS[x]].REFS with r*.
 
 with_data x b*
-1. Let f be the current frame.
+1. Let (FRAME_ _ { f }) be the current FRAME_ context.
 2. Replace s.DATAS[f.MODULE.DATAS[x]].BYTES with b*.
 
 with_struct a i fv
@@ -26975,17 +26841,17 @@ add_exninst exn*
 1. Append exn* to the s.EXNS.
 
 growtable tableinst n r
-1. Let { TYPE: ((i, j), rt); REFS: r'*; } be tableinst.
+1. Let { TYPE: (([ i .. j ]), rt); REFS: r'*; } be tableinst.
 2. If ((|r'*| + n) ≤ j), then:
   a. Let i' be (|r'*| + n).
-  b. Let tableinst' be { TYPE: ((i', j), rt); REFS: r'* :: r^n; }.
+  b. Let tableinst' be { TYPE: (([ i' .. j ]), rt); REFS: r'* :: r^n; }.
   c. Return tableinst'.
 
 growmem meminst n
-1. Let { TYPE: ((i, j) PAGE); BYTES: b*; } be meminst.
+1. Let { TYPE: (([ i .. j ]) PAGE); BYTES: b*; } be meminst.
 2. If (((|b*| / (64 · $Ki())) + n) ≤ j), then:
   a. Let i' be ((|b*| / (64 · $Ki())) + n).
-  b. Let meminst' be { TYPE: ((i', j) PAGE); BYTES: b* :: 0^(n · (64 · $Ki())); }.
+  b. Let meminst' be { TYPE: (([ i' .. j ]) PAGE); BYTES: b* :: 0^(n · (64 · $Ki())); }.
   c. Return meminst'.
 
 blocktype_ z blocktype_u0
@@ -27048,8 +26914,8 @@ allocglobals globaltype_u0* val_u1*
   e. Let ga'* be $allocglobals(globaltype'*, val'*).
   f. Return [ga] :: ga'*.
 
-alloctable ((i, j), rt) ref
-1. Let tableinst be { TYPE: ((i, j), rt); REFS: ref^i; }.
+alloctable (([ i .. j ]), rt) ref
+1. Let tableinst be { TYPE: (([ i .. j ]), rt); REFS: ref^i; }.
 2. Let a be |s.TABLES|.
 3. Append tableinst to the s.TABLES.
 4. Return a.
@@ -27065,8 +26931,8 @@ alloctables tabletype_u0* ref_u1*
 7. Let ta'* be $alloctables(tabletype'*, ref'*).
 8. Return [ta] :: ta'*.
 
-allocmem ((i, j) PAGE)
-1. Let meminst be { TYPE: ((i, j) PAGE); BYTES: 0^(i · (64 · $Ki())); }.
+allocmem (([ i .. j ]) PAGE)
+1. Let meminst be { TYPE: (([ i .. j ]) PAGE); BYTES: 0^(i · (64 · $Ki())); }.
 2. Let a be |s.MEMS|.
 3. Append meminst to the s.MEMS.
 4. Return a.
@@ -27079,8 +26945,8 @@ allocmems memtype_u0*
 4. Let ma'* be $allocmems(memtype'*).
 5. Return [ma] :: ma'*.
 
-alloctag at
-1. Let taginst be { TYPE: at; }.
+alloctag tagtype
+1. Let taginst be { TYPE: tagtype; }.
 2. Let a be |s.TAGS|.
 3. Append taginst to the s.TAGS.
 4. Return a.
@@ -27181,15 +27047,15 @@ allocmodule module externaddr* val_G* ref_T* ref_E**
 31. Let moduleinst be { TYPES: dt*; FUNCS: fa_I* :: fa*; GLOBALS: ga_I* :: ga*; TABLES: ta_I* :: ta*; MEMS: ma_I* :: ma*; TAGS: aa_I* :: aa*; ELEMS: ea*; DATAS: da*; EXPORTS: xi*; }.
 32. Let n_0 be $allocfuncs(dt*[x]*, (FUNC x local* expr_F)*, moduleinst^|func*|).
 33. Assert: Due to validation, (n_0 is fa*).
-34. Let n_0 be $allocglobals(globaltype*, val_G*).
+34. Let n_0 be $allocglobals($subst_all_globaltype(globaltype, dt*)*, val_G*).
 35. Assert: Due to validation, (n_0 is ga*).
-36. Let n_0 be $alloctables(tabletype*, ref_T*).
+36. Let n_0 be $alloctables($subst_all_tabletype(tabletype, dt*)*, ref_T*).
 37. Assert: Due to validation, (n_0 is ta*).
-38. Let n_0 be $allocmems(memtype*).
+38. Let n_0 be $allocmems($subst_all_memtype(memtype, dt*)*).
 39. Assert: Due to validation, (n_0 is ma*).
 40. Let n_0 be $alloctags(dt*[y]*).
 41. Assert: Due to validation, (n_0 is aa*).
-42. Let n_0 be $allocelems(elemtype*, ref_E**).
+42. Let n_0 be $allocelems($subst_all_reftype(elemtype, dt*)*, ref_E**).
 43. Assert: Due to validation, (n_0 is ea*).
 44. Let n_0 be $allocdatas(OK^|data*|, byte**).
 45. Assert: Due to validation, (n_0 is da*).
@@ -27212,7 +27078,7 @@ rundata_ x (DATA b^n datamode_u0)
 4. Return instr* :: [(I32.CONST 0), (I32.CONST n), (MEMORY.INIT y x), (DATA.DROP x)].
 
 evalglobals z globaltype_u0* expr_u1*
-1. Let z be the current frame.
+1. Let (FRAME_ _ { z }) be the current FRAME_ context.
 2. If ((globaltype_u0* is []) and (expr_u1* is [])), then:
   a. Return [].
 3. Assert: Due to validation, (|expr_u1*| ≥ 1).
@@ -27230,7 +27096,7 @@ instantiate z module externaddr*
 1. Let (xt_I* -> xt_E*) be $Module_ok(module).
 2. Assert: Due to validation, module is of the case MODULE.
 3. Let (MODULE type* import* func* global* table* mem* tag* elem* data* start? export*) be module.
-4. Assert: Due to validation, ($Externaddr_type(externaddr) is xt_I)*.
+4. Assert: Due to validation, $Externaddr_type(externaddr, xt_I)*.
 5. Let instr_D* be $concat_(instr, $rundata_(i_D, data*[i_D])^(i_D<|data*|)).
 6. Let instr_E* be $concat_(instr, $runelem_(i_E, elem*[i_E])^(i_E<|elem*|)).
 7. Assert: Due to validation, start is of the case START?.
@@ -27245,23 +27111,23 @@ instantiate z module externaddr*
 16. Let (ELEM reftype expr_E* elemmode)* be elem*.
 17. Let instr_S? be (CALL x)?.
 18. Let z be { LOCALS: []; MODULE: moduleinst_0; }.
-19. Push the activation of z to the stack.
+19. Push the value (FRAME_ 0 { z }) to the stack.
 20. Let val_G* be $evalglobals(z, globaltype*, expr_G*).
-21. Pop the activation of z' from the stack.
-22. Push the activation of z' to the stack.
+21. Pop the value (FRAME_ 0 { z' }) from the stack.
+22. Push the value (FRAME_ 0 { z' }) to the stack.
 23. Let [ref_T]* be $eval_expr(expr_T)*.
-24. Pop the activation of _f from the stack.
-25. Push the activation of z' to the stack.
+24. Pop the value (FRAME_ 0 { _f }) from the stack.
+25. Push the value (FRAME_ 0 { z' }) to the stack.
 26. Let [ref_E]** be $eval_expr(expr_E)**.
-27. Pop the activation of _f from the stack.
+27. Pop the value (FRAME_ 0 { _f }) from the stack.
 28. Let moduleinst be $allocmodule(module, externaddr*, val_G*, ref_T*, ref_E**).
 29. Let f be { LOCALS: []; MODULE: moduleinst; }.
-30. Push the activation of f with arity 0 to the stack.
+30. Push the evaluation context (FRAME_ 0 { f }) to the stack.
 31. Execute the sequence (instr_E*).
 32. Execute the sequence (instr_D*).
 33. If instr_S? is defined, then:
   a. Execute the instruction instr_S.
-34. Pop the activation of f with arity 0 from the stack.
+34. Pop the evaluation context (FRAME_ 0 { f }) from the stack.
 35. Return f.MODULE.
 
 invoke funcaddr val*
@@ -27269,14 +27135,14 @@ invoke funcaddr val*
 2. Assert: Due to validation, $expanddt(s.FUNCS[funcaddr].TYPE) is of the case FUNC.
 3. Let (FUNC functype_0) be $expanddt(s.FUNCS[funcaddr].TYPE).
 4. Let (t_1* -> t_2*) be functype_0.
-5. Assert: Due to validation, ($Val_type(val) is t_1)*.
+5. Assert: Due to validation, $Val_type(val, t_1)*.
 6. Let k be |t_2*|.
-7. Push the activation of f with arity k to the stack.
+7. Push the evaluation context (FRAME_ k { f }) to the stack.
 8. Push the values val* to the stack.
 9. Push the value (REF.FUNC_ADDR funcaddr) to the stack.
 10. Execute the instruction (CALL_REF s.FUNCS[funcaddr].TYPE).
 11. Pop all values val* from the top of the stack.
-12. Pop the activation of f with arity k from the stack.
+12. Pop the evaluation context (FRAME_ k { f }) from the stack.
 13. Push the values val* to the stack.
 14. Pop the values val^k from the stack.
 15. Return val^k.

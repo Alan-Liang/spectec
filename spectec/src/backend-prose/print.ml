@@ -141,7 +141,7 @@ and string_of_expr expr =
   | ChooseE e -> sprintf "an element of %s" (string_of_expr e)
   | VarE id -> id
   | SubE (id, _) -> id
-  | IterE (e, _, iter) -> string_of_expr e ^ string_of_iter iter
+  | IterE (e, ie) -> string_of_expr e ^ string_of_iterexp ie
   | CaseE ([{ it=El.Atom.Atom ("CONST" | "VCONST"); _ }]::_tl, hd::tl) ->
     "(" ^ string_of_expr hd ^ ".CONST " ^ string_of_exprs " " tl ^ ")"
   | CaseE ([[ atom ]], []) -> string_of_atom atom
@@ -161,7 +161,7 @@ and string_of_expr expr =
     )
   | OptE (Some e) -> "?(" ^ string_of_expr e ^ ")"
   | OptE None -> "?()"
-  | ContextKindE a -> sprintf "the top of the stack is a %s" (string_of_atom a)
+  | ContextKindE a -> sprintf "the first non-value entry of the stack is a %s" (string_of_atom a)
   | IsDefinedE e -> sprintf "%s is defined" (string_of_expr e)
   | IsCaseOfE (e, a) -> sprintf "%s is of the case %s" (string_of_expr e) (string_of_atom a)
   | HasTypeE (e, t) -> sprintf "the type of %s is %s" (string_of_expr e) (string_of_typ t)
@@ -219,6 +219,17 @@ and string_of_args sep =
       ^ (if is_long then (sep ^ "..." ^ stringifier (List.hd (List.rev t))) else "")
   in
   string_of_list string_of_arg sep
+
+
+(* Iter exps *)
+
+and string_of_iterexp (iter, xes) =
+  let suffix = "{"
+    ^ String.concat ", " (List.map (fun (id, e) -> id ^ " <- " ^ string_of_expr e) xes)
+  ^ "}"
+  in
+  ignore suffix;
+  string_of_iter iter
 
 (* Instructions *)
 

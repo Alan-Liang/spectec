@@ -25,9 +25,9 @@ let fail_path path msg =
 let try_with_error fname at stringifier f step =
   let prefix = if fname <> empty then "$" ^ fname ^ ": " else fname in
   try f step with
-  | Construct.InvalidConversion msg
-  | Exception.InvalidArg msg
-  | Exception.InvalidFunc msg
+  | Exception.WrongConversion msg
+  | Exception.ArgMismatch msg
+  | Exception.UnknownFunc msg
   | Exception.FreeVar msg
   | Failure msg -> error at (prefix ^ msg) (stringifier step)
 
@@ -61,25 +61,25 @@ let dispatch_fname f env =
   | Some (FnameV f') -> f'
   | _ -> f
 
-let rec create_sub_al_context names iter env =
-  let option_name_to_list name = lookup_env name env |> unwrap_optv |> Option.to_list in
-  let name_to_list name = lookup_env name env |> unwrap_listv_to_list in
+let rec create_sub_env (iter, xes) env =
   let length_to_list l = List.init l al_of_int in
 
-  let name_to_values name =
+  let xe_to_values (x, e) =
     match iter with
-    | Opt -> option_name_to_list name
-    | ListN (e_n, Some n') when name = n' ->
-      eval_expr env e_n
-      |> al_to_int
-      |> length_to_list
-    | _ -> name_to_list name
+    | ListN (e_n, Some x') when x = x' ->
+      eval_expr env e_n |> al_to_int |> length_to_list
+    | Opt ->
+      eval_expr env e |> unwrap_optv |> Option.to_list
+    | _ ->
+      eval_expr env e |> unwrap_listv_to_list
   in
 
-  names
-  |> List.map name_to_values
+  let xs = List.map fst xes in
+
+  xes
+  |> List.map xe_to_values
   |> transpose
-  |> List.map (fun vs -> List.fold_right2 Env.add names vs env)
+  |> List.map (fun vs -> List.fold_right2 Env.add xs vs env)
 
 and access_path env base path =
   match path.it with
@@ -304,10 +304,7 @@ and eval_expr env expr =
   | OptE opt -> Option.map (eval_expr env) opt |> optV
   | TupE el -> List.map (eval_expr env) el |> tupV
   (* Context *)
-  | GetCurContextE None ->
-    (match WasmContext.get_top_context () with
-    | None -> fail_expr expr "cannot get the current context"
-    | Some ctxt -> ctxt)
+  | GetCurContextE None -> WasmContext.get_top_context ()
   | GetCurContextE (Some { it = Atom a; _ }) when List.mem a context_names ->
     WasmContext.get_current_context a
   | ChooseE e ->
@@ -319,20 +316,20 @@ and eval_expr env expr =
   | VarE "s" -> Store.get ()
   | VarE name -> lookup_env name env
   (* Optimized getter for simple IterE(VarE, ...) *)
-  | IterE ({ it = VarE name; _ }, [name'], _) when name = name' ->
-    lookup_env name env
+  | IterE ({ it = VarE name; _ }, (_, [name', e])) when name = name' ->
+    eval_expr env e
   (* Optimized getter for list init *)
-  | IterE (e1, [], ListN (e2, None)) ->
+  | IterE (e1, (ListN (e2, None), [])) ->
     let v = eval_expr env e1 in
     let i = eval_expr env e2 |> al_to_int in
     if i > 1024 * 64 * 1024 (* 1024 pages *) then
       raise Exception.OutOfMemory
     else
       Array.make i v |> listV
-  | IterE (inner_e, ids, iter) ->
+  | IterE (inner_e, (iter, xes)) ->
     let vs =
       env
-      |> create_sub_al_context ids iter
+      |> create_sub_env (iter, xes)
       |> List.map (fun env' -> eval_expr env' inner_e)
     in
 
@@ -344,7 +341,7 @@ and eval_expr env expr =
   | ContextKindE a ->
     let ctx = WasmContext.get_top_context () in
     (match a.it, ctx with
-    | Atom case, Some (CaseV (case', _)) -> boolV (case = case')
+    | Atom case, CaseV (case', _) -> boolV (case = case')
     | _ -> boolV false)
   | IsDefinedE e ->
     e
@@ -403,55 +400,35 @@ and has_same_keys re rv =
   let k2 = Record.keys rv |> List.sort String.compare in
   k1 = k2
 
-and merge env acc =
-  let f _ v1 v2 =
-    let wrapped =
-      match iter_type_of_value v2 with
-      | List | List1 | ListN _ ->
-        unwrap_listv_to_array v2 |> Array.append [| v1 |] |> listV
-      | Opt -> optV (Some v1)
-    in
-    Some wrapped
-  in
-  Env.union f env acc
-
 and assign lhs rhs env =
   match lhs.it, rhs with
-  | IterE ({ it = VarE name; _ }, _, (List|List1)), ListV _
   | VarE name, _ -> Env.add name rhs env
-  | IterE (e, ids, iter), _ ->
-    (* Convert rhs to iterable list *)
-    let rhs_default, rhs_iter =
-      match rhs with
-      | OptV opt -> optV None, Option.to_list opt
-      | ListV arr -> empty_list, Array.to_list !arr
-      | _ ->
-        fail_expr lhs
-          (sprintf
-            "invalid assignment: %s is not an iterable value" (string_of_value rhs)
-          )
-    in
+  | IterE ({ it = VarE x1; _ }, ((List|List1), [x2, lhs'])), ListV _ when x1 = x2 ->
+    assign lhs' rhs env
+  | IterE (e, (iter, xes)), _ ->
+    let vs = unwrap_seqv_to_list rhs in
+    let envs = List.map (fun v -> assign e v Env.empty) vs in
 
     (* Assign length variable *)
-    let env_with_length =
+    let env' =
       match iter with
-      | ListN (expr, opt) ->
-        if Option.is_some opt then
-          fail_expr lhs "invalid assignment: iter with index cannot be an assignment target"
-        else
-          let length = numV_of_int (List.length rhs_iter) in
-          assign expr length env
+      | ListN (expr, None) ->
+        let length = numV_of_int (List.length vs) in
+        assign expr length env
+      | ListN _ ->
+        fail_expr lhs "invalid assignment: iter with index cannot be an assignment target"
       | _ -> env
     in
 
-    (* Assign iter variable *)
-    ids
-    |> List.map (fun n -> n, rhs_default)
-    |> List.to_seq
-    |> Env.of_seq
-    |> List.fold_right merge
-      (List.map (fun v -> assign e v Env.empty) rhs_iter)
-    |> Env.union (fun _ _ v -> Some v) env_with_length
+    List.fold_left (fun env (x, e) ->
+      let vs = List.map (lookup_env x) envs in
+      let v =
+        match iter with
+        | Opt -> optV (List.nth_opt vs 0)
+        | _ -> listV_of_list vs
+      in
+      assign e v env
+    ) env' xes
   | TupE lhs_s, TupV rhs_s
     when List.length lhs_s = List.length rhs_s ->
     List.fold_right2 assign lhs_s rhs_s env
@@ -492,7 +469,7 @@ and assign_split lhs vs env =
     let get_fixed_length e =
       match e.it with
       | ListE es -> Some (List.length es)
-      | IterE (_, _, ListN (e, None)) -> Some (al_to_int (eval_expr env e))
+      | IterE (_, (ListN (e, None), _)) -> Some (al_to_int (eval_expr env e))
       | _ -> None
     in
     match get_fixed_length ep, get_fixed_length es with
@@ -550,13 +527,11 @@ and step_instr (fname: string) (ctx: AlContext.t) (env: value Env.t) (instr: ins
     | Exception.OutOfMemory ->
       AlContext.add_instrs il2 ctx
     )
-  | AssertI _e -> ctx
-  (*
+  | AssertI e ->
     if is_true (eval_expr env e) then
       ctx
     else
       fail_expr e "assertion fail"
-  *)
   | PushI e ->
     (match eval_expr env e with
     | CaseV ("FRAME_", _) as v -> WasmContext.push_context (v, [], [])
@@ -573,14 +548,15 @@ and step_instr (fname: string) (ctx: AlContext.t) (env: value Env.t) (instr: ins
         AlContext.set_env new_env ctx
       | v, _, _ -> failwith (sprintf "current context `%s` is not a frame" (string_of_value v))
       )
-    | IterE ({ it = VarE name; _ }, [name'], ListN (e', None)) when name = name' ->
-      let i = eval_expr env e' |> al_to_int in
+    | IterE ({ it = VarE name; _ }, (ListN (e_n, None), [name', e'])) when name = name' ->
+      let i = eval_expr env e_n |> al_to_int in
       let v =
         List.init i (fun _ -> WasmContext.pop_value ())
         |> List.rev
         |> listV_of_list
       in
-      AlContext.update_env name v ctx
+      let new_env = assign e' v env in
+      AlContext.set_env new_env ctx
     | _ ->
       let new_env = assign e (WasmContext.pop_value ()) env in
       AlContext.set_env new_env ctx
@@ -686,41 +662,33 @@ and try_step_instr fname ctx env instr =
   try_with_error fname instr.at string_of_instr (step_instr fname ctx env) instr
 
 and step_wasm (ctx: AlContext.t) : value -> AlContext.t = function
-  (* TODO: Change ref.null semantics *)
-  | CaseV ("REF.NULL", [ ht ]) when !version = 3 ->
-    let mm =
-      WasmContext.get_current_context "FRAME_"
-      |> unwrap_framev
-      |> strv_access "MODULE"
-    in
-    (* TODO: some *)
-    let null = caseV ("NULL", [ optV (Some (listV [||])) ]) in
-    let dummy_rt = CaseV ("REF", [ null; ht ]) in
-
-    (* substitute heap type *)
-    (match call_func "inst_reftype" [ mm; dummy_rt ] with
-    | Some (CaseV ("REF", [ n; ht' ])) when n = null ->
-      CaseV ("REF.NULL", [ ht' ]) |> WasmContext.push_value
-    | _ -> raise (Exception.MissingReturnValue "inst_reftype"));
-    ctx
+  | CaseV ("REF.NULL" as name, ([ CaseV ("_IDX", _) ] as args)) ->
+    create_context name args :: ctx
   | CaseV ("REF.NULL", _)
   | CaseV ("CONST", _)
   | CaseV ("VCONST", _) as v -> WasmContext.push_value v; ctx
   | CaseV (name, []) when Builtin.is_builtin name -> Builtin.call name; ctx
-  | CaseV (fname, args) -> create_context fname args :: ctx
+  | CaseV (name, args) -> create_context name args :: ctx
   | v -> fail_value "cannot step a wasm instr" v
 
 
 and try_step_wasm ctx v =
   try_with_error empty no_region structured_string_of_value (step_wasm ctx) v
 
-and step : AlContext.t -> AlContext.t = AlContext.(function
-  | Al (name, il, env) :: ctx ->
+and step (ctx: AlContext.t) : AlContext.t =
+  let open AlContext in
+
+  Debugger.run ctx;
+
+  match ctx with
+  | Al (name, args, il, env) :: ctx ->
     (match il with
     | [] -> ctx
-    | [ instr ] when AlContext.can_tail_call instr -> try_step_instr name ctx env instr
+    | [ instr ]
+    when can_tail_call instr && not !Debugger.debug ->
+      try_step_instr name ctx env instr
     | h :: t ->
-      let new_ctx = Al (name, t, env) :: ctx in
+      let new_ctx = Al (name, args, t, env) :: ctx in
       try_step_instr name new_ctx env h
     )
   | Wasm n :: ctx ->
@@ -732,7 +700,7 @@ and step : AlContext.t -> AlContext.t = AlContext.(function
     (match il with
     | [] ->
       (match ctx with
-      | Wasm n :: t -> Wasm (n + 1) :: t
+      | Wasm n :: t when not !Debugger.debug -> Wasm (n + 1) :: t
       | Enter (_, [], _) :: t -> Wasm 2 :: t
       | ctx -> Wasm 1 :: ctx
       )
@@ -742,10 +710,10 @@ and step : AlContext.t -> AlContext.t = AlContext.(function
     )
   | Execute v :: ctx -> try_step_wasm ctx v
   | _ -> assert false
-)
 
 
 (* AL interpreter Entry *)
+
 
 and run (ctx: AlContext.t) : AlContext.t =
   if AlContext.is_reducible ctx then run (step ctx) else ctx
@@ -771,7 +739,7 @@ and create_context (name: string) (args: value list) : AlContext.mode =
     |> List.fold_right2 assign_param params args
   in
 
-  AlContext.al (name, body, env)
+  AlContext.al (name, params, body, env)
 
 and call_func (name: string) (args: value list) : value option =
   (* Module & Runtime *)
@@ -786,7 +754,7 @@ and call_func (name: string) (args: value list) : value option =
   else if Manual.mem name then
     Some (Manual.call_func name args)
   else
-    raise (Exception.InvalidFunc ("There is no function named: " ^ name))
+    raise (Exception.UnknownFunc ("There is no function named: " ^ name))
 
 
 (* Wasm interpreter entry *)

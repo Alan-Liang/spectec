@@ -479,17 +479,11 @@ It is up to the :ref:`embedder <embedder>` to define how such conditions are rep
 
 14. For each :ref:`data segment <syntax-data>` :math:`\data_i` in :math:`\module.\MDATAS` whose :ref:`mode <syntax-datamode>` is of the form :math:`\DACTIVE~\{ \DMEM~\memidx_i, \DOFFSET~\X{dinstr}^\ast_i~\END \}`, do:
 
-    a. Let :math:`n` be the length of the vector :math:`\data_i.\DINIT`.
+    a. Let :math:`n` be the length of the list :math:`\data_i.\DINIT`.
 
-<<<<<<< HEAD
-    b. Let :math:`n` be the length of the list :math:`\data_i.\DINIT`.
-
-    c. :ref:`Execute <exec-instrs>` the instruction sequence :math:`\X{dinstr}^\ast_i`.
-=======
-    b. :ref:`Execute <exec-instr-seq>` the instruction sequence :math:`\X{dinstr}^\ast_i`.
+    b. :ref:`Execute <exec-instrs>` the instruction sequence :math:`\X{dinstr}^\ast_i`.
 
     c. :ref:`Execute <exec-const>` the instruction :math:`\I32.\CONST~0`.
->>>>>>> ca746e06c514e62c22f31faa6e7c50ec6ac8f0b5
 
     d. :ref:`Execute <exec-const>` the instruction :math:`\I32.\CONST~n`.
 
@@ -512,7 +506,6 @@ $${definition: instantiate}
 
 where:
 
-<<<<<<< HEAD
 .. _eval-globals:
 
 $${definition: evalglobals}
@@ -521,19 +514,6 @@ $${definition: evalglobals}
 .. _aux-rundata:
 
 $${definition: runelem_ rundata_}
-=======
-.. math::
-   \begin{array}{@{}l}
-   \F{runelem}_i(\{\ETYPE~\X{et}, \EINIT~\expr^n, \EMODE~\EPASSIVE\}) \quad=\quad \epsilon \\
-   \F{runelem}_i(\{\ETYPE~\X{et}, \EINIT~\expr^n, \EMODE~\EACTIVE \{\ETABLE~x, \EOFFSET~\instr^\ast~\END\}\}) \quad=\\ \qquad
-     \instr^\ast~(\I32.\CONST~0)~(\I32.\CONST~n)~(\TABLEINIT~x~i)~(\ELEMDROP~i) \\
-   \F{runelem}_i(\{\ETYPE~\X{et}, \EINIT~\expr^n, \EMODE~\EDECLARATIVE\}) \quad=\\ \qquad
-     (\ELEMDROP~i) \\[1ex]
-   \F{rundata}_i(\{\DINIT~b^n, \DMODE~\DPASSIVE\}) \quad=\\ \qquad \epsilon \\
-   \F{rundata}_i(\{\DINIT~b^n, \DMODE~\DACTIVE \{\DMEM~x, \DOFFSET~\instr^\ast~\END\}\}) \quad=\\ \qquad
-     \instr^\ast~(\I32.\CONST~0)~(\I32.\CONST~n)~(\MEMORYINIT~x~i)~(\DATADROP~i) \\
-   \end{array}
->>>>>>> ca746e06c514e62c22f31faa6e7c50ec6ac8f0b5
 
 .. note::
    Checking import types assumes that the :ref:`module instance <syntax-moduleinst>` has already been :ref:`allocated <alloc-module>` to compute the respective :ref:`closed <type-closed>` :ref:`defined types <syntax-deftype>`.

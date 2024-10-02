@@ -7,6 +7,7 @@ type mixop = Il.Ast.mixop
 
 (* Types *)
 
+(* TODO: define AL type *)
 type typ = Il.Ast.typ
 
 (* Identifiers *)
@@ -95,7 +96,7 @@ and expr' =
   | CaseE of mixop * expr list                    (* mixop `(` expr* `)` -- CaseE *)
   | CallE of id * arg list                        (* id `(` expr* `)` *)
   | InvCallE of id * int option list * arg list   (* id`_`int*`^-1(` expr* `)` *)
-  | IterE of expr * id list * iter                (* expr (`{` id* `}`)* *)
+  | IterE of expr * iterexp                       (* expr (`{` id* `}`)* *)
   | OptE of expr option                           (* expr?  *)
   | ListE of expr list                            (* `[` expr* `]` *)
   | GetCurStateE                                  (* "the current state" *)
@@ -104,7 +105,7 @@ and expr' =
   (* Conditions *)
   | IsCaseOfE of expr * atom                      (* expr is of the case atom *)
   | IsValidE of expr                              (* expr is valid *)
-  | ContextKindE of atom                          (* "the top of the stack is a" atom *)
+  | ContextKindE of atom                          (* "the fisrt non-value entry of the stack is a" atom *)
   | IsDefinedE of expr                            (* expr is defined *)
   | MatchE of expr * expr                         (* expr matches expr *)
   | HasTypeE of expr * typ                        (* the type of expr is ty *)
@@ -126,6 +127,8 @@ and arg' =
   | ExpA of expr
   | TypA of typ
   | DefA of id
+
+and iterexp = iter * (id * expr) list
 
 (* Instructions *)
 

@@ -37,7 +37,7 @@ let is_empty_context_rel def =
   | Ast.RelD (_, [ { it = El.Atom.Turnstile; _} ] :: _, _, _) -> true
   | _ -> false
 
-let preprocess_il il =
+let extract_validation_il il =
   il
   |> List.concat_map flatten_rec
   |> List.filter (fun rel -> is_context_rel rel || is_empty_context_rel rel)
@@ -135,9 +135,16 @@ let get_rel_kind def =
   | _ -> OtherRel
 
 let transpile_expr =
-  Al.Walk.walk_expr { Al.Walk.default_config with
-    post_expr = fun expr -> expr |> Il2al.Transpile.simplify_record_concat |> Il2al.Transpile.reduce_comp
+  let post_expr = fun expr -> expr |> Il2al.Transpile.simplify_record_concat |> Il2al.Transpile.reduce_comp in
+  let walk_expr walker expr = 
+    let expr1 = Al.Walk.base_walker.walk_expr walker expr in
+    post_expr expr1
+  in
+  let walker = { Al.Walk.base_walker with
+    walk_expr = walk_expr;
   }
+  in
+  walker.walk_expr walker
 
 let exp_to_expr e = translate_exp e |> transpile_expr
 let exp_to_argexpr es = translate_argexp es |> List.map transpile_expr
@@ -155,7 +162,7 @@ let rec if_expr_to_instrs e =
     let cond1 = if_expr_to_instrs e1 in
     let cond2 = if_expr_to_instrs e2 in
     [ match cond1 with
-      | [ CmpI ({ it = IterE ({ it = VarE name; _ }, _, Opt); _ }, Eq, { it = OptE None; _ }) ] ->
+      | [ CmpI ({ it = IterE ({ it = VarE name; _ }, (Opt, _)); _ }, Eq, { it = OptE None; _ }) ] ->
         (* ~P \/ Q is equivalent to P -> Q *)
         IfI (isDefinedE (varE name ~note:no_note) ~note:no_note, cond2)
       | _ ->
@@ -174,7 +181,7 @@ let rec prem_to_instrs prem =
   | Ast.IfPr e ->
     if_expr_to_instrs e
   | Ast.RulePr (id, _, e) ->
-    let rel = match List.find_opt (rel_has_id id) !Langs.il with Some rel -> rel | None -> failwith id.it in
+    let rel = match List.find_opt (rel_has_id id) !Langs.validation_il with Some rel -> rel | None -> failwith id.it in
     let args = exp_to_argexpr e in
     ( match get_rel_kind rel, args with
     (* contextless *)
@@ -201,7 +208,7 @@ let rec prem_to_instrs prem =
     | Ast.(List | ListN _), vars ->
         let to_iter (id, _) =
           let name = varE id.it ~note:no_note in
-          name, iterE (name, [id.it], Al.Ast.List) ~note:no_note
+          name, iter_var id.it List no_note
         in
         [ ForallI (List.map to_iter vars, prem_to_instrs prem) ]
     | _ -> print_yet_prem prem "prem_to_instrs"; [ YetI "TODO: prem_to_intrs iter" ]
@@ -511,7 +518,67 @@ let postprocess_prose defs =
 
 (** Entry for generating validation prose **)
 let gen_validation_prose () =
-  prose_of_rels !Langs.il
+  prose_of_rels (!Langs.validation_il)
+
+let get_state_arg_opt f =
+  let arg = ref (Al.Ast.TypA (Il.Ast.BoolT $ no_region)) in
+  let id = f $ no_region in
+  match Il.Env.find_opt_def (Il.Env.env_of_script !Langs.il) id with
+  | Some (params, _, _) ->
+    let param_state = List.find_opt (
+      fun param ->
+        match param.it with
+        | Il.Ast.ExpP (id, ({ it = VarT ({ it = "state"; _ }, _); _ } as typ)) ->
+          arg := ExpA ((Al.Ast.VarE "z") $$ id.at % typ);
+          true
+        | _ -> false
+    ) params in
+    if Option.is_some param_state then (
+      let param_state = Option.get param_state in
+      Some {param_state with it = !arg}
+    ) else None
+  | None -> 
+    None
+
+let recover_state algo =
+
+  let recover_state_expr expr =
+    match expr.it with
+    | Al.Ast.CallE (f, args) ->
+      let arg_state = get_state_arg_opt f in
+      if Option.is_some arg_state then
+        let answer = {expr with it = Al.Ast.CallE (f, Option.get arg_state :: args)} in
+        answer
+      else expr
+    | _ -> expr
+  in
+
+  let recover_state_instr instr =
+    match instr.it with
+    | Al.Ast.PerformI (f, args) ->
+      let arg_state = get_state_arg_opt f in
+      if Option.is_some arg_state then
+        let answer = {instr with it = Al.Ast.PerformI (f, Option.get arg_state :: args)} in
+        [answer]
+      else [instr]
+    | _ -> [instr]
+  in
+
+  let walk_expr walker expr = 
+    let expr1 = recover_state_expr expr in
+    Al.Walk.base_walker.walk_expr walker expr1
+  in
+  let walk_instr walker instr = 
+    let instr1 = recover_state_instr instr in
+    List.concat_map (Al.Walk.base_walker.walk_instr walker) instr1
+  in
+  let walker = { Al.Walk.base_walker with
+    walk_expr = walk_expr;
+    walk_instr = walk_instr;
+  }
+  in
+  let algo' = walker.walk_algo walker algo in
+  algo'
 
 (** Entry for generating execution prose **)
 let gen_execution_prose () =
@@ -519,7 +586,7 @@ let gen_execution_prose () =
     (fun algo ->
       let algo =
         algo
-        |> Il2al.Transpile.recover_state
+        |> recover_state
         |> Il2al.Transpile.insert_state_binding
         |> Il2al.Transpile.remove_exit
         |> Il2al.Transpile.remove_enter
@@ -529,7 +596,8 @@ let gen_execution_prose () =
 (** Main entry for generating prose **)
 let gen_prose el il al =
   Langs.el := el;
-  Langs.il := preprocess_il il;
+  Langs.validation_il := extract_validation_il il;
+  Langs.il := il;
   Langs.al := al;
 
   let validation_prose = gen_validation_prose () in
