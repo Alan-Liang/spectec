@@ -203,14 +203,14 @@ def $empty_hctx = { CTXT eps, STACK eps, CONT eps }
 def $get_handler_suspend(handle*, tagaddr) : labelidx?
 def $get_handler_suspend(eps, a) = eps
 def $get_handler_suspend(handle handle'*, a) = l
-  -- if handle = a (SUSPEND l)
+  -- if handle = ON a (SUSPEND l)
 def $get_handler_suspend(handle handle'*, a) = $get_handler_suspend(handle'*, a)
   -- otherwise
 
 def $get_handler_switch(handle*, tagaddr) : bool
 def $get_handler_switch(eps, a) = false
 def $get_handler_switch(handle handle'*, a) = true
-  -- if handle = a SWITCH
+  -- if handle = ON a SWITCH
 def $get_handler_switch(handle handle'*, a) = $get_handler_switch(handle'*, a)
   -- otherwise
 

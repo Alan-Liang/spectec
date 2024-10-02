@@ -123,6 +123,7 @@ and al_to_str_type: value -> str_type = function
   | CaseV ("ARRAY", [ ft ]) -> DefArrayT (ArrayT (al_to_field_type ft))
   | CaseV ("FUNC", [ CaseV ("->", [ rt1; rt2 ]) ]) ->
     DefFuncT (FuncT (al_to_result_type rt1, (al_to_result_type rt2)))
+  | CaseV ("CONT", [ ht ]) -> DefContT (ContT (al_to_heap_type ht))
   | v -> error_value "str type" v
 
 and al_to_sub_type: value -> sub_type = function
@@ -162,6 +163,8 @@ and al_to_heap_type: value -> heap_type = function
     | "NOFUNC" -> NoFuncHT
     | "EXN" | "EXNREF" -> ExnHT
     | "NOEXN" -> NoExnHT
+    | "CONT" | "CONTREF" -> ContHT
+    | "NOCONT" -> NoContHT
     | "EXTERN" | "EXTERNREF" -> ExternHT
     | "NOEXTERN" -> NoExternHT
     | _ -> error_value "abstract heap type" v)
@@ -885,8 +888,6 @@ and al_to_instr': value -> Ast.instr' = function
     ResumeThrow (al_to_idx idx1, al_to_idx idx2, al_to_list al_to_hdl handlers)
   | CaseV ("SWITCH", [ idx1; idx2 ]) ->
     Switch (al_to_idx idx1, al_to_idx idx2)
-  | CaseV ("BARRIER", [ bt; instrs ]) ->
-    Barrier (al_to_block_type bt, al_to_list al_to_instr instrs)
   | v -> error_value "instruction" v
 
 let al_to_const: value -> const = al_to_list al_to_instr |> al_to_phrase
@@ -2018,7 +2019,6 @@ let rec al_of_instr instr =
     ])
   | Switch (idx1, idx2) ->
     CaseV ("SWITCH", [ al_of_idx idx1; al_of_idx idx2 ])
-  | Barrier (bt, instrs) -> CaseV ("BARRIER", [ al_of_blocktype bt; al_of_list al_of_instr instrs ])
   (* | _ -> CaseV ("TODO: Unconstructed Wasm instruction (al_of_instr)", []) *)
 
 let al_of_const const = al_of_list al_of_instr const.it
