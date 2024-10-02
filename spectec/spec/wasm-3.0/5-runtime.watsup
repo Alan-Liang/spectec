@@ -160,11 +160,7 @@ syntax frame hint(desc "frame") hint(macro "%" "A%") =
 ;; Administrative Instructions
 
 syntax handle hint(desc "administrative effect handler") =
-  tagaddr hdlaction
-
-syntax handles =
-  | HANDLES `{handle*}
-  | BARRIER
+  ON tagaddr hdlaction
 
 syntax resumption =
   | SUSPEND
@@ -176,7 +172,7 @@ syntax instr/admin hint(desc "administrative instruction") =
   | LABEL_ n `{instr*} instr*   hint(show LABEL_%#% %%)
   | FRAME_ n `{frame} instr*    hint(show FRAME_%#% %%)
   | HANDLER_ n `{catch*} instr* hint(show HANDLER_%#% %%)
-  | HANDLE handles instr*
+  | HANDLE `{handle*} instr*    hint(show HANDLE#% %%)
   | SUSPENDING tagaddr resumption val* hctx
   | RESUMING val* instr* hctx
   | INVOKE deftype funcaddr
@@ -187,7 +183,7 @@ syntax evalctx hint(desc "evaluation context") =
   | LABEL_ n `{instr*}   hint(show LABEL_%#%)
   | FRAME_ n `{frame}    hint(show FRAME_%#%)
   | HANDLER_ n `{catch*} hint(show HANDLER_%#%)
-  | HANDLE handles       hint(show HANDLE#%)
+  | HANDLE `{handle*}    hint(show HANDLE#%)
 
 
 ;; Configurations
@@ -206,7 +202,7 @@ syntax ctxinstr hint(desc "context instruction") =
   | LABEL_ n `{instr*} val* instr*
   | FRAME_ n `{frame} val* instr*
   | HANDLER_ n `{catch*} val* instr*
-  | HANDLE handles val* instr*
+  | HANDLE `{handle*} val* instr*
 
 syntax hctx hint(desc "handler context") =
   { CTXT ctxinstr*, STACK val*, CONT instr* }
