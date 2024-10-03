@@ -288,12 +288,9 @@ rule Step/cont.new-func:
   z; (REF.FUNC_ADDR a) (CONT.NEW y)  ~>  $add_continst(z, cont); (REF.CONT_ADDR ca)
   -- Expand: $type(z, y) ~~ CONT dt
   -- Expand: dt ~~ FUNC (t_1* -> t_2*)
-  -- if cont = { CTXT { CTXT eps, STACK eps, CONT (INVOKE dt a) }, BOUND eps }
+  -- if cont = { CTXT { CTXT eps, STACK eps, CONTVALS (REF.FUNC_ADDR a), CONT (CALL_REF dt) }, BOUND eps }
   -- if ca = |$continst(z)|
 
-rule Step_pure/invoke:
-  (INVOKE dt a)  ~>  (REF.FUNC_ADDR a) (CALL_REF dt)
-  
 rule Step/cont.bind-null:
   z; (REF.NULL ht) (CONT.BIND x y)  ~>  z; TRAP
 
@@ -355,33 +352,33 @@ rule Step/resume_throw:
   -- if exn = {TAG $tagaddr(z)[ax], FIELDS val^m}
 
 rule Step_pure/resuming-vals:
-  (RESUMING val'* instr'* hctx)  ~>  val* val'* instr'* instr*
-  -- if hctx = { CTXT ctxinstr*, STACK val*, CONT instr* }
+  (RESUMING val'* instr'* hctx)  ~>  val* val'* val''* instr'* instr*
+  -- if hctx = { CTXT ctxinstr*, STACK val*, CONTVALS val''*, CONT instr* }
   -- if ctxinstr* = eps
 
 rule Step_pure/resuming-label:
   (RESUMING val'* instr'* hctx)  ~>  (LABEL_ n `{instr'''*} val''* (RESUMING val'* instr'* hctx') instr''*)
-  -- if hctx = { CTXT ctxinstr*, STACK val*, CONT instr* }
-  -- if ctxinstr* = (LABEL_ n `{instr'''*} val''* instr''*) ctxinstr'*
-  -- if hctx' = { CTXT ctxinstr'*, STACK val*, CONT instr* }
+  -- if hctx = { CTXT ctxinstr*, STACK val*, CONTVALS val'''*, CONT instr* }
+  -- if ctxinstr* = (CTXINSTR (LABEL_ n `{instr'''*}) val''* instr''*) ctxinstr'*
+  -- if hctx' = { CTXT ctxinstr'*, STACK val*, CONTVALS val'''*, CONT instr* }
 
 rule Step_pure/resuming-frame:
   (RESUMING val'* instr'* hctx)  ~>  (FRAME_ n `{frame} val''* (RESUMING val'* instr'* hctx') instr''*)
-  -- if hctx = { CTXT ctxinstr*, STACK val*, CONT instr* }
-  -- if ctxinstr* = (FRAME_ n `{frame} val''* instr''*) ctxinstr'*
-  -- if hctx' = { CTXT ctxinstr'*, STACK val*, CONT instr* }
+  -- if hctx = { CTXT ctxinstr*, STACK val*, CONTVALS val'''*, CONT instr* }
+  -- if ctxinstr* = (CTXINSTR (FRAME_ n `{frame}) val''* instr''*) ctxinstr'*
+  -- if hctx' = { CTXT ctxinstr'*, STACK val*, CONTVALS val'''*, CONT instr* }
 
 rule Step_pure/resuming-handler:
   (RESUMING val'* instr'* hctx)  ~>  (HANDLER_ n `{catch*} val''* (RESUMING val'* instr'* hctx') instr''*)
-  -- if hctx = { CTXT ctxinstr*, STACK val*, CONT instr* }
-  -- if ctxinstr* = (HANDLER_ n `{catch*} val''* instr''*) ctxinstr'*
-  -- if hctx' = { CTXT ctxinstr'*, STACK val*, CONT instr* }
+  -- if hctx = { CTXT ctxinstr*, STACK val*, CONTVALS val'''*, CONT instr* }
+  -- if ctxinstr* = (CTXINSTR (HANDLER_ n `{catch*}) val''* instr''*) ctxinstr'*
+  -- if hctx' = { CTXT ctxinstr'*, STACK val*, CONTVALS val'''*, CONT instr* }
 
 rule Step_pure/resuming-handle:
   (RESUMING val'* instr'* hctx)  ~>  (HANDLE `{handle*} val'* (RESUMING val''* instr'* hctx') instr''*)
-  -- if hctx = { CTXT ctxinstr*, STACK val*, CONT instr* }
-  -- if ctxinstr* = (HANDLE `{handle*} val''* instr''*) ctxinstr'*
-  -- if hctx' = { CTXT ctxinstr'*, STACK val*, CONT instr* }
+  -- if hctx = { CTXT ctxinstr*, STACK val*, CONTVALS val'''*, CONT instr* }
+  -- if ctxinstr* = (CTXINSTR (HANDLE `{handle*}) val''* instr''*) ctxinstr'*
+  -- if hctx' = { CTXT ctxinstr'*, STACK val*, CONTVALS val'''*, CONT instr* }
 
 rule Step_pure/handle-vals:
   (HANDLE `{handle*} val*)  ~>  val*
@@ -394,35 +391,37 @@ rule Step_read/suspend:
 rule Step/suspending-vals:
   z; val* (SUSPENDING tagaddr resumption val'* hctx) instr*  ~>  z; (SUSPENDING tagaddr resumption val'* hctx')
   -- if val* =/= eps \/ instr* =/= eps
-  -- if hctx = { CTXT ctxinstr*, STACK v*, CONT in* }
-  -- if hctx' = { CTXT ctxinstr*, STACK val* v*, CONT in* instr* }
+  -- if hctx = { CTXT ctxinstr*, STACK v*, CONTVALS val''*, CONT in* }
+  -- if hctx' = { CTXT ctxinstr*, STACK val* v*, CONTVALS val''*, CONT in* instr* }
 
 rule Step/suspending-label:
   z; (LABEL_ n `{instr'*} (SUSPENDING tagaddr resumption val'* hctx))  ~>  z; (SUSPENDING tagaddr resumption val'* hctx')
-  -- if hctx = { CTXT ctxinstr*, STACK v*, CONT in* }
-  -- if hctx' = { CTXT (LABEL_ n `{instr'*} v* in*) ctxinstr*, STACK eps, CONT eps }
+  -- if hctx = { CTXT ctxinstr*, STACK v*, CONTVALS val''*, CONT in* }
+  -- if hctx' = { CTXT (CTXINSTR (LABEL_ n `{instr'*}) v* in*) ctxinstr*, STACK eps, CONTVALS val''*, CONT eps }
 
 rule Step/suspending-frame:
   z; (FRAME_ n `{frame} (SUSPENDING tagaddr resumption val'* hctx))  ~>  z; (SUSPENDING tagaddr resumption val'* hctx')
-  -- if hctx = { CTXT ctxinstr*, STACK v*, CONT in* }
-  -- if hctx' = { CTXT (FRAME_ n `{frame} v* in*) ctxinstr*, STACK eps, CONT eps }
+  -- if hctx = { CTXT ctxinstr*, STACK v*, CONTVALS val''*, CONT in* }
+  -- if hctx' = { CTXT (CTXINSTR (FRAME_ n `{frame}) v* in*) ctxinstr*, STACK eps, CONTVALS val''*, CONT eps }
 
 rule Step/suspending-handler:
   z; (HANDLER_ n `{catch*} (SUSPENDING tagaddr resumption val'* hctx))  ~>  z; (SUSPENDING tagaddr resumption val'* hctx')
-  -- if hctx = { CTXT ctxinstr*, STACK v*, CONT in* }
-  -- if hctx' = { CTXT (HANDLER_ n `{catch*} v* in*) ctxinstr*, STACK eps, CONT eps }
+  -- if hctx = { CTXT ctxinstr*, STACK v*, CONTVALS val''*, CONT in* }
+  -- if hctx' = { CTXT (CTXINSTR (HANDLER_ n `{catch*}) v* in*) ctxinstr*, STACK eps, CONTVALS val''*, CONT eps }
 
 rule Step/suspending-handle-suspend-skip:
   z; (HANDLE `{handle*} (SUSPENDING tagaddr SUSPEND val'* hctx))  ~>  z; (SUSPENDING tagaddr SUSPEND val'* hctx')
+  ;; TODO: inline idx_iseps
+  ;; TODO: inline get_handler_suspend
   -- if $idx_iseps($get_handler_suspend(handle*, tagaddr))
-  -- if hctx = { CTXT ctxinstr*, STACK v*, CONT in* }
-  -- if hctx' = { CTXT (HANDLE `{handle*} v* in*) ctxinstr*, STACK eps, CONT eps }
+  -- if hctx = { CTXT ctxinstr*, STACK v*, CONTVALS val''*, CONT in* }
+  -- if hctx' = { CTXT (CTXINSTR (HANDLE `{handle*}) v* in*) ctxinstr*, STACK eps, CONTVALS val''*, CONT eps }
 
 rule Step/suspending-handle-switch-skip:
   z; (HANDLE `{handle*} (SUSPENDING tagaddr (RESUME hctx_1) val'* hctx))  ~>  z; (SUSPENDING tagaddr (RESUME hctx_1) val'* hctx')
   -- if ~ $get_handler_switch(handle*, tagaddr)
-  -- if hctx = { CTXT ctxinstr*, STACK v*, CONT in* }
-  -- if hctx' = { CTXT (HANDLE `{handle*} v* in*) ctxinstr*, STACK eps, CONT eps }
+  -- if hctx = { CTXT ctxinstr*, STACK v*, CONTVALS val''*, CONT in* }
+  -- if hctx' = { CTXT (CTXINSTR (HANDLE `{handle*}) v* in*) ctxinstr*, STACK eps, CONTVALS val''*, CONT eps }
 
 rule Step/suspending-handle-suspend:
   z; (HANDLE `{handle*} (SUSPENDING tagaddr SUSPEND val^n hctx))  ~>  $add_continst(z, cont); val^n (REF.CONT_ADDR a) (BR l)

@@ -194,12 +194,6 @@ def $unrollht(C, deftype) = $unrolldt(deftype)
 def $unrollht(C, _IDX typeidx) = $unrolldt(C.TYPES[typeidx])
 def $unrollht(C, REC i) = C.RECS[i]
 
-def $expandht(context, heaptype) : comptype hint(show $expand(%)) hint(macro "expandht")
-def $expandht(C, heaptype) = comptype  -- if $unrollht(C, heaptype) = SUB fin typeuse* comptype
-
-relation ExpandHT: context |- heaptype ~~ comptype hint(macro "%expandht")
-rule ExpandHT: C |- heaptype ~~ comptype               -- if $unrollht(C, heaptype) = SUB fin typeuse* comptype
-
 rule Subtype_ok2:
   C |- SUB FINAL? typeuse* compttype : OK x i
   -- if |typeuse*| <= 1
@@ -258,9 +252,9 @@ rule Functype_ok:
   -- Resulttype_ok: C |- t_2* : OK
 
 rule Conttype_ok:
-  C |- deftype : OK
-  -- Deftype_ok: C |- deftype : OK
-  -- Expand: deftype ~~ FUNC functype
+  C |- heaptype : OK
+  -- Heaptype_ok: C |- heaptype : OK
+  -- if $unrollht(C, heaptype) = SUB typeuse* (FUNC functype)
 
 rule Globaltype_ok:
   C |- MUT? t : OK
@@ -445,7 +439,6 @@ relation Storagetype_sub: context |- storagetype <: storagetype hint(show "S-sto
 relation Fieldtype_sub: context |- fieldtype <: fieldtype       hint(show "S-field")   hint(macro "%fieldtypematch")
 ;;relation Comptype_sub: context |- comptype <: comptype        hint(show "S-comp")    hint(macro "%comptypematch")
 relation Functype_sub: context |- functype <: functype          hint(show "S-func")    hint(macro "%functypematch")
-relation Conttype_sub: context |- conttype <: conttype          hint(show "S-cont")    hint(macro "%conttypematch")
 ;;relation Deftype_sub: context |- deftype <: deftype           hint(show "S-def")     hint(macro "%deftypematch")
 
 rule Packtype_sub:
@@ -485,7 +478,7 @@ rule Comptype_sub/func:
 
 rule Comptype_sub/cont:
   C |- CONT kt_1 <: CONT kt_2
-  -- Conttype_sub: C |- kt_1 <: kt_2
+  -- Heaptype_sub: C |- kt_1 <: kt_2
 
 
 rule Deftype_sub/refl:
@@ -517,11 +510,6 @@ rule Functype_sub:
   C |- t_11* -> t_12* <: t_21* -> t_22*
   -- Resulttype_sub: C |- t_21* <: t_11*
   -- Resulttype_sub: C |- t_12* <: t_22*
-
-rule Conttype_sub:
-  C |- deftype_1 <: deftype_2
-  -- Deftype_sub: C |- deftype_1 <: deftype_2
-  -- Deftype_sub: C |- deftype_2 <: deftype_1
 
 rule Globaltype_sub/const:
   C |- valtype_1 <: valtype_2
@@ -802,7 +790,8 @@ relation ExpandKT: context |- deftype ~~ CONT functype
 rule ExpandKT:
   C |- dt ~~ CONT ft
   -- Expand: dt ~~ CONT kt
-  -- ExpandHT: C |- kt ~~ FUNC ft
+  -- if $unrollht(C, kt) = SUB fin typeuse* (FUNC ft)
+
 
 relation Hdl_ok: context |- hdl : resulttype
 
@@ -821,7 +810,7 @@ rule Hdl_ok/switch:
 rule Instr_ok/cont.new:
   C |- CONT.NEW x : (REF NULL kt) -> (REF (_IDX x))
   -- Expand: C.TYPES[x] ~~ CONT kt
-  -- ExpandHT: C |- kt ~~ FUNC ft
+  -- if $unrollht(C, kt) = SUB fin typeuse* (FUNC ft)
 
 rule Instr_ok/cont.bind:
   C |- CONT.BIND x x' : t_3* (REF NULL (_IDX x)) -> (REF (_IDX x'))

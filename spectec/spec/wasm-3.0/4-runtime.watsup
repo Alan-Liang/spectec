@@ -170,7 +170,6 @@ syntax instr/admin hint(desc "administrative instruction") =
   | HANDLE `{handle*} instr*    hint(show HANDLE#% %%)
   | SUSPENDING tagaddr resumption val* hctx
   | RESUMING val* instr* hctx
-  | INVOKE deftype funcaddr
   | TRAP
 
 syntax ctx hint(desc "context") =
@@ -184,10 +183,7 @@ syntax ctx hint(desc "context") =
 ;;
 
 syntax ctxinstr hint(desc "context instruction") =
-  | LABEL_ n `{instr*} val* instr*
-  | FRAME_ n `{frame} val* instr*
-  | HANDLER_ n `{catch*} val* instr*
-  | HANDLE `{handle*} val* instr*
+  CTXINSTR ctx val* instr*
 
 syntax hctx hint(desc "handler context") =
-  { CTXT ctxinstr*, STACK val*, CONT instr* }
+  { CTXT ctxinstr*, STACK val*, CONTVALS val*, CONT instr* }

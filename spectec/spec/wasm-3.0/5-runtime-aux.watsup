@@ -198,7 +198,7 @@ def $growmem(meminst, n) = meminst'
 ;; Effect handlers
 
 def $empty_hctx : hctx
-def $empty_hctx = { CTXT eps, STACK eps, CONT eps }
+def $empty_hctx = { CTXT eps, STACK eps, CONTVALS eps, CONT eps }
 
 def $get_handler_suspend(handle*, tagaddr) : labelidx?
 def $get_handler_suspend(eps, a) = eps
