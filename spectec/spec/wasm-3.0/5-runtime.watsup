@@ -171,3 +171,8 @@ syntax config hint(desc "configuration") = state; instr*
 var s : store
 var f : frame
 var z : state
+
+syntax ctx hint(desc "context") =
+  | LABEL_ n `{instr*}   hint(show LABEL_%#%)
+  | FRAME_ n `{frame}    hint(show FRAME_%#%)
+  | HANDLER_ n `{catch*} hint(show HANDLER_%#%)

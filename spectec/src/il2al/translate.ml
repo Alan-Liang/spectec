@@ -347,7 +347,7 @@ let insert_assert exp =
   let at = exp.at in
   match exp.it with
   | Il.CaseE ([{it = Il.Atom id; _}]::_, _) when List.mem id context_names ->
-    assertI (contextKindE (atom_of_name id "evalctx") ~note:boolT) ~at:at
+    assertI (contextKindE (atom_of_name id "ctx") ~note:boolT) ~at:at
   | Il.IterE (_, (Il.ListN (e, None), _)) ->
     assertI (topValuesE (translate_exp e) ~at:at ~note:boolT) ~at:at
   | Il.IterE (_, (Il.List, _)) -> nopI () ~at:at
@@ -489,7 +489,7 @@ and translate_context_rhs exp =
 
   let e' = caseE ([[atom]], []) ~at:instrs.at ~note:instrT in
   let instrs', al = translate_context_instrs e' instrs in
-  let ectx = caseE (case', args') ~at:at ~note:evalctxT in
+  let ectx = caseE (case', args') ~at:at ~note:ctxT in
   [
     enterI (ectx, instrs', al) ~at:at;
   ]
@@ -1069,9 +1069,9 @@ let translate_context_winstr winstr =
   (* The last element of case is for instr*, which should not be present in the context record *)
   let case, _ = Lib.List.split_last case in
 
-  let destruct = caseE (case, List.map translate_exp args) ~note:evalctxT ~at:at in
+  let destruct = caseE (case, List.map translate_exp args) ~note:ctxT ~at:at in
   [
-    letI (destruct, getCurContextE (Some kind) ~note:evalctxT) ~at:at;
+    letI (destruct, getCurContextE (Some kind) ~note:ctxT) ~at:at;
     insert_assert vals;
   ] @ insert_pop' vals @ [
     insert_assert winstr;
@@ -1083,9 +1083,9 @@ let translate_context ctx =
 
   match ctx.it with
   | Il.CaseE ([{it = Il.Atom id; _} as atom]::_ as case, { it = Il.TupE args; _ }) when List.mem id context_names ->
-    let destruct = caseE (case, List.map translate_exp args) ~note:evalctxT ~at:at in
+    let destruct = caseE (case, List.map translate_exp args) ~note:ctxT ~at:at in
     [
-      letI (destruct, getCurContextE (Some atom) ~note:evalctxT) ~at:at;
+      letI (destruct, getCurContextE (Some atom) ~note:ctxT) ~at:at;
     ],
     exitI atom ~at:at
   | Il.CaseE ([atom]::_, _) ->

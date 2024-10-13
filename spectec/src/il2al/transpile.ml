@@ -813,8 +813,8 @@ let insert_frame_binding instrs =
 
   match List.concat_map (walker.walk_instr walker) instrs with
   | il when !found ->
-    let frame = frameE (varE "_" ~note:natT, varE "f" ~note:frameT) ~note:evalctxT in
-    (letI (frame, getCurContextE (Some frame_atom) ~note:evalctxT)) :: il
+    let frame = frameE (varE "_" ~note:natT, varE "f" ~note:frameT) ~note:ctxT in
+    (letI (frame, getCurContextE (Some frame_atom) ~note:ctxT)) :: il
   | _ -> instrs
 
 
@@ -864,8 +864,8 @@ let handle_framed_algo a instrs =
   in
   (* End of helpers *)
 
-  let frame = frameE (varE "_" ~note:natT, e_zf) ~note:evalctxT ~at:e_zf.at in
-  let instr_hd = letI (frame, getCurContextE (Some frame_atom) ~note:evalctxT) in
+  let frame = frameE (varE "_" ~note:natT, e_zf) ~note:ctxT ~at:e_zf.at in
+  let instr_hd = letI (frame, getCurContextE (Some frame_atom) ~note:ctxT) in
   let walk_expr walker expr = 
     let expr1 = frame_finder expr in
     let expr2 = Al.Walk.base_walker.walk_expr walker expr1 in
@@ -1010,7 +1010,7 @@ let remove_exit algo =
   let exit_to_pop instr =
     match instr.it with
     | ExitI ({ it = Atom.Atom id; _ }) when List.mem id context_names ->
-      popI (getCurContextE (Some (atom_of_name id "evalctx")) ~note:evalctxT) ~at:instr.at
+      popI (getCurContextE (Some (atom_of_name id "ctx")) ~note:ctxT) ~at:instr.at
     | _ -> instr
   in
   let walk_instr walker instr = 
