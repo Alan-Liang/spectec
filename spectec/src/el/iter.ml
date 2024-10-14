@@ -132,6 +132,8 @@ and exp e =
   | SizeE x -> gramid x
   | BinE (e1, op, e2) -> exp e1; binop op; exp e2
   | CmpE (e1, op, e2) -> exp e1; cmpop op; exp e2
+  | CtxSubstE ({ it = VarE (x, as_); _ }, e2) ->
+    args as_; varid x; exp e2
   | IdxE (e1, e2) | CtxSubstE (e1, e2) | CommaE (e1, e2)
   | CatE (e1, e2) | MemE (e1, e2) | FuseE (e1, e2) -> exp e1; exp e2
   | SliceE (e1, e2, e3) -> exp e1; exp e2; exp e3

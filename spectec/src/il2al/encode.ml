@@ -86,6 +86,7 @@ let input_vars = [
   "ctxt";
   "state";
   "unused";
+  "evalctx";
 ]
 
 (* Encode stack *)
@@ -104,6 +105,7 @@ let encode_inner_stack context_opt stack =
   match es with
   | [] ->
     (* ASSUMPTION: The target instruction was actually the outer context (i.e. LABEL_) *)
+    (* Example: (LABEL_ n `{instr*} val* ) ~> val* *)
     (
       match context_opt with
       | None -> assert false
@@ -132,6 +134,19 @@ let encode_inner_stack context_opt stack =
 
     None, prem :: prems @ unused_prems
 
+let encode_evalctx_stack context_opt stack =
+  match stack.it with
+  | CtxSubstE (e1, e2s, e3) ->
+    let e1' = CtxSubstE (e1, e2s, ListE [] $$ e3.at % e3.note) $$ stack.at % stack.note in
+    let e2' = mk_varE "evalctx" "evalctxT" in
+    let pr = LetPr (e1', e2', free_ids e1) $ e2'.at in
+    let pr_opt, prs = encode_inner_stack context_opt e3 in
+    assert (pr_opt = None);
+    [pr], None, prs
+  | _ ->
+    let pr_opt, prs = encode_inner_stack context_opt stack in
+    [], pr_opt, prs
+
 let encode_stack stack =
   match stack.it with
   | ListE [e] when is_context e ->
@@ -147,14 +162,15 @@ let encode_stack stack =
 
     let pr = LetPr (e1, e2, free_ids e1) $ e2.at in
 
-    let pr_opt, prs = encode_inner_stack (Some e) inner_stack in
-    (
+    (* prs1 is evalctx; pr_opt is for context rules (LABEL_, etc); prs2 is the rest of premises *)
+    let prs1, pr_opt, prs2 = encode_evalctx_stack (Some e) inner_stack in
+    prs1 @ (
       match pr_opt with
       | None -> pr
       | Some pr -> pr
-    ) :: prs
+    ) :: prs2
   | _ ->
-    encode_inner_stack None stack |> snd
+    let _prs1, _pr_opt, prs2 = encode_evalctx_stack None stack in prs2
 
 (* Encode lhs *)
 let encode_lhs lhs =

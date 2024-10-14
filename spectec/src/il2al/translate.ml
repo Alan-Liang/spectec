@@ -762,6 +762,7 @@ and handle_special_lhs lhs rhs free_ids =
   | _ when (Il.Print.string_of_typ rhs.note) = "stateT" -> []
   | _ when (Il.Print.string_of_typ rhs.note) = "unusedT" -> []
   | _ when (Il.Print.string_of_typ rhs.note) = "contextT" -> []
+  | _ when (Il.Print.string_of_typ rhs.note) = "evalctxT" -> []
   | TupE [e; _stack] when (Il.Print.string_of_typ rhs.note) = "stackT" ->
     let args = args_of_call rhs in
     let pop_num = List.hd args |> arg2expr in

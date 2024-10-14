@@ -1775,17 +1775,13 @@ and make_binds_iter_arg env free dims : Il.bind list ref * (module Iter.Arg) =
           left := Free.{!left with typid = Set.remove id.it !left.typid};
         )
 
-      let rec visit_varid id =
+      let visit_varid id =
         if Free.(Set.mem id.it !left.varid) && Dim.Env.mem id.it dims then (
           let t =
             try find "variable" env.vars id with Error _ ->
               find "variable" env.gvars (strip_var_suffix id)
           in
           let fwd = Free.(inter (free_typ t) !left) in
-          (* TODO: HACK: make blockctx(l) work in Step_pure/br, because this type depends on l *)
-          if fwd.varid <> Set.empty then
-            (Set.iter (fun x -> visit_varid (x $ id.at)) fwd.varid; visit_varid id)
-          else
           if fwd <> Free.empty then
             error id.at ("the type of `" ^ id.it ^ "` depends on " ^
               ( Free.Set.(elements fwd.typid @ elements fwd.gramid @ elements fwd.varid @ elements fwd.defid) |>
