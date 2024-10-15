@@ -190,6 +190,8 @@ syntax EB(x) = _STACK val* EB(x) instr* | HANDLER_ n `{catch*} EB(x) | _LABEL EC
 syntax EC(0) = [_]
 syntax EC($(x+1)) = LABEL_ n `{instr*} EB(x)
 
+var star : labelidx hint(show %latex("*"))
+
 syntax ET hint(show %latex("T")) =
   | _HOLE [_]
   | _STACK val* ET instr*

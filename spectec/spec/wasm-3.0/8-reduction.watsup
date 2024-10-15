@@ -179,17 +179,11 @@ rule Step_read/return_call:
   -- if $moduleinst(z).FUNCS[x] = a
 
 
-rule Step_read/return_call_ref-label:
-  z; (LABEL_ k `{instr'*} val* (RETURN_CALL_REF yy) instr*)  ~>  val* (RETURN_CALL_REF yy)
+rule Step_read/return_call_ref-null:
+  z; (REF.NULL ht) (RETURN_CALL_REF yy)  ~>  TRAP
 
-rule Step_read/return_call_ref-handler:
-  z; (HANDLER_ k `{catch*} val* (RETURN_CALL_REF yy) instr*)  ~>  val* (RETURN_CALL_REF yy)
-
-rule Step_read/return_call_ref-frame-null:
-  z; (FRAME_ k `{f} val* (REF.NULL ht) (RETURN_CALL_REF yy) instr*)  ~>  TRAP
-
-rule Step_read/return_call_ref-frame-addr:
-  z; (FRAME_ k `{f} val'* val^n (REF.FUNC_ADDR a) (RETURN_CALL_REF yy) instr*)  ~>  val^n (REF.FUNC_ADDR a) (CALL_REF yy)
+rule Step_read/return_call_ref-addr:
+  z; (FRAME_ k `{f} EB(star)`[val^n (REF.FUNC_ADDR a) (RETURN_CALL_REF yy)])  ~>  val^n (REF.FUNC_ADDR a) (CALL_REF yy)
   ----
   -- Expand: $funcinst(z)[a].TYPE ~~ FUNC (t_1^n -> t_2^m)
 
@@ -204,14 +198,8 @@ rule Step_pure/return_call_indirect:
 rule Step_pure/frame-vals:
   (FRAME_ n `{f} val^n)  ~>  val^n
 
-rule Step_pure/return-frame:
-  (FRAME_ n `{f} val'* val^n RETURN instr*)  ~>  val^n
-
-rule Step_pure/return-label:
-  (LABEL_ n `{instr'*} val* RETURN instr*)  ~>  val* RETURN
-
-rule Step_pure/return-handler:
-  (HANDLER_ n `{catch*} val* RETURN instr*)  ~>  val* RETURN
+rule Step_pure/return:
+  (FRAME_ n `{f} EB(star)`[val^n RETURN])  ~>  val^n
 
 
 ;; Exceptions
