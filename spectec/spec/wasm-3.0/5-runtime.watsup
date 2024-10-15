@@ -181,18 +181,19 @@ syntax ctx hint(desc "context") =
 
 ;; Evaluation contexts
 
-syntax blockctx(idx) hint(show %latex("B")^%)
-syntax blockctxC(idx) hint(show %latex("C")^%)
+;; var C : context
+syntax EB(idx) hint(show %latex("B")^%)
+syntax EC(idx) hint(show %latex("C")^%)
 
-syntax blockctx(x) = STACK val* blockctx(x) instr* hint(show %%) | HANDLER_ n `{catch*} blockctx(x) | LABEL blockctxC(x) hint(show %%)
+syntax EB(x) = _STACK val* EB(x) instr* | HANDLER_ n `{catch*} EB(x) | _LABEL EC(x)
 
-syntax blockctxC(0) = [_]
-syntax blockctxC($(x+1)) = LABEL_ n `{instr*} blockctx(x)
+syntax EC(0) = [_]
+syntax EC($(x+1)) = LABEL_ n `{instr*} EB(x)
 
-syntax throwctx hint(show %latex("T")) =
-  | HOLE [_] hint(show %%)
-  | STACK val* throwctx instr* hint(show %%)
-  | LABEL_ n `{instr*} throwctx
-  | FRAME_ n `{frame} throwctx
+syntax ET hint(show %latex("T")) =
+  | _HOLE [_]
+  | _STACK val* ET instr*
+  | LABEL_ n `{instr*} ET
+  | FRAME_ n `{frame} ET
 
-syntax evalctx hint(show %latex("E")) = HOLE [_] hint(show %%) | STACK val* throwctx instr* hint(show %%) | LABEL_ n `{instr*} throwctx
+syntax EE hint(show %latex("E")) = _HOLE [_] | _STACK val* EE instr* | LABEL_ n `{instr*} EE
