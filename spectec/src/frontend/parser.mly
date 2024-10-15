@@ -126,7 +126,7 @@ let rec is_typcon t =
 %token ARROW ARROW2 ARROWSUB ARROW2SUB DARROW2 SQARROW SQARROWSTAR
 %token MEM PREC SUCC TURNSTILE TILESTURN
 %token DOLLAR TICK
-%token CTXHOLE LBRACKDASH DASHRBRACK
+%token CTXHOLE TICKLBRACK
 %token BOT TOP
 %token HOLE MULTIHOLE NOTHING FUSE FUSEFUSE LATEX
 %token<int> HOLEN
@@ -437,8 +437,8 @@ nottyp_prim_ :
       ] }
   | TICK LPAREN nottyp RPAREN
     { BrackT (Atom.LParen $$ $loc($2), $3, Atom.RParen $$ $loc($4)) }
-  | TICK LBRACK nottyp RBRACK
-    { BrackT (Atom.LBrack $$ $loc($2), $3, Atom.RBrack $$ $loc($4)) }
+  | TICKLBRACK nottyp RBRACK
+    { BrackT (Atom.LBrack $$ $loc($1), $2, Atom.RBrack $$ $loc($3)) }
   | TICK LBRACE nottyp RBRACE
     { BrackT (Atom.LBrace $$ $loc($2), $3, Atom.RBrace $$ $loc($4)) }
   | LPAREN tup_list(nottyp) RPAREN
@@ -542,8 +542,8 @@ exp_prim_ :
       | es, _ -> TupE es }
   | TICK LPAREN exp RPAREN
     { BrackE (Atom.LParen $$ $loc($2), $3, Atom.RParen $$ $loc($4)) }
-  | TICK LBRACK exp RBRACK
-    { BrackE (Atom.LBrack $$ $loc($2), $3, Atom.RBrack $$ $loc($4)) }
+  | TICKLBRACK exp RBRACK
+    { BrackE (Atom.LBrack $$ $loc($1), $2, Atom.RBrack $$ $loc($3)) }
   | TICK LBRACE exp RBRACE
     { BrackE (Atom.LBrace $$ $loc($2), $3, Atom.RBrace $$ $loc($4)) }
   | DOLLAR LPAREN arith RPAREN { $3.it }
@@ -556,7 +556,7 @@ exp_post_ :
   | exp_atom LBRACK arith COLON arith RBRACK { SliceE ($1, $3, $5) }
   | exp_atom LBRACK path EQ exp RBRACK { UpdE ($1, $3, $5) }
   | exp_atom LBRACK path EQCAT exp RBRACK { ExtE ($1, $3, $5) }
-  | exp_atom LBRACKDASH exp DASHRBRACK { CtxSubstE ($1, $3) }
+  | exp_atom TICKLBRACK exp RBRACK { CtxSubstE ($1, $3) }
   | exp_atom iter { IterE ($1, $2) }
   | exp_post dotid { DotE ($1, $2) }
 
@@ -835,8 +835,8 @@ def_ :
     { HintD (AtomH ($2, $4, $5) $ $sloc) }
   | SYNTAX varid_bind ruleid_list TICK LPAREN hint*
     { HintD (AtomH ($2, Atom.LParen $$ $loc($5), $6) $ $sloc) }
-  | SYNTAX varid_bind ruleid_list TICK LBRACK hint*
-    { HintD (AtomH ($2, Atom.LBrack $$ $loc($5), $6) $ $sloc) }
+  | SYNTAX varid_bind ruleid_list TICKLBRACK hint*
+    { HintD (AtomH ($2, Atom.LBrack $$ $loc($4), $5) $ $sloc) }
   | SYNTAX varid_bind ruleid_list TICK LBRACE hint*
     { HintD (AtomH ($2, Atom.LBrace $$ $loc($5), $6) $ $sloc) }
   | GRAMMAR varid_bind ruleid_list hint*

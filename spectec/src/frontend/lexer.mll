@@ -201,8 +201,7 @@ and token = parse
 
   | "$" { DOLLAR }
   | "[_]" { CTXHOLE }
-  | "[-" { LBRACKDASH }
-  | "-]" { DASHRBRACK }
+  | "`[" { TICKLBRACK }
 
   | "_|_" { BOT }
   | "^|^" { TOP }
