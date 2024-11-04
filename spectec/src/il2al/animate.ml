@@ -358,7 +358,7 @@ let animate_clause c = match c.it with
     DefD (binds, args, e, new_prems) $ c.at
 
 (* Animate defs *)
-let rec animate_def d = match d.it with
+let rec animate_def d = print_endline (Il.Print.string_of_def d); match d.it with
   | RelD (id, mixop, t, rules) ->
     let rules' = List.map animate_rule rules in
     RelD (id, mixop, t, rules') $ d.at

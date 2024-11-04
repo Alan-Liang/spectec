@@ -4,7 +4,7 @@ Overview:
   - throw_ref: T
   - br: B^l
   - return: B^*
-  - return_invoke: B^*
+  - return_call: B^*
   - almost every instruction in stack switching
     - cont.new
     - cont.bind
@@ -41,31 +41,13 @@ Hacks around IL:
   and `val* E instr*` (spectec/spec/wasm-3.0/4-runtime.watsup:172);
   besides being a data structure, a evalctx is also a pattern match.
 
-  Currently a atom is used (`HOLE [_] | STACK val* E instr*`).
+  Currently a atom is used (`_HOLE [_] | _STACK val* E instr*`).
   This is not ideal for substitution.
-
-- `syntax` should begin with lowercase letters (in order to be a varid,
-  not atom), but conventionally evalctx is uppercase (E, B, C, T, ...)
-
-- EL surface syntax for evalctx substitution/initiation
-
-  Currently it is `evalctx[- val* instr* -]`, bc `[]` is for array
-  indexing, and arith (spectec/src/frontend/parser.mly:663) is
-  incompatible with exp (spectec/src/frontend/parser.mly:604);
-  `[[]]` would cause lexing errors on `a[b[c]]` if treated as a single
-  token and parsing ambiguity if treated as two brackets.
 
 - VarE is without args in IL, but we need args to encode `B^n`.
 
   Currently it works by destructing El.VarE in El.CtxSubstE elab,
   and record the argument in Il.CtxSubstE.
-
-- In semantics of return, we have block context written as `B^*`.
-  How to deal with it?
-
-  Currently the type of the argument of B is `idx`, and `*` is not an
-  idx. We may want to use an `IterE (B, List)`, but that makes defining
-  evalctx hard (there is no such EL syntax for `syntax` definition.)
 
 Observations on AL:
 

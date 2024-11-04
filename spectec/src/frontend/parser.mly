@@ -131,7 +131,7 @@ let rec is_typcon t =
 %token HOLE MULTIHOLE NOTHING FUSE FUSEFUSE LATEX
 %token<int> HOLEN
 %token BOOL NAT INT RAT REAL TEXT
-%token SYNTAX GRAMMAR RELATION RULE VAR DEF
+%token SYNTAX EVALCTX GRAMMAR RELATION RULE VAR DEF
 %token IF OTHERWISE HINT_LPAREN
 %token EPS INFINITY
 %token<bool> BOOLLIT
@@ -805,6 +805,14 @@ def_ :
   | SYNTAX varid_bind_lparen enter_scope comma_list(arg) RPAREN ruleid_list hint* EQ deftyp exit_scope
     { let id = if $6 = "" then "" else String.sub $6 1 (String.length $6 - 1) in
       TypD ($2, id $ $loc($6), $4, $9, $7) }
+  | EVALCTX varid_bind LBRACK typ RBRACK COLON typ hint*
+    { EvalCtxFamD ($2, [], $4, $7, $8) }
+  | EVALCTX varid_bind_lparen enter_scope comma_list(arg) RPAREN LBRACK typ RBRACK COLON typ hint* exit_scope
+    { EvalCtxFamD ($2, List.map El.Convert.param_of_arg $4, $7, $10, $11) }
+  | EVALCTX varid_bind LBRACK typ RBRACK COLON typ hint* EQ deftyp
+    { EvalCtxD ($2, [], $4, $7, $10, $8) }
+  | EVALCTX varid_bind_lparen enter_scope comma_list(arg) RPAREN LBRACK typ RBRACK COLON typ hint* EQ deftyp exit_scope
+    { EvalCtxD ($2, $4, $7, $10, $13, $11) }
   | GRAMMAR varid_bind ruleid_list COLON typ hint* EQ gram
     { let id = if $3 = "" then "" else String.sub $3 1 (String.length $3 - 1) in
       GramD ($2, id $ $loc($3), [], $5, $8, $6) }

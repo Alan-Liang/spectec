@@ -1,5 +1,5 @@
 (* List of actively logged functions' labels *)
-let active : string list = []
+let active : string list = [""]
 
 let fmt = Printf.sprintf
 let loc = Source.string_of_region

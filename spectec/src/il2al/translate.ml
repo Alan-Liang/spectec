@@ -19,6 +19,19 @@ end
 
 (* Errors *)
 
+let string_of_rgroup rgroup = rgroup |> List.map (fun (e1, e2, prem) ->
+    let e1 = Il.Print.string_of_exp e1 in
+    let e2 = Il.Print.string_of_exp e2 in
+    let prems = List.map Il.Print.string_of_prem prem |> String.concat "\n" in
+    Printf.sprintf "%s\n~>\n%s\n--\n%s\n" e1 e2 prems
+  ) |> String.concat "\n"
+
+let string_of_rule_def rule =
+  let instr_name, _, rgroup = rule.it in
+
+  Printf.sprintf "-------------------------\ninstr: %s\n%s\n" instr_name (string_of_rgroup rgroup)
+
+
 let error at msg = Error.error at "prose translation" msg
 
 let error_exp exp typ =
@@ -1180,10 +1193,12 @@ let rec translate_rgroup' (rule: rule_def) =
  * `rgroup` -> `Al.Algo` *)
 
 and translate_rgroup (rule: rule_def) =
+  print_endline (string_of_rule_def rule);
 
   let instr_name, rel_id, rgroup = rule.it in
   let winstr = extract_winstr (List.hd rgroup) rule.at in
   let instrs = translate_rgroup' rule in
+  instrs |> List.map (fun x -> x |> Print.string_of_instr |> print_endline) |> ignore;
 
   let name =
     match case_of_case winstr with

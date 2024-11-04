@@ -268,6 +268,9 @@ and string_of_params = function
   | [] -> ""
   | ps -> "(" ^ concat ", " (List.map string_of_param ps) ^ ")"
 
+let string_of_hole_typ t1 t2 =
+  " [" ^ string_of_typ t1 ^ "] : " ^ string_of_typ t2
+
 let string_of_def d =
   match d.it with
   | FamD (id, ps, _hints) ->
@@ -275,6 +278,10 @@ let string_of_def d =
   | TypD (id1, id2, args, t, _hints) ->
     "syntax " ^ string_of_typid id1 ^ string_of_ruleid id2 ^
       string_of_args args ^ " = " ^ string_of_typ t
+  | EvalCtxFamD (id, ps, t1, t2, _hints) ->
+    "evaluation context " ^ string_of_typid id ^ string_of_params ps ^ string_of_hole_typ t1 t2
+  | EvalCtxD (id, args, t1, t2, t3, _hints) ->
+    "evaluation context " ^ string_of_typid id ^ string_of_args args ^ string_of_hole_typ t1 t2 ^ " = " ^ string_of_typ t3
   | GramD (id1, id2, ps, t, gram, _hints) ->
     "grammar " ^ string_of_gramid id1 ^ string_of_ruleid id2 ^
       string_of_params ps ^ " : " ^

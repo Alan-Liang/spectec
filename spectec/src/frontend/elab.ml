@@ -85,6 +85,7 @@ type kind =
   | Opaque  (* structures or variants, type parameter *)
   | Defined of typ * Il.deftyp
   | Family of (arg list * typ * Il.inst) list (* family of types *)
+  | EvalCtxFamily of typ * typ * (arg list * typ * Il.evalctxinst) list
 
 type var_typ = typ
 type typ_typ = param list * kind
@@ -2000,6 +2001,12 @@ let infer_typdef env d =
       if ps = [] then  (* only types without parameters double as variables *)
         env.gvars <- bind "variable" env.gvars (strip_var_sub id1) (VarT (id1, []) $ id1.at);
     )
+  | EvalCtxFamD (id, ps, t1, t2, _hints) ->
+    let _ps' = elab_params (local_env env) ps in
+    env.typs <- bind "syntax type" env.typs id (ps, EvalCtxFamily []);
+    if ps = [] then  (* only types without parameters double as variables *)
+      env.gvars <- bind "variable" env.gvars (strip_var_sub id) (VarT (id, []) $ id.at);
+    ()
   | VarD (id, t, _hints) ->
     (* This is to ensure that we get rebind errors in syntactic order. *)
     env.gvars <- bind "variable" env.gvars id t;
@@ -2064,6 +2071,13 @@ let elab_def env d : Il.def list =
   Debug.(log_in_at "el.elab_def" d.at (fun _ -> el_def d));
   match d.it with
   | FamD (id, ps, hints) ->
+    let ps' = elab_params (local_env env) ps in
+    let dims = Dim.check_def d in
+    infer_no_binds env dims d;
+    env.typs <- rebind "syntax type" env.typs id (ps, Family []);
+    [Il.TypD (id, ps', []) $ d.at]
+      @ elab_hintdef env (TypH (id, "" $ id.at, hints) $ d.at)
+  | EvalCtxFamD (id, ps, t1, t2, hints) ->
     let ps' = elab_params (local_env env) ps in
     let dims = Dim.check_def d in
     infer_no_binds env dims d;

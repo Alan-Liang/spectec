@@ -504,6 +504,8 @@ and assign_param lhs rhs env =
 and step_instr (fname: string) (ctx: AlContext.t) (env: value Env.t) (instr: instr) : AlContext.t =
   (Info.find instr.note).covered <- true;
 
+  instr |> string_of_instr |> Printf.sprintf "%s: %s\n" fname |> print_endline;
+
   let rec is_true = function
     | BoolV true -> true
     | OptV v_opt -> v_opt |> Option.map is_true |> Option.value ~default:true
@@ -558,7 +560,7 @@ and step_instr (fname: string) (ctx: AlContext.t) (env: value Env.t) (instr: ins
       let new_env = assign e' v env in
       AlContext.set_env new_env ctx
     | _ ->
-      let new_env = assign e (WasmContext.pop_value ()) env in
+      let new_env = assign e (WasmContext.pop_value () |> (fun x -> string_of_value x |> print_endline; x)) env in
       AlContext.set_env new_env ctx
     )
   | PopAllI e ->

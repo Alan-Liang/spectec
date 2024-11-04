@@ -44,6 +44,7 @@ let is_let_prem_with_rhs_type t prem =
   | _ -> false
 let is_pop : prem -> bool = is_let_prem_with_rhs_type "stackT"
 let is_ctxt_prem : prem -> bool = is_let_prem_with_rhs_type "contextT"
+let is_evalctx_prem : prem -> bool = is_let_prem_with_rhs_type "evalctxT"
 
 let extract_context r =
   let _, _, prems = r in

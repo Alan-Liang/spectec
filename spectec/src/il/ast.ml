@@ -161,6 +161,7 @@ and param' =
 and def = def' phrase
 and def' =
   | TypD of id * param list * inst list               (* syntax type (family) *)
+  | EvalCtxD of id * param list * typ * typ * evalctxinst list (* evaluation context type (family) *)
   | RelD of id * mixop * typ * rule list              (* relation *)
   | DecD of id * param list * typ * clause list       (* definition *)
   | GramD of id * param list * typ * prod list        (* grammar *)
@@ -170,6 +171,10 @@ and def' =
 and inst = inst' phrase
 and inst' =
   | InstD of bind list * arg list * deftyp            (* family instance clause *)
+
+and evalctxinst = evalctxinst' phrase
+and evalctxinst' =
+  | EvalCtxInstD of bind list * arg list * deftyp list (* evaluation context family instance clause *)
 
 and rule = rule' phrase
 and rule' =
