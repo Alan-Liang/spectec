@@ -35,36 +35,6 @@ let transform_rulepr_def (def: def) : def =
 
 let transform_rulepr = List.map transform_rulepr_def
 
-(* HARDCODE: Remove a reduction rule for the block context, specifically, for THROW_REF *)
-let is_block_context_exp e =
-  match e.it with
-  (* instr* =/= [] *)
-  | CmpE (`NeOp, _, e1, e2) ->
-    begin match e1.it, e2.it with
-    | IterE (var, (List, _)), ListE []
-    | ListE [], IterE (var, (List, _)) ->
-      begin match var.it with
-      | VarE id -> id.it = "instr"
-      | _ -> false
-      end
-    | _ -> false
-    end
-  | _ -> false
-let is_block_context_prem prem =
-  match prem.it with
-  | IfPr e -> is_block_context_exp e
-  | _ -> false
-let is_block_context_rule rule =
-  match rule.it with
-  | RuleD (_, _, _, _, [prem]) -> is_block_context_prem prem
-  | _ -> false
-let remove_block_context def =
-  match def.it with
-  | RelD (id, mixop, typ, rules) ->
-    RelD (id, mixop, typ, Util.Lib.List.filter_not is_block_context_rule rules) $ def.at
-  | _ -> def
-
-
 (* Pre-process a premise *)
 let rec preprocess_prem prem =
   match prem.it with
@@ -77,7 +47,7 @@ let rec preprocess_prem prem =
     (* Expand: `dt` ~~ `ct` *)
     | [[]; [approx]; []], TupE [dt; ct] when approx.it = Approx ->
       (* `$expanddt(dt) = ct` *)
-      let expanddt = 
+      let expanddt =
         CallE ("expanddt" $ prem.at, [ExpA dt $ dt.at]) $$ prem.at % ct.note
       in
       let new_prem =
@@ -134,14 +104,9 @@ let preprocess_clause (clause: clause) : clause =
   DefD (binds, args, exp, List.concat_map preprocess_prem prems) $ clause.at
 
 let preprocess_def (def: def) : def =
-  let def' =
-    def
-    |> remove_block_context
-  in
-
-  match def'.it with
+  match def.it with
   | TypD (id, ps, insts) ->
-    Al.Valid.il_env := Env.bind_typ !Al.Valid.il_env id (ps, insts); def'
+    Al.Valid.il_env := Env.bind_typ !Al.Valid.il_env id (ps, insts); def
   | RelD (id, mixop, t, rules) ->
     Al.Valid.il_env := Env.bind_rel !Al.Valid.il_env id (mixop, t, rules);
     RelD (id, mixop, t, List.map preprocess_rule rules) $ def.at
@@ -149,9 +114,9 @@ let preprocess_def (def: def) : def =
     Al.Valid.il_env := Env.bind_def !Al.Valid.il_env id (ps, t, clauses);
     DecD (id, ps, t, List.map preprocess_clause clauses) $ def.at
   | GramD (id, ps, t, prods) ->
-    Al.Valid.il_env := Env.bind_gram !Al.Valid.il_env id (ps, t, prods); def'
+    Al.Valid.il_env := Env.bind_gram !Al.Valid.il_env id (ps, t, prods); def
   | RecD _ -> assert (false);
-  | HintD _ -> def'
+  | HintD _ -> def
 
 let flatten_rec def =
   match def.it with

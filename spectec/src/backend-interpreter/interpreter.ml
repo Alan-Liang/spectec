@@ -588,7 +588,13 @@ and step_instr (fname: string) (ctx: AlContext.t) (env: value Env.t) (instr: ins
     let new_env = assign e v env in
     AlContext.set_env new_env ctx
   | PopAllInstrI e ->
-    let v = WasmContext.pop_instr_stack () |> listV_of_list in
+    let instrs = WasmContext.pop_instr_stack () in
+    (* Assumption: the last item in the instruction stack is a exit context pseudoinstruction inserted by il2al *)
+    let instrs = match Lib.List.split_last_opt instrs with
+      | None -> []
+      | Some (instrs, _) -> instrs
+    in
+    let v = instrs |> listV_of_list in
     let new_env = assign e v env in
     AlContext.set_env new_env ctx
   | LetI (e1, e2) ->
