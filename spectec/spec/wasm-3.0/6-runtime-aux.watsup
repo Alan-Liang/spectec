@@ -222,10 +222,6 @@ def $get_handler_switch(handle handle'*, a) = $get_handler_switch(handle'*, a)
 
 ;; FIXME: hack
 
-def $idx_iseps(idx?) : bool
-def $idx_iseps(eps) = true
-def $idx_iseps(idx?) = false -- otherwise
-
 def $continst_iseps(continst?) : bool
 def $continst_iseps(eps) = true
 def $continst_iseps(continst?) = false -- otherwise

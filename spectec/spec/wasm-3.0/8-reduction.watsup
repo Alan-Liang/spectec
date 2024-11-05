@@ -301,6 +301,7 @@ rule Step/cont.bind-null:
 
 rule Step/cont.bind-consumed:
   z; (REF.CONT_ADDR a) (CONT.BIND x y)  ~>  z; TRAP
+  ;; TODO: inline continst_iseps
   -- if $continst_iseps($continst(z)[a])
 
 rule Step/cont.bind-cont:
@@ -416,9 +417,8 @@ rule Step/suspending-handler:
 
 rule Step/suspending-handle-suspend-skip:
   z; (HANDLE `{handle*} (SUSPENDING tagaddr SUSPEND val'* hctx))  ~>  z; (SUSPENDING tagaddr SUSPEND val'* hctx')
-  ;; TODO: inline idx_iseps
   ;; TODO: inline get_handler_suspend
-  -- if $idx_iseps($get_handler_suspend(handle*, tagaddr))
+  -- if $get_handler_suspend(handle*, tagaddr) = eps
   -- if hctx = { CTXT ctxinstr*, STACK v*, CONTVALS val''*, CONT in* }
   -- if hctx' = { CTXT (CTXINSTR (HANDLE `{handle*}) v* in*) ctxinstr*, STACK eps, CONTVALS val''*, CONT eps }
 
