@@ -138,6 +138,7 @@ let rec is_wasm_value e =
       "REF.STRUCT_ADDR";
       "REF.ARRAY_ADDR";
       "REF.EXN_ADDR";
+      "REF.CONT_ADDR";
       "REF.FUNC_ADDR";
       "REF.HOST_ADDR";
       "REF.EXTERN";
@@ -1172,7 +1173,8 @@ and translate_rgroup (rule: rule_def) =
   in
   let anchor = rel_id.it ^ "/" ^ instr_name in
   let al_params =
-    if List.mem instr_name ["frame"; "label"; "handler"] then [] else
+    (* HARDCODE: name of context algos *)
+    if List.mem instr_name ["frame"; "label"; "handler"; "handle"] then [] else
     args_of_case winstr
     |> List.map translate_exp
     |> List.map (fun e -> ExpA e $ e.at)
