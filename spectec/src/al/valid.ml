@@ -275,10 +275,10 @@ let check_context source typ =
   | VarT (id, []) when List.mem id.it context_typs -> ()
   | _ -> error_mismatch source typ (varT "context")
 
-let check_evalctx source typ =
+let check_gframe source typ =
   match typ.it with
-  | VarT (id, []) when id.it = "evalctx" -> ()
-  | _ -> error_mismatch source typ (varT "evalctx")
+  | VarT (id, []) when id.it = "gframe" -> ()
+  | _ -> error_mismatch source typ (varT "gframe")
 
 let check_field source source_typ expr_record typfield =
   let atom, (_, typ, _), _ = typfield in
@@ -555,17 +555,17 @@ and valid_expr env (expr: expr) : unit =
     List.iter (valid_expr env) exprs;
     check_tuple source exprs expr.note;
   | CaseE (op, exprs) ->
-    let is_evalctx_id id =
-      let evalctx_ids = List.filter_map (fun (mixop, _, _) ->
+    let is_gframe_id id =
+      let gframe_ids = List.filter_map (fun (mixop, _, _) ->
         let atom = mixop |> List.hd |> List.hd in
         match atom.it with
         | Atom.Atom s -> Some s
         | _ -> None
-      ) (get_typcases source evalctxT) in
-      List.mem id evalctx_ids
+      ) (get_typcases source gframeT) in
+      List.mem id gframe_ids
     in
     (match op with
-    | [[{ it=Atom id; _ }]] when is_evalctx_id id ->
+    | [[{ it=Atom id; _ }]] when is_gframe_id id ->
       check_case source exprs (TupT [] $ no_region)
     | _ -> 
       List.iter (valid_expr env) exprs;
@@ -607,7 +607,7 @@ and valid_expr env (expr: expr) : unit =
   | GetCurStateE ->
     check_context source expr.note
   | GetCurContextE _ ->
-    check_evalctx source expr.note
+    check_gframe source expr.note
   | ChooseE expr1 ->
     valid_expr env expr1;
     check_list source expr1.note;
@@ -648,7 +648,7 @@ let rec valid_instr (env: Env.t) (instr: instr) : Env.t =
   | EnterI (expr1, expr2, il) ->
     valid_expr env expr1;
     valid_expr env expr2;
-    check_evalctx source expr1.note;
+    check_gframe source expr1.note;
     check_instr source expr2.note;
     valid_instrs env il
   | AssertI expr ->

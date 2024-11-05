@@ -252,7 +252,7 @@ let string_of_stack_prefix expr =
   match expr.it with
   | GetCurContextE _
   | VarE ("F" | "L") -> ""
-  | _ when Il.Eq.eq_typ expr.note Al.Al_util.evalctxT -> "the evaluation context "
+  | _ when Il.Eq.eq_typ expr.note Al.Al_util.gframeT -> "the evaluation context "
   | IterE _ -> "the values "
   | _ -> "the value "
 
