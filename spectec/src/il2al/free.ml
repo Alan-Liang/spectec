@@ -16,8 +16,7 @@ let free_defid id = {empty with defid = Set.singleton id.it}
 let tmp = (+)
 let (+) = union
 
-let rec free_exp ignore_listN e =
-  let f = free_exp ignore_listN in
+let rec free_exp' f ignore_listN e =
   let fp = free_path ignore_listN in
   let fef = free_expfield ignore_listN in
   let fi = free_iterexp ignore_listN in
@@ -41,6 +40,16 @@ let rec free_exp ignore_listN e =
     let free1 = f e1 in
     let bound, free2 = fi iter in
     diff free1 bound + free2
+
+and free_exp ignore_listN e =
+  let f = free_exp ignore_listN in
+  free_exp' f ignore_listN e
+
+and free_exp_binding ignore_listN e =
+  let f = free_exp_binding ignore_listN in
+  match e.it with
+  | IdxE (e1, _e2) -> f e1
+  | _ -> free_exp' f ignore_listN e
 
 and free_expfield ignore_listN (_, e) = free_exp ignore_listN e
 
