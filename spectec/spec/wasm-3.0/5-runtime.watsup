@@ -178,7 +178,7 @@ syntax instr/admin hint(desc "administrative instruction") =
   | TRAP
 
 
-syntax evalctx hint(desc "evaluation context") =
+syntax gframe hint(desc "general frames") =
   | LABEL_ n `{instr*}   hint(show LABEL_%#%)
   | FRAME_ n `{frame}    hint(show FRAME_%#%)
   | HANDLER_ n `{catch*} hint(show HANDLER_%#%)
@@ -198,7 +198,7 @@ var z : state
 ;;
 
 syntax ctxinstr hint(desc "context instruction") =
-  CTXINSTR ctx val* instr*
+  CTXINSTR gframe val* instr*
 
 syntax hctx hint(desc "handler context") =
   { CTXT ctxinstr*, STACK val*, CONTVALS val*, CONT instr* }

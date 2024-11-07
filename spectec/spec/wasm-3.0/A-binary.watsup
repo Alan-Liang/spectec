@@ -105,6 +105,7 @@ grammar Bvectype : vectype =
   | 0x7B => V128
 
 grammar Babsheaptype : heaptype =
+  | 0x68 => CONT
   | 0x69 => EXN
   | 0x6A => ARRAY
   | 0x6B => STRUCT
@@ -117,6 +118,7 @@ grammar Babsheaptype : heaptype =
   | 0x72 => NOEXTERN
   | 0x73 => NOFUNC
   | 0x74 => NOEXN
+  | 0x75 => NOCONT
 
 grammar Bheaptype : heaptype =
   | ht:Babsheaptype => ht
@@ -155,6 +157,7 @@ grammar Bfieldtype : fieldtype =
   | zt:Bstoragetype mut:Bmut => mut zt
 
 grammar Bcomptype : comptype =
+  | 0x5D ht:Bheaptype => CONT ht
   | 0x5E yt:Bfieldtype => ARRAY yt
   | 0x5F yt*:Blist(Bfieldtype) => STRUCT yt*
   | 0x60 t_1*:Bresulttype t_2*:Bresulttype => FUNC (t_1* -> t_2*)
@@ -305,6 +308,22 @@ grammar Binstr/i31 : instr = ...
   | 0xFB 29:Bu32 => I31.GET S
   | 0xFB 30:Bu32 => I31.GET U
   | ...
+
+
+;; Stack-switching instructions
+
+grammar Binstr/cont : instr = ...
+  | 0xE0 x:Btypeidx => CONT.NEW x
+  | 0xE1 x:Btypeidx y:Btypeidx => CONT.BIND x y
+  | 0xE2 x:Btagidx => SUSPEND x
+  | 0xE3 x:Btypeidx hdl*:Blist(Bhdl) => RESUME x hdl*
+  | 0xE4 x:Btypeidx y:Btagidx hdl*:Blist(Bhdl) => RESUME_THROW x y hdl*
+  | 0xE5 x:Btypeidx y:Btagidx => SWITCH x y
+  | ...
+
+grammar Bhdl : hdl =
+  | 0x00 x:Btypeidx y:Blabelidx => ON x (SUSPEND y)
+  | 0x01 x:Btypeidx => ON x SWITCH
 
 
 ;; Parametric instructions
