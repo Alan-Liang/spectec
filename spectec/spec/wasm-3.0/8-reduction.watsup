@@ -301,8 +301,7 @@ rule Step/cont.bind-null:
 
 rule Step/cont.bind-consumed:
   z; (REF.CONT_ADDR a) (CONT.BIND x y)  ~>  z; TRAP
-  ;; TODO: inline continst_iseps
-  -- if $continst_iseps($continst(z)[a])
+  -- if $continst(z)[a] = eps
 
 rule Step/cont.bind-cont:
   z; val^n (REF.CONT_ADDR a) (CONT.BIND x y)  ~>  $with_cont(z', a, eps); (REF.CONT_ADDR ca)
@@ -323,7 +322,7 @@ rule Step/resume-null:
 
 rule Step/resume-consumed:
   z; (REF.CONT_ADDR a) (RESUME kx hdl*)  ~>  z; TRAP
-  -- if $continst_iseps($continst(z)[a])
+  -- if $continst(z)[a] = eps
 
 rule Step/resume-cont:
   z; val^n (REF.CONT_ADDR a) (RESUME kx (ON x hdlaction)*)  ~>  $with_cont(z, a, eps); (HANDLE `{ea*} (RESUMING val''* eps hctx))
@@ -339,7 +338,7 @@ rule Step/resume_throw-null:
 
 rule Step/resume_throw-consumed:
   z; (REF.CONT_ADDR a) (RESUME_THROW kx ax (ON x hdlaction)*)  ~>  z; TRAP
-  -- if $continst_iseps($continst(z)[a])
+  -- if $continst(z)[a] = eps
 
 rule Step/resume_throw:
   z; val^m (REF.CONT_ADDR a) (RESUME_THROW kx ax (ON x hdlaction)*)  ~>  $with_cont(z', a, eps); (HANDLE `{ea*} (RESUMING val''* THROW_REF hctx))
@@ -447,7 +446,7 @@ rule Step/switch-null:
 
 rule Step/switch-consumed:
   z; (REF.CONT_ADDR a) (SWITCH x xe)  ~>  z; TRAP
-  -- if $continst_iseps($continst(z)[a])
+  -- if $continst(z)[a] = eps
 
 rule Step/switch-cont:
   z; val^n (REF.CONT_ADDR a) (SWITCH x xe)  ~>  $with_cont(z, a, eps); (SUSPENDING tagaddr (RESUME hctx) val''* $empty_hctx)

@@ -219,9 +219,3 @@ def $get_handler_switch(handle handle'*, a) = true
   -- if handle = ON a SWITCH
 def $get_handler_switch(handle handle'*, a) = $get_handler_switch(handle'*, a)
   -- otherwise
-
-;; FIXME: hack
-
-def $continst_iseps(continst?) : bool
-def $continst_iseps(eps) = true
-def $continst_iseps(continst?) = false -- otherwise

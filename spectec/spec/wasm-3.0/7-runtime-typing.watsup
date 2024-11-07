@@ -37,7 +37,7 @@ rule Ref_type/exn:
 
 rule Ref_type/cont:
   s |- REF.CONT_ADDR a : (REF eps dt)
-  -- if ~ $continst_iseps(s.CONTS[a])
+  -- if s.CONTS[a] =/= eps
   -- Expand: dt ~~ CONT dt'
   -- Expand: dt' ~~ FUNC (t_1* -> t_2*)
 
