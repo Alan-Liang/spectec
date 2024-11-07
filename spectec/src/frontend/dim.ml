@@ -272,12 +272,12 @@ let check_def d : env =
     List.iter (check_arg env []) args;
     check_typ env [] t;
     check_env env
-  | EvalCtxFamD (_id, ps, t1, t2, _hints) ->
+  | GContextFamD (_id, ps, t1, t2, _hints) ->
     List.iter (check_param env []) ps;
     check_typ env [] t1;
     check_typ env [] t2;
     check_env env
-  | EvalCtxD (_id, args, t1, t2, t3, _hints) ->
+  | GContextD (_id, args, t1, t2, t3, _hints) ->
     List.iter (check_arg env []) args;
     check_typ env [] t1;
     check_typ env [] t2;

@@ -229,7 +229,7 @@ let is_encoded_ctxt pr =
   match pr.it with
   | LetPr (_, e, _) ->
     (match e.note.it with
-    | VarT (id, []) -> List.mem id.it ["inputT"; "stackT"; "contextT"; "evalctxT"]
+    | VarT (id, []) -> List.mem id.it ["inputT"; "stackT"; "contextT"; "gcontextT"]
     | _ -> false)
   | _ -> false
 let is_encoded_pop_or_winstr pr =

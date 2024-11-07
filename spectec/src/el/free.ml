@@ -340,9 +340,9 @@ let free_def d =
     free_list free_param ps
   | TypD (_id1, _id2, as_, t, _hints) ->
     free_args as_ + free_typ t
-  | EvalCtxFamD (_id, ps, t1, t2, _hints) ->
+  | GContextFamD (_id, ps, t1, t2, _hints) ->
     free_list free_param ps + free_typ t1 + free_typ t2
-  | EvalCtxD (_id, as_, t1, t2, t3, _hints) ->
+  | GContextD (_id, as_, t1, t2, t3, _hints) ->
     free_args as_ + free_typ t1 + free_typ t2 + free_typ t3
   | GramD (_id1, _id2, ps, t, gram, _hints) ->
     free_params ps + (free_typ t + free_gram gram - bound_params ps - impl_bound_typ t)
@@ -359,8 +359,8 @@ let free_def d =
 
 let det_def d =
   match d.it with
-  | FamD _ | GramD _ | EvalCtxFamD _ | VarD _ | SepD | RelD _ | DecD _ | HintD _ -> empty
+  | FamD _ | GramD _ | GContextFamD _ | VarD _ | SepD | RelD _ | DecD _ | HintD _ -> empty
   | TypD (_id1, _id2, as_, _t, _hints) -> det_args as_
-  | EvalCtxD (_id1, as_, _t1, _t2, _t3, _hints) -> det_args as_
+  | GContextD (_id1, as_, _t1, _t2, _t3, _hints) -> det_args as_
   | RuleD (_id1, _id2, e, prems) -> det_exp e + det_prems prems
   | DefD (_id, as_, e, prems) -> det_args as_ + idx_exp e + det_prems prems

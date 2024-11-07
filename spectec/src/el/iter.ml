@@ -231,8 +231,8 @@ let def d =
   match d.it with
   | FamD (x, ps, hs) -> typid x; params ps; hints hs
   | TypD (x1, x2, as_, t, hs) -> typid x1; ruleid x2; args as_; typ t; hints hs
-  | EvalCtxFamD (x, ps, t1, t2, hs) -> typid x; params ps; typ t1; typ t2; hints hs
-  | EvalCtxD (x, as_, t1, t2, t3, hs) -> typid x; args as_; typ t1; typ t2; typ t3; hints hs
+  | GContextFamD (x, ps, t1, t2, hs) -> typid x; params ps; typ t1; typ t2; hints hs
+  | GContextD (x, as_, t1, t2, t3, hs) -> typid x; args as_; typ t1; typ t2; typ t3; hints hs
   | GramD (x1, x2, ps, t, gr, hs) -> typid x1; ruleid x2; params ps; typ t; gram gr; hints hs
   | VarD (x, t, hs) -> varid x; typ t; hints hs
   | SepD -> ()

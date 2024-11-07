@@ -182,22 +182,22 @@ syntax ctx hint(desc "context") =
 ;; Evaluation contexts
 
 ;; var C : context
-evaluation context EB(idx) [instr*] : instr* hint(show %latex("B")^%)
-evaluation context EC(idx) [instr*] : instr* hint(show %latex("C")^%)
+gcontext EB(idx) [instr*] : instr* hint(show %latex("B")^%)
+gcontext EC(idx) [instr*] : instr* hint(show %latex("C")^%)
 
-evaluation context EB(x) [instr*] : instr* =
+gcontext EB(x) [instr*] : instr* =
   val* EB(x) instr* | HANDLER_ n `{catch*} EB(x) | EC(x)
 
-evaluation context EC(0) [instr*] : instr* = [_]
-evaluation context EC($(x+1)) [instr*] : instr* = LABEL_ n `{instr*} EB(x)
+gcontext EC(0) [instr*] : instr* = [_]
+gcontext EC($(x+1)) [instr*] : instr* = LABEL_ n `{instr*} EB(x)
 
 var star : labelidx hint(show %latex("*"))
 
-evaluation context ET [instr*] : instr* hint(show %latex("T")) =
+gcontext ET [instr*] : instr* hint(show %latex("T")) =
   | [_]
   | val* ET instr*
   | LABEL_ n `{instr*} ET
   | FRAME_ n `{frame} ET
 
-evaluation context EE [instr*] : instr* hint(show %latex("E")) =
+gcontext EE [instr*] : instr* hint(show %latex("E")) =
   [_] | val* EE instr* | LABEL_ n `{instr*} EE | HANDLER_ n `{catch*} EE

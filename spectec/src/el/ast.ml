@@ -192,8 +192,8 @@ and def = def' phrase
 and def' =
   | FamD of id * param list * hint list            (* `syntax` typid params hint* *)
   | TypD of id * id * arg list * typ * hint list   (* `syntax` typid args hint* `=` typ *)
-  | EvalCtxFamD of id * param list * typ * typ * hint list (* `evaluation context` typid params [type] : type hint* *)
-  | EvalCtxD of id * arg list * typ * typ * typ * hint list (* `evaluation context` typid args [type] : type hint* = type *)
+  | GContextFamD of id * param list * typ * typ * hint list (* `gcontext` typid params [type] : type hint* *)
+  | GContextD of id * arg list * typ * typ * typ * hint list (* `gcontext` typid args [type] : type hint* = type *)
   | GramD of id * id * param list * typ * gram * hint list (* `grammar` gramid params hint* `:` type `=` gram *)
   | RelD of id * typ * hint list                   (* `relation` relid `:` typ hint* *)
   | RuleD of id * id * exp * prem nl_list          (* `rule` relid ruleid? `:` exp (`--` prem)* *)

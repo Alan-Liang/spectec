@@ -223,7 +223,7 @@ and token = parse
   | "text" { TEXT }
 
   | "syntax" { SYNTAX }
-  | "evaluation" space* "context" { EVALCTX }
+  | "gcontext" { GCONTEXT }
   | "grammar" { GRAMMAR }
   | "relation" { RELATION }
   | "rule" { RULE }

@@ -85,7 +85,7 @@ type kind =
   | Opaque  (* structures or variants, type parameter *)
   | Defined of typ * Il.deftyp
   | Family of (arg list * typ * Il.inst) list (* family of types *)
-  | EvalCtxFamily of typ * typ * (arg list * typ * Il.evalctxinst) list
+  | GContextFamily of typ * typ * (arg list * typ * Il.gcontextinst) list
 
 type var_typ = typ
 type typ_typ = param list * kind
@@ -1131,7 +1131,7 @@ and elab_exp' env e t : Il.exp' =
     cast_exp' "comparison operator" env e' t' t
   | CtxHoleE ->
     let e', t' = infer_exp env e in
-    cast_exp' "evaluation context hole" env e' t' t
+    cast_exp' "gcontext hole" env e' t' t
   | IdxE _ ->
     let e', t' = infer_exp env e in
     cast_exp' "list element" env e' t' t
@@ -2001,9 +2001,9 @@ let infer_typdef env d =
       if ps = [] then  (* only types without parameters double as variables *)
         env.gvars <- bind "variable" env.gvars (strip_var_sub id1) (VarT (id1, []) $ id1.at);
     )
-  | EvalCtxFamD (id, ps, t1, t2, _hints) ->
+  | GContextFamD (id, ps, t1, t2, _hints) ->
     let _ps' = elab_params (local_env env) ps in
-    env.typs <- bind "syntax type" env.typs id (ps, EvalCtxFamily []);
+    env.typs <- bind "syntax type" env.typs id (ps, GContextFamily []);
     if ps = [] then  (* only types without parameters double as variables *)
       env.gvars <- bind "variable" env.gvars (strip_var_sub id) (VarT (id, []) $ id.at);
     ()
@@ -2077,7 +2077,7 @@ let elab_def env d : Il.def list =
     env.typs <- rebind "syntax type" env.typs id (ps, Family []);
     [Il.TypD (id, ps', []) $ d.at]
       @ elab_hintdef env (TypH (id, "" $ id.at, hints) $ d.at)
-  | EvalCtxFamD (id, ps, t1, t2, hints) ->
+  | GContextFamD (id, ps, t1, t2, hints) ->
     let ps' = elab_params (local_env env) ps in
     let dims = Dim.check_def d in
     infer_no_binds env dims d;
