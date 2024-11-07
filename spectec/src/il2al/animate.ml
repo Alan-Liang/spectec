@@ -215,7 +215,7 @@ let rec index_of acc xs x = match xs with
   | [] -> None
   | h :: t -> if h = x then Some acc else index_of (acc + 1) t x
 
-let free_exp_list e = (free_exp false e).varid |> Set.elements
+let free_exp_list e = (free_exp_binding false e).varid |> Set.elements
 let free_arg_list e = (free_arg false e).varid |> Set.elements
 
 let rec powset = function
