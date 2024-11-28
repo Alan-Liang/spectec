@@ -746,7 +746,7 @@ and handle_special_lhs lhs rhs free_ids =
     let pop_num = List.hd args |> arg2expr in
     insert_pop e pop_num
   | _ when (Il.Print.string_of_typ rhs.note) = "instrstackT" ->
-    [popAllInstrI { lhs with note = listT instrT } ~at:lhs.at]
+    [captureI { lhs with note = listT instrT } ~at:lhs.at]
   (* Handle inverse function call *)
   | CallE _ -> handle_call_lhs lhs rhs free_ids
   (* Handle iterator *)
