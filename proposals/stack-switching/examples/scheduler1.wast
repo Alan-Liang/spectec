@@ -14,6 +14,10 @@
     (i32.eq (global.get $qfront) (global.get $qback))
   )
 
+  (func $queue_count (export "queue-count") (result i32)
+    (i32.sub (global.get $qback) (global.get $qfront))
+  )
+
   (func $dequeue (export "dequeue") (result (ref null $ct))
     (local $i i32)
     (if (call $queue_empty)
@@ -67,10 +71,29 @@
   (func $task_enqueue (import "queue" "enqueue") (param (ref null $ct)))
   (func $task_dequeue (import "queue" "dequeue") (result (ref null $ct)))
   (func $task_queue-empty (import "queue" "queue-empty") (result i32))
+  (func $task_queue-count (import "queue" "queue-count") (result i32))
   (func $print_i32 (import "spectest" "print_i32") (param i32))
 
   ;; Tag used to yield execution in one task and resume another one.
   (tag $yield)
+  ;; TODO: comment
+  (tag $abort)
+
+  (func $schedule_task (param $c (ref null $ct))
+    ;; (call $print_i32 (i32.const 114514))
+    ;; (call $print_i32 (call $task_queue-count))
+    (if (i32.ge_s (call $task_queue-count) (i32.const 2))
+      (then
+        ;; (call $print_i32 (i32.add (i32.const 9999000) (call $task_queue-count)))
+        (block $h
+          (try_table (catch $abort $h) (resume_throw $ct $abort (local.get $c)))
+        )
+      )
+      (else
+        (call $task_enqueue (local.get $c))
+      )
+    )
+  )
 
   ;; Entry point, becomes parent of all tasks.
   ;; Also acts as scheduler when tasks yield or finish.
@@ -78,7 +101,7 @@
     (local $next_task (ref null $ct))
 
     ;; initialise $task_queue with initial task
-    (call $task_enqueue (cont.new $ct (local.get $initial_task)))
+    (call $schedule_task (cont.new $ct (local.get $initial_task)))
 
     (loop $resume_next
       ;; pick $next_task from queue, or return if no more tasks.
@@ -93,7 +116,7 @@
       )
       ;; task suspended: put continuation in queue, then loop to determine next
       ;; one to resume.
-      (call $task_enqueue)
+      (call $schedule_task)
       (br $resume_next)
     )
   )
@@ -108,11 +131,19 @@
 
     (if (ref.is_null (local.get $to_spawn))
       (then)
-      (else (call $task_enqueue (cont.new $ct (local.get $to_spawn)))))
+      (else (call $schedule_task (cont.new $ct (local.get $to_spawn)))))
 
-    (call $print_i32 (local.get $id))
-    (suspend $yield)
-    (call $print_i32 (local.get $id))
+    (block $h
+      (try_table (catch $abort $h)
+        (call $print_i32 (i32.add (i32.const 1111000) (local.get $id)))
+        (suspend $yield)
+        (call $print_i32 (i32.add (i32.const 2222000) (local.get $id)))
+        (suspend $yield)
+        (call $print_i32 (i32.add (i32.const 3333000) (local.get $id)))
+        (return)
+      )
+    )
+    (call $print_i32 (i32.add (i32.const 8888000) (local.get $id)))
   )
 
   ;; The actual $task_i functions simply call $task_impl, with i as the value
