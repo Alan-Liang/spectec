@@ -275,7 +275,7 @@ next task (if any) from a task queue and resumes it.
 This approach is illustrated by the following skeleton code.
 
 ```wat
-(module $scheduler1
+(module $scheduler-suspend
 
   (type $ft (func))
   ;; Continuation type of all tasks
@@ -354,7 +354,7 @@ This alternative approach is illustrated by the following skeleton
 code.
 
 ```wat
-(module $scheduler2
+(module $scheduler-switch
   (rec
     (type $ft (func (param (ref null $ct))))
     ;; Continuation type of all tasks
@@ -472,7 +472,7 @@ continuation argument required by `switch`. However, this mechanism
 could be used to optimise the implementation of task scheduling
 further.
 
-In `$scheduler2`, if a `$task_i` function finishes and therefore
+In `$scheduler-switch`, if a `$task_i` function finishes and therefore
 returns, two stack switches are required to continue execution in the
 next task in the queue. This is due to the fact that the returning
 continuation switches to the parent (i.e., the event loop), which then
@@ -485,8 +485,9 @@ enqueued in the task list, but should instead be cancelled. Cancellation
 can be implemented using another instruction, `resume_throw`, which is
 described later in the document.
 
-Full versions of `$scheduler1` and  `$scheduler2` can be found
-[here](examples/scheduler1.wast) and [here](examples/scheduler2.wast).
+Full versions of `$scheduler-suspend` and  `$scheduler-switch` can be
+found [here](examples/scheduler1-suspend.wast) and
+[here](examples/scheduler1-switch.wast).
 
 ## Instruction set extension
 
