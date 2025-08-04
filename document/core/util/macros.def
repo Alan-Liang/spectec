@@ -230,10 +230,12 @@
 .. |ARRAYREF| mathdef:: \xref{syntax/types}{syntax-reftype}{\K{arrayref}}
 .. |FUNCREF| mathdef:: \xref{syntax/types}{syntax-reftype}{\K{funcref}}
 .. |EXNREF| mathdef:: \xref{syntax/types}{syntax-reftype}{\K{exnref}}
+.. |CONTREF| mathdef:: \xref{syntax/types}{syntax-reftype}{\K{contref}}
 .. |EXTERNREF| mathdef:: \xref{syntax/types}{syntax-reftype}{\K{externref}}
 .. |NULLREF| mathdef:: \xref{syntax/types}{syntax-reftype}{\K{nullref}}
 .. |NULLFUNCREF| mathdef:: \xref{syntax/types}{syntax-reftype}{\K{nullfuncref}}
 .. |NULLEXNREF| mathdef:: \xref{syntax/types}{syntax-reftype}{\K{nullexnref}}
+.. |NULLCONTREF| mathdef:: \xref{syntax/types}{syntax-reftype}{\K{nullcontref}}
 .. |NULLEXTERNREF| mathdef:: \xref{syntax/types}{syntax-reftype}{\K{nullexternref}}
 .. |REF| mathdef:: \xref{syntax/types}{syntax-reftype}{\K{ref}}
 .. |NULL| mathdef:: \xref{syntax/types}{syntax-reftype}{\K{null}}
@@ -246,10 +248,12 @@
 .. |FUNCT| mathdef:: \xref{syntax/types}{syntax-heaptype}{\K{func}}
 .. |EXN| mathdef:: \xref{syntax/types}{syntax-heaptype}{\K{exn}}
 .. |EXTERN| mathdef:: \xref{syntax/types}{syntax-heaptype}{\K{extern}}
+.. |CONT| mathdef:: \xref{syntax/types}{syntax-heaptype}{\K{cont}}
 .. |NONE| mathdef:: \xref{syntax/types}{syntax-heaptype}{\K{none}}
 .. |NOFUNC| mathdef:: \xref{syntax/types}{syntax-heaptype}{\K{nofunc}}
 .. |NOEXN| mathdef:: \xref{syntax/types}{syntax-heaptype}{\K{noexn}}
 .. |NOEXTERN| mathdef:: \xref{syntax/types}{syntax-heaptype}{\K{noextern}}
+.. |NOCONT| mathdef:: \xref{syntax/types}{syntax-heaptype}{\K{nocont}}
 
 .. |I8X16| mathdef:: \xref{syntax/instructions}{syntax-shape}{\K{i{\scriptstyle8}x\scriptstyle16}}
 .. |I16X8| mathdef:: \xref{syntax/instructions}{syntax-shape}{\K{i{\scriptstyle16}x\scriptstyle8}}
@@ -261,6 +265,7 @@
 .. |REC| mathdef:: \xref{syntax/types}{syntax-heaptype}{\K{rec}}
 
 .. |TFUNC| mathdef:: \xref{syntax/types}{syntax-comptype}{\K{func}}
+.. |TCONT| mathdef:: \xref{syntax/types}{syntax-comptype}{\K{cont}}
 .. |Tarrow| mathdef:: \xref{syntax/types}{syntax-comptype}{\rightarrow}
 .. |TSTRUCT| mathdef:: \xref{syntax/types}{syntax-comptype}{\K{struct}}
 .. |TARRAY| mathdef:: \xref{syntax/types}{syntax-comptype}{\K{array}}
@@ -475,6 +480,13 @@
 .. |RETURNCALL| mathdef:: \xref{syntax/instructions}{syntax-instr-control}{\K{return\_call}}
 .. |RETURNCALLREF| mathdef:: \xref{syntax/instructions}{syntax-instr-control}{\K{return\_call\_ref}}
 .. |RETURNCALLINDIRECT| mathdef:: \xref{syntax/instructions}{syntax-instr-control}{\K{return\_call\_indirect}}
+
+.. |CONTNEW| mathdef:: \xref{syntax/instructions}{syntax-instr-control}{\K{cont{.}new}}
+.. |CONTBIND| mathdef:: \xref{syntax/instructions}{syntax-instr-control}{\K{cont{.}bind}}
+.. |RESUME| mathdef:: \xref{syntax/instructions}{syntax-instr-control}{\K{resume}}
+.. |RESUMETHROW| mathdef:: \xref{syntax/instructions}{syntax-instr-control}{\K{resume\_throw}}
+.. |SUSPEND| mathdef:: \xref{syntax/instructions}{syntax-instr-control}{\K{suspend}}
+.. |SWITCH| mathdef:: \xref{syntax/instructions}{syntax-instr-control}{\K{switch}}
 
 .. |THROW| mathdef:: \xref{syntax/instructions}{syntax-instr-control}{\K{throw}}
 .. |THROWREF| mathdef:: \xref{syntax/instructions}{syntax-instr-control}{\K{throw\_ref}}
@@ -744,6 +756,9 @@
 
 .. |instr| mathdef:: \xref{syntax/instructions}{syntax-instr}{\X{instr}}
 .. |catch| mathdef:: \xref{syntax/instructions}{syntax-catch}{\X{catch}}
+.. |hdl| mathdef:: \xref{syntax/instructions}{syntax-hdl}{\X{hdl}}
+.. |hdlON| mathdef:: \xref{syntax/instructions}{syntax-hdl}{\K{on}}
+.. |hdlSWITCH| mathdef:: \xref{syntax/instructions}{syntax-hdl}{\K{switch}}
 .. |expr| mathdef:: \xref{syntax/instructions}{syntax-expr}{\X{expr}}
 
 

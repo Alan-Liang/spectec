@@ -138,6 +138,11 @@ rule Comptype_ok/func:
   -- Resulttype_ok: C |- t_1* : OK
   -- Resulttype_ok: C |- t_2* : OK
 
+rule Comptype_ok/cont:
+  C |- CONT typeuse : OK
+  -- Heaptype_ok: C |- typeuse : OK
+  -- Expand_use: typeuse ~~_C $($(FUNC t_1* -> t_2*))
+
 
 rule Subtype_ok:
   C |- SUB FINAL? (_IDX x)* comptype : OK(x_0)
