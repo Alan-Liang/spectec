@@ -40,7 +40,17 @@ grammar Binstr/control : instr = ...
   | 0x12 x:Bfuncidx => RETURN_CALL x
   | 0x13 y:Btypeidx x:Btableidx => RETURN_CALL_INDIRECT x (_IDX y)
   | 0x1F bt:Bblocktype c*:Blist(Bcatch) (in:Binstr)* 0x0B => TRY_TABLE bt c* in*
+  | 0xE0 x:Btypeidx => CONT.NEW x
+  | 0xE1 x:Btypeidx y:Btypeidx => CONT.BIND x y
+  | 0xE2 x:Btagidx => SUSPEND x
+  | 0xE3 x:Btypeidx hdl*:Blist(Bhdl) => RESUME x hdl*
+  | 0xE4 x:Btypeidx y:Btagidx hdl*:Blist(Bhdl) => RESUME_THROW x y hdl*
+  | 0xE5 x:Btypeidx y:Btagidx => SWITCH x y
   | ...
+
+grammar Bhdl : hdl =
+  | 0x00 x:Btypeidx y:Blabelidx => _LABEL ON x y
+  | 0x01 x:Btypeidx => _SWITCH ON x SWITCH
 
 grammar Bcatch : catch =
   | 0x00 x:Btagidx l:Blabelidx => CATCH x l

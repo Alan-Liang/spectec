@@ -64,9 +64,16 @@ Control Instructions
 .. _binary-throw:
 .. _binary-throw_ref:
 .. _binary-try_table:
+.. _binary-cont.new:
+.. _binary-cont.bind:
+.. _binary-suspend:
+.. _binary-resume:
+.. _binary-resume_throw:
+.. _binary-switch:
 .. _binary-catch:
+.. _binary-hdl:
 
-$${grammar: Bblocktype {Binstr/block Binstr/control} Bcatch}
+$${grammar: Bblocktype {Binstr/block Binstr/control} Bcatch Bhdl}
 
 .. note::
    The ${:ELSE} opcode ${:0x05} in the encoding of an ${:IF} instruction can be omitted if the following instruction sequence is empty.

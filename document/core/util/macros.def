@@ -904,6 +904,7 @@
 
 .. |Binstr| mathdef:: \xref{binary/instructions}{binary-instr}{\B{instr}}
 .. |Bcatch| mathdef:: \xref{binary/instructions}{binary-catch}{\B{catch}}
+.. |Bhdl| mathdef:: \xref{binary/instructions}{binary-hdl}{\B{hdl}}
 .. |Bexpr| mathdef:: \xref{binary/instructions}{binary-expr}{\B{expr}}
 
 .. |Blaneidx| mathdef:: \xref{binary/instructions}{binary-laneidx}{\B{laneidx}}
