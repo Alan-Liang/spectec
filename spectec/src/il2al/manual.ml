@@ -41,10 +41,10 @@ let return_instrs_of_instantiate _idset config =
   let ty' = varT "moduleinst" [] in
   let ty'' = Il.Ast.TupT (List.map (fun t -> no_name, t) [store.note; ty']) $ no_region in
 
-  pushI (frameE (natE Z.zero ~note:natT, frame) ~note:evalctxT) ::
+  pushI (frameE (natE Z.zero ~note:natT, frame) ~note:gframeT) ::
     rhs @
     [
-      popI (frameE (natE Z.zero ~note:natT, frame) ~note:evalctxT);
+      popI (frameE (natE Z.zero ~note:natT, frame) ~note:gframeT);
       returnI (Some (tupE [
         store;
         accE (frame, DotP (atom_of_name "MODULE" "") $ no_region) ~note:ty'
@@ -63,9 +63,9 @@ let return_instrs_of_invoke idset config =
   let e_vals = iter_var var_name (ListN (arity, None)) valT in
 
   letI (arity, len_expr) ::
-    pushI (frameE (arity, frame) ~note:evalctxT) ::
+    pushI (frameE (arity, frame) ~note:gframeT) ::
     rhs @
     [ popI e_vals;
-      popI (frameE (arity, frame) ~note:evalctxT);
+      popI (frameE (arity, frame) ~note:gframeT);
       returnI (Some e_vals)
     ]

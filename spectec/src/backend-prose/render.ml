@@ -338,7 +338,7 @@ and al_to_el_expr expr =
         | _ -> ele
       in
       Some (El.Ast.IterE (ele, eliter))
-    | Al.Ast.CaseE _  when Al.Valid.sub_typ expr.note Al.Al_util.evalctxT -> None
+    | Al.Ast.CaseE _  when Al.Valid.sub_typ expr.note Al.Al_util.gframeT -> None
     | Al.Ast.CaseE (op, el) ->
       (match Prose_util.extract_case_hint expr.note op with
       | Some {it = TextE _; _} -> None
@@ -695,7 +695,7 @@ and render_expr' env expr =
       (render_expr env elhs)
       (render_math "=")
       (render_expr env erhs)
-  | Al.Ast.CaseE (mixop, [ arity; arg ]) when Al.Valid.sub_typ expr.note Al.Al_util.evalctxT ->
+  | Al.Ast.CaseE (mixop, [ arity; arg ]) when Al.Valid.sub_typ expr.note Al.Al_util.gframeT ->
     let atom_name = mixop |> List.hd |> List.hd |> Atom.to_string in
     let context_var = get_context_var expr in
     let rendered_arity =
@@ -1220,7 +1220,7 @@ let rec render_instr env algoname index depth instr =
       vref (render_expr env c)
     )
   | Al.Ast.PushI ({ it = Al.Ast.CaseE (mixop, _); _ } as e)
-  when Al.Valid.sub_typ e.note Al.Al_util.evalctxT ->
+  when Al.Valid.sub_typ e.note Al.Al_util.gframeT ->
     let atom = mixop |> List.hd |> List.hd in
     sprintf "%s %s\n\n%s%s Push the %s %s."
       (render_order index depth)
@@ -1233,7 +1233,7 @@ let rec render_instr env algoname index depth instr =
     sprintf "%s Push %s %s to the stack." (render_order index depth)
       (render_stack_prefix e) (render_expr env e)
   | Al.Ast.PopI ({ it = Al.Ast.CaseE (mixop, _); _ } as expr)
-  when Al.Valid.sub_typ expr.note Al.Al_util.evalctxT ->
+  when Al.Valid.sub_typ expr.note Al.Al_util.gframeT ->
     let atom = mixop |> List.hd |> List.hd in
     let control_frame_kind = render_atom env atom in
     let context_var = get_context_var expr in
@@ -1254,7 +1254,7 @@ let rec render_instr env algoname index depth instr =
   | Al.Ast.LetI (e1, e2) ->
     (match e1.it with
     (* NOTE: This assumes that the first argument of control frame is arity *)
-    | Al.Ast.CaseE (mixop, [ arity; arg ] ) when Al.Valid.sub_typ e1.note Al.Al_util.evalctxT ->
+    | Al.Ast.CaseE (mixop, [ arity; arg ] ) when Al.Valid.sub_typ e1.note Al.Al_util.gframeT ->
       let atom_name = mixop |> List.hd |> List.hd |> Atom.to_string in
       let context_var = get_context_var e1 in
       let rendered_let =
