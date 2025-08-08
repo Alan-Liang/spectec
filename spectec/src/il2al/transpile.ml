@@ -1094,8 +1094,8 @@ let handle_framed_algo a instrs =
   in
   (* End of helpers *)
 
-  let frame = frameE (varE "_" ~note:natT, e_zf) ~note:evalctxT ~at:e_zf.at in
-  let instr_hd = letI (frame, getCurContextE frame_atom ~note:evalctxT) in
+  let frame = frameE (varE "_" ~note:natT, e_zf) ~note:gframeT ~at:e_zf.at in
+  let instr_hd = letI (frame, getCurContextE frame_atom ~note:gframeT) in
   let walk_expr walker expr =
     let expr1 = frame_finder expr in
     let expr2 = Al.Walk.base_walker.walk_expr walker expr1 in
@@ -1146,14 +1146,14 @@ let handle_unframed_algo instrs =
     match !frame_arg with
     | Some { it = ExpA f; _ } ->
       let zeroE = natE Z.zero ~note:natT in
-      let frame = frameE (zeroE, postprocess_frame f) ~at:f.at ~note:evalctxT in
-      let _f = frameE (zeroE, varE "_f" ~note:f.note) ~note:evalctxT in
+      let frame = frameE (zeroE, postprocess_frame f) ~at:f.at ~note:gframeT in
+      let _f = frameE (zeroE, varE "_f" ~note:f.note) ~note:gframeT in
       let frame' =
         match instr.it with
         (* HARDCODE: the frame-passing-style *)
         | LetI (e, _) -> (match returned_frame e with
           | Some f' ->
-              frameE (zeroE, postprocess_frame f') ~at:f'.at ~note:evalctxT
+              frameE (zeroE, postprocess_frame f') ~at:f'.at ~note:gframeT
           | None -> _f
         )
         | _ -> _f
@@ -1271,7 +1271,7 @@ let remove_exit algo =
         caseE (
           [[atom]; [{ atom with it=Atom.LBrace}]; [{ atom with it=Atom.RBrace}]; []],
           [ unused_var; unused_var ]
-        ) ~note:evalctxT
+        ) ~note:gframeT
       in
       popI (control_frame_expr) ~at:instr.at
     | _ -> instr
