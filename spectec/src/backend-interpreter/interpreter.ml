@@ -153,7 +153,7 @@ and check_type ty v expr =
   (* type definition *)
   let addr_refs = [
     "REF.I31_NUM"; "REF.STRUCT_ADDR"; "REF.ARRAY_ADDR";
-    "REF.FUNC_ADDR"; "REF.HOST_ADDR"; "REF.EXTERN";
+    "REF.FUNC_ADDR"; "REF.CONT_ADDR"; "REF.HOST_ADDR"; "REF.EXTERN";
   ] in
   let pnn_types = [ "I8"; "I16" ] in
   let inn_types = [ "I32"; "I64" ] in
@@ -161,7 +161,7 @@ and check_type ty v expr =
   let vnn_types = [ "V128"; ] in
   let abs_heaptypes = [
     "ANY"; "EQ"; "I31"; "STRUCT"; "ARRAY"; "NONE"; "FUNC";
-    "NOFUNC"; "EXN"; "NOEXN"; "EXTERN"; "NOEXTERN"
+    "NOFUNC"; "EXN"; "NOEXN"; "CONT"; "NOCONT"; "EXTERN"; "NOEXTERN"
   ] in
   match v with
   (* addrref *)
