@@ -320,7 +320,7 @@ let insert_assert exp =
   let at = exp.at in
   match exp.it with
   | Il.CaseE ([{it = Atom.Atom id; _}]::_, _) when List.mem id context_names ->
-    assertI (contextKindE (atom_of_name id "evalctx") ~note:boolT) ~at:at
+    assertI (contextKindE (atom_of_name id "gframe") ~note:boolT) ~at:at
   | Il.IterE (_, (Il.ListN (e, None), _)) ->
     assertI (topValuesE (translate_exp e) ~at ~note:boolT) ~at:at
   | Il.IterE (_, (Il.List, _)) -> nopI () ~at:at
@@ -500,7 +500,7 @@ and translate_context_rhs exp =
 
   let e' = caseE ([[atom]], []) ~at:instrs.at ~note:instrT in
   let instrs', al = translate_context_instrs e' instrs in
-  let ectx = caseE (case', args') ~at ~note:evalctxT in
+  let ectx = caseE (case', args') ~at ~note:gframeT in
   [
     enterI (ectx, instrs', al) ~at:at;
   ]
@@ -1045,8 +1045,8 @@ let to_frame_instr r =
       let i = e_to_frame_instr lhs in
       if i = [] then e_to_frame_instr rhs else i
     | {it = Il.Ast.VarE _; note = {it = Il.Ast.VarT ({it = "frame"; _}, _); _}; _} ->
-      let frame = frameE (varE "_" ~note:natT, (translate_exp e)) ~note:evalctxT in
-      [letI (frame, getCurContextE frame_atom ~note:evalctxT)]
+      let frame = frameE (varE "_" ~note:natT, (translate_exp e)) ~note:gframeT in
+      [letI (frame, getCurContextE frame_atom ~note:gframeT)]
     | _ -> []
   in
 
@@ -1088,9 +1088,9 @@ let translate_context_winstr winstr =
   (* The last element of case is for instr*, which should not be present in the context record *)
   let case, _ = Lib.List.split_last case in
 
-  let destruct = caseE (case, List.map translate_exp args) ~note:evalctxT ~at in
+  let destruct = caseE (case, List.map translate_exp args) ~note:gframeT ~at in
   [
-    letI (destruct, getCurContextE kind ~note:evalctxT) ~at:at;
+    letI (destruct, getCurContextE kind ~note:gframeT) ~at:at;
     insert_assert vals;
   ] @ insert_pop' vals @ [
     insert_assert winstr;
@@ -1102,9 +1102,9 @@ let translate_context ctx =
 
   match ctx.it with
   | Il.CaseE ([{it = Atom.Atom id; _} as atom]::_ as case, { it = Il.TupE args; _ }) when List.mem id context_names ->
-    let destruct = caseE (case, List.map translate_exp args) ~note:evalctxT ~at in
+    let destruct = caseE (case, List.map translate_exp args) ~note:gframeT ~at in
     [
-      letI (destruct, getCurContextE atom ~note:evalctxT) ~at:at;
+      letI (destruct, getCurContextE atom ~note:gframeT) ~at:at;
     ],
     exitI atom ~at:at
   | _ -> [ yetI "TODO: translate_context" ~at ], yetI "TODO: translate_context"
