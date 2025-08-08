@@ -746,6 +746,8 @@ and render_expr' env expr =
       | "FRAME_" -> ""
       | "HANDLER_" ->
         sprintf "whose catch handler is %s" (render_expr env arg)
+      | "PROMPT" ->
+        sprintf "whose effect handler is %s" (render_expr env arg)
       | _ ->
         expr
         |> Al.Print.string_of_expr
@@ -1081,6 +1083,9 @@ let render_control_frame env expr =
       | "HANDLER_" ->
         sprintf "the %s" (render_atom env atom),
           sprintf "whose catch handler is %s" (render_expr env arg)
+      | "PROMPT" ->
+        sprintf "the %s" (render_atom env atom),
+          sprintf "whose effect handler is %s" (render_expr env arg)
       | _ ->
         expr
         |> Al.Print.string_of_expr
@@ -1412,6 +1417,12 @@ let rec render_instr env algoname index depth instr =
         match atom_name with
         | "HANDLER_" ->
           sprintf "\n\n%s%s Let %s be the catch handler of %s"
+            (repeat indent depth)
+            (render_order index depth)
+            (render_expr env arg)
+            (render_expr env context_var)
+        | "PROMPT" ->
+          sprintf "\n\n%s%s Let %s be the effect handler of %s"
             (repeat indent depth)
             (render_order index depth)
             (render_expr env arg)
