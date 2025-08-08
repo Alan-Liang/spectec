@@ -202,6 +202,7 @@ let context_names = [
   "FRAME_";
   "LABEL_";
   "HANDLER_";
+  "PROMPT";
 ]
 
 let rec mk_access ps base =
