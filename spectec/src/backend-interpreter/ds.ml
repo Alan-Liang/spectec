@@ -191,14 +191,14 @@ module AlContext = struct
     | Wasm of int
     (* Special context for enter/execute *)
     | Enter of string * instr list * env
-    | Execute of value
+    | Execute of int
     (* Return register *)
     | Return of value
 
   let al (name, args, il, env, n) = Al (name, args, il, env, n)
   let wasm n = Wasm n
   let enter (name, il, env) = Enter (name, il, env)
-  let execute v = Execute v
+  let execute i = Execute i
   let return v = Return v
 
   type t = mode list
@@ -212,7 +212,7 @@ module AlContext = struct
     | Wasm i -> "Wasm " ^ string_of_int i
     | Enter (s, il, _) ->
       Printf.sprintf "Enter %s:%s" s (string_of_instrs il)
-    | Execute v -> "Execute " ^ string_of_value v
+    | Execute i -> "Execute " ^ string_of_int i
     | Return v -> "Return " ^ string_of_value v
 
   let tl = List.tl
@@ -270,6 +270,7 @@ module AlContext = struct
     | Al (name, args, il, env, n) :: t when n > 0 ->
       Al (name, args, il, env, n-1) :: t
     | Al (_, _, _, _, 0) as mode :: t -> mode :: decrease_depth t
+    | Execute 0 :: t -> decrease_depth t
     | _ -> failwith "decrease_depth: Not in AL or Wasm context"
 end
 
