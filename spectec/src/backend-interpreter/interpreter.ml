@@ -722,9 +722,7 @@ and try_step_instr fname ctx env instr =
 and step_wasm (ctx: AlContext.t) : value -> AlContext.t = function
   | CaseV ("REF.NULL" as name, ([ CaseV ("_IDX", _) ] as args)) ->
     create_context name args :: ctx
-  | CaseV ("REF.NULL", _)
-  | CaseV ("CONST", _)
-  | CaseV ("VCONST", _) as v -> WasmContext.push_value v; ctx
+  | CaseV _ as v when WasmContext.is_value v -> WasmContext.push_value v; ctx
   | CaseV (name, []) when Host.is_host name -> Host.call name; ctx
   | CaseV (name, args) -> create_context name args :: ctx
   | v -> fail_value "cannot step a wasm instr" v
