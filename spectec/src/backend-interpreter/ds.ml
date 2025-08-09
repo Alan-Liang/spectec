@@ -341,10 +341,14 @@ module WasmContext = struct
   (* Value stack *)
 
   let is_value = function
-    | CaseV ("CONST", _) -> true
-    | CaseV ("VCONST", _) -> true
+    | CaseV (name, _)
+      when List.mem name [
+        "CONST"; "VCONST";
+        "REF.NULL"; "REF.I31_NUM"; "REF.EXTERN";
+      ] -> true
     | CaseV (ref, _)
-      when String.starts_with ~prefix:"REF." ref -> true
+      when String.starts_with ~prefix:"REF." ref
+        && String.ends_with   ~suffix:"ADDR" ref -> true
     | _ -> false
 
   let get_value_stack () =
