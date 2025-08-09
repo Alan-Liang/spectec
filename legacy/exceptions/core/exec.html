@@ -1,19 +1,17 @@
-
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Execution &#8212; WebAssembly Legacy Exceptions</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=057308f9" />
+    <script src="_static/documentation_options.js?v=7f41d439"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="search" title="Search" href="search.html" />
@@ -29,10 +27,10 @@
   </head><body>
   <div class="document">
     
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="index.html">
-              <img class="logo" src="_static/webassembly.png" alt="Logo"/>
+              <img class="logo" src="_static/webassembly.png" alt="Logo of WebAssembly-Legacy-Exceptions"/>
             </a></p><h3>Navigation</h3>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
@@ -52,7 +50,7 @@
     
 </ul>
 
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
@@ -60,7 +58,7 @@
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
@@ -71,11 +69,11 @@
           <div class="body" role="main">
             
   <section id="execution">
-<span id="exec"></span><h1>Execution<a class="headerlink" href="#execution" title="Permalink to this heading">¶</a></h1>
+<span id="exec"></span><h1>Execution<a class="headerlink" href="#execution" title="Link to this heading">¶</a></h1>
 <section id="runtime-structure">
-<span id="syntax-runtime"></span><h2>Runtime Structure<a class="headerlink" href="#runtime-structure" title="Permalink to this heading">¶</a></h2>
+<span id="syntax-runtime"></span><h2>Runtime Structure<a class="headerlink" href="#runtime-structure" title="Link to this heading">¶</a></h2>
 <section id="stack">
-<span id="handler"></span><span id="id1"></span><h3>Stack<a class="headerlink" href="#stack" title="Permalink to this heading">¶</a></h3>
+<span id="handler"></span><span id="id1"></span><h3>Stack<a class="headerlink" href="#stack" title="Link to this heading">¶</a></h3>
 <p id="syntax-handler"><strong>Exception Handlers</strong></p>
 <p>Legacy exception handlers are installed by <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{try}}\)</span> instructions.
 Instead of branch labels, their catch clauses have instruction blocks associated with them.
@@ -89,7 +87,7 @@ Furthermore, a <span class="math notranslate nohighlight">\(\href{../syntax/inst
 \end{array}\end{split}\]</div>
 </section>
 <section id="administrative-instructions">
-<span id="syntax-instr-admin"></span><span id="syntax-caught"></span><h3>Administrative Instructions<a class="headerlink" href="#administrative-instructions" title="Permalink to this heading">¶</a></h3>
+<span id="syntax-instr-admin"></span><span id="syntax-caught"></span><h3>Administrative Instructions<a class="headerlink" href="#administrative-instructions" title="Link to this heading">¶</a></h3>
 <p>Administrative instructions are extended with the <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-caught}{\mathsf{caught}}\)</span> instruction that models exceptions caught by legacy exception handlers.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}{llcl}
@@ -97,7 +95,7 @@ Furthermore, a <span class="math notranslate nohighlight">\(\href{../syntax/inst
   \href{../exec/runtime.html#syntax-caught}{\mathsf{caught}}_n\{\href{../exec/runtime.html#syntax-exnaddr}{\mathit{exnaddr}}\}~\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}^\ast~\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{end}} \\
 \end{array}\end{split}\]</div>
 <section id="block-contexts">
-<span id="syntax-ctxt-block"></span><h4>Block Contexts<a class="headerlink" href="#block-contexts" title="Permalink to this heading">¶</a></h4>
+<span id="syntax-ctxt-block"></span><h4>Block Contexts<a class="headerlink" href="#block-contexts" title="Link to this heading">¶</a></h4>
 <p>Block contexts are extended to include <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-caught}{\mathsf{caught}}\)</span> instructions:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}{llll}
@@ -106,7 +104,7 @@ Furthermore, a <span class="math notranslate nohighlight">\(\href{../syntax/inst
 \end{array}\end{split}\]</div>
 </section>
 <section id="throw-contexts">
-<span id="syntax-ctxt-throw"></span><h4>Throw Contexts<a class="headerlink" href="#throw-contexts" title="Permalink to this heading">¶</a></h4>
+<span id="syntax-ctxt-throw"></span><h4>Throw Contexts<a class="headerlink" href="#throw-contexts" title="Link to this heading">¶</a></h4>
 <p>Throw contexts are also extended to include <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-caught}{\mathsf{caught}}\)</span> instructions:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}{llll}
@@ -117,11 +115,11 @@ Furthermore, a <span class="math notranslate nohighlight">\(\href{../syntax/inst
 </section>
 </section>
 <section id="instructions">
-<span id="exec-instr"></span><h2>Instructions<a class="headerlink" href="#instructions" title="Permalink to this heading">¶</a></h2>
+<span id="exec-instr"></span><h2>Instructions<a class="headerlink" href="#instructions" title="Link to this heading">¶</a></h2>
 <section id="control-instructions">
-<span id="exec-instr-control"></span><h3>Control Instructions<a class="headerlink" href="#control-instructions" title="Permalink to this heading">¶</a></h3>
+<span id="exec-instr-control"></span><h3>Control Instructions<a class="headerlink" href="#control-instructions" title="Link to this heading">¶</a></h3>
 <section id="xref-syntax-instructions-syntax-instr-control-mathsf-try-xref-syntax-instructions-syntax-blocktype-mathit-blocktype-xref-syntax-instructions-syntax-instr-mathit-instr-1-ast-xref-syntax-instructions-syntax-instr-control-mathsf-catch-x-xref-syntax-instructions-syntax-instr-mathit-instr-2-ast-ast-xref-syntax-instructions-syntax-instr-control-mathsf-catch-all-xref-syntax-instructions-syntax-instr-mathit-instr-3-ast-xref-syntax-instructions-syntax-instr-control-mathsf-end">
-<span id="exec-try-catch"></span><h4><span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{try}}~\href{../syntax/instructions.html#syntax-blocktype}{\mathit{blocktype}}~\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}_1^\ast~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{catch}}~x~\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}_2^\ast)^\ast~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{catch\_all}}~\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}_3^\ast)^?~\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{end}}\)</span><a class="headerlink" href="#xref-syntax-instructions-syntax-instr-control-mathsf-try-xref-syntax-instructions-syntax-blocktype-mathit-blocktype-xref-syntax-instructions-syntax-instr-mathit-instr-1-ast-xref-syntax-instructions-syntax-instr-control-mathsf-catch-x-xref-syntax-instructions-syntax-instr-mathit-instr-2-ast-ast-xref-syntax-instructions-syntax-instr-control-mathsf-catch-all-xref-syntax-instructions-syntax-instr-mathit-instr-3-ast-xref-syntax-instructions-syntax-instr-control-mathsf-end" title="Permalink to this heading">¶</a></h4>
+<span id="exec-try-catch"></span><h4><span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{try}}~\href{../syntax/instructions.html#syntax-blocktype}{\mathit{blocktype}}~\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}_1^\ast~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{catch}}~x~\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}_2^\ast)^\ast~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{catch\_all}}~\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}_3^\ast)^?~\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{end}}\)</span><a class="headerlink" href="#xref-syntax-instructions-syntax-instr-control-mathsf-try-xref-syntax-instructions-syntax-blocktype-mathit-blocktype-xref-syntax-instructions-syntax-instr-mathit-instr-1-ast-xref-syntax-instructions-syntax-instr-control-mathsf-catch-x-xref-syntax-instructions-syntax-instr-mathit-instr-2-ast-ast-xref-syntax-instructions-syntax-instr-control-mathsf-catch-all-xref-syntax-instructions-syntax-instr-mathit-instr-3-ast-xref-syntax-instructions-syntax-instr-control-mathsf-end" title="Link to this heading">¶</a></h4>
 <ol class="arabic">
 <li><p>Assert: due to <span class="xref std std-ref">validation</span>, <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#exec-expand}{\mathrm{expand}}_F(\href{../syntax/instructions.html#syntax-blocktype}{\mathit{blocktype}})\)</span> is defined.</p></li>
 <li><p>Let <span class="math notranslate nohighlight">\([t_1^m] \href{../syntax/types.html#syntax-functype}{\rightarrow} [t_2^n]\)</span> be the <span class="xref std std-ref">function type</span> <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#exec-expand}{\mathrm{expand}}_F(\href{../syntax/instructions.html#syntax-blocktype}{\mathit{blocktype}})\)</span>.</p></li>
@@ -163,7 +161,7 @@ F; \href{../exec/runtime.html#syntax-val}{\mathit{val}}^m~(\href{../syntax/instr
 \end{array}\end{split}\]</div>
 </section>
 <section id="xref-syntax-instructions-syntax-instr-control-mathsf-try-xref-syntax-instructions-syntax-blocktype-mathit-blocktype-xref-syntax-instructions-syntax-instr-mathit-instr-ast-xref-syntax-instructions-syntax-instr-control-mathsf-delegate-l">
-<span id="exec-try-delegate"></span><h4><span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{try}}~\href{../syntax/instructions.html#syntax-blocktype}{\mathit{blocktype}}~\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}^\ast~\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{delegate}}~l\)</span><a class="headerlink" href="#xref-syntax-instructions-syntax-instr-control-mathsf-try-xref-syntax-instructions-syntax-blocktype-mathit-blocktype-xref-syntax-instructions-syntax-instr-mathit-instr-ast-xref-syntax-instructions-syntax-instr-control-mathsf-delegate-l" title="Permalink to this heading">¶</a></h4>
+<span id="exec-try-delegate"></span><h4><span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{try}}~\href{../syntax/instructions.html#syntax-blocktype}{\mathit{blocktype}}~\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}^\ast~\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{delegate}}~l\)</span><a class="headerlink" href="#xref-syntax-instructions-syntax-instr-control-mathsf-try-xref-syntax-instructions-syntax-blocktype-mathit-blocktype-xref-syntax-instructions-syntax-instr-mathit-instr-ast-xref-syntax-instructions-syntax-instr-control-mathsf-delegate-l" title="Link to this heading">¶</a></h4>
 <ol class="arabic simple">
 <li><p>Assert: due to <span class="xref std std-ref">validation</span>, <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#exec-expand}{\mathrm{expand}}_F(\href{../syntax/instructions.html#syntax-blocktype}{\mathit{blocktype}})\)</span> is defined.</p></li>
 <li><p>Let <span class="math notranslate nohighlight">\([t_1^m] \href{../syntax/types.html#syntax-functype}{\rightarrow} [t_2^n]\)</span> be the <span class="xref std std-ref">function type</span> <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#exec-expand}{\mathrm{expand}}_F(\href{../syntax/instructions.html#syntax-blocktype}{\mathit{blocktype}})\)</span>.</p></li>
@@ -182,7 +180,7 @@ F; \href{../exec/runtime.html#syntax-label}{\mathsf{label}}_n\{\epsilon\}~(\href
 \end{array}\end{split}\]</div>
 </section>
 <section id="xref-syntax-instructions-syntax-instr-control-mathsf-throw-ref">
-<span id="exec-throw-ref"></span><h4><span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{throw\_ref}}\)</span><a class="headerlink" href="#xref-syntax-instructions-syntax-instr-control-mathsf-throw-ref" title="Permalink to this heading">¶</a></h4>
+<span id="exec-throw-ref"></span><h4><span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{throw\_ref}}\)</span><a class="headerlink" href="#xref-syntax-instructions-syntax-instr-control-mathsf-throw-ref" title="Link to this heading">¶</a></h4>
 <ol class="arabic simple">
 <li><p>Let <span class="math notranslate nohighlight">\(F\)</span> be the <span class="xref std std-ref">current</span> <span class="xref std std-ref">frame</span>.</p></li>
 <li><p>Assert: due to <span class="xref std std-ref">validation</span>, a <span class="xref std std-ref">reference</span> is on the top of the stack.</p></li>
@@ -309,7 +307,7 @@ F; \href{../exec/runtime.html#syntax-label}{\mathsf{label}}_n\{\epsilon\}~(\href
 \end{array}\end{split}\]</div>
 </section>
 <section id="xref-syntax-instructions-syntax-instr-control-mathsf-rethrow-l">
-<span id="exec-rethrow"></span><h4><span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{rethrow}}~l\)</span><a class="headerlink" href="#xref-syntax-instructions-syntax-instr-control-mathsf-rethrow-l" title="Permalink to this heading">¶</a></h4>
+<span id="exec-rethrow"></span><h4><span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{rethrow}}~l\)</span><a class="headerlink" href="#xref-syntax-instructions-syntax-instr-control-mathsf-rethrow-l" title="Link to this heading">¶</a></h4>
 <ol class="arabic simple">
 <li><p>Assert: due to <a class="reference internal" href="valid.html#valid-rethrow"><span class="std std-ref">validation</span></a>, the stack contains at least <span class="math notranslate nohighlight">\(l+1\)</span> labels.</p></li>
 <li><p>Let <span class="math notranslate nohighlight">\(L\)</span> be the <span class="math notranslate nohighlight">\(l\)</span>-th label appearing on the stack, starting from the top and counting from zero.</p></li>
@@ -326,13 +324,13 @@ F; \href{../exec/runtime.html#syntax-label}{\mathsf{label}}_n\{\epsilon\}~(\href
 \end{array}\end{split}\]</div>
 </section>
 <section id="entering-a-catch-block">
-<span id="exec-caught-enter"></span><h4>Entering a catch block<a class="headerlink" href="#entering-a-catch-block" title="Permalink to this heading">¶</a></h4>
+<span id="exec-caught-enter"></span><h4>Entering a catch block<a class="headerlink" href="#entering-a-catch-block" title="Link to this heading">¶</a></h4>
 <ol class="arabic simple">
 <li><p>Jump to the start of the instruction sequence <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}^\ast\)</span>.</p></li>
 </ol>
 </section>
 <section id="exiting-a-catch-block">
-<span id="exec-caught-exit"></span><h4>Exiting a catch block<a class="headerlink" href="#exiting-a-catch-block" title="Permalink to this heading">¶</a></h4>
+<span id="exec-caught-exit"></span><h4>Exiting a catch block<a class="headerlink" href="#exiting-a-catch-block" title="Link to this heading">¶</a></h4>
 <p>When the <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{end}}\)</span> of a catch block is reached without a jump, thrown exception, or trap, then the following steps are performed.</p>
 <ol class="arabic simple">
 <li><p>Let <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-val}{\mathit{val}}^m\)</span> be the values on the top of the stack.</p></li>
