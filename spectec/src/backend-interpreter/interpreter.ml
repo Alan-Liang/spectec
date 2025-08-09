@@ -663,13 +663,15 @@ and step_instr (fname: string) (ctx: AlContext.t) (env: value Env.t) (instr: ins
     AlContext.return (eval_expr env e) :: AlContext.tl ctx
   | ExecuteI e ->
     let v = eval_expr env e in
-    AlContext.execute v :: ctx
+    WasmContext.push_instrs [v];
+    AlContext.execute 1 :: ctx
   | ExecuteSeqI e ->
     let v = eval_expr env e in
     (match v with
     | ListV _ ->
-      let ctx' = v |> unwrap_listv_to_list |> List.map AlContext.execute in
-      ctx' @ ctx
+      let instrs = unwrap_listv_to_list v in
+      WasmContext.push_instrs instrs;
+      AlContext.execute (List.length instrs) :: ctx
     | _ -> failwith (sprintf "%s is not a sequence value" (string_of_value v))
     )
   | EnterI (e1, e2, il) ->
@@ -765,7 +767,8 @@ and step (ctx: AlContext.t) : AlContext.t =
       let new_ctx = Enter (name, t, env) :: ctx in
       try_step_instr name new_ctx env h
     )
-  | Execute v :: ctx -> try_step_wasm ctx v
+  | Execute 0 :: ctx -> ctx
+  | Execute n :: ctx -> try_step_wasm (Execute (n-1) :: ctx) (WasmContext.pop_instr ())
   | _ -> assert false
 
 
