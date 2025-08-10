@@ -130,6 +130,7 @@ and al_to_comptype: value -> comptype = function
     FuncT (al_to_resulttype rt1, (al_to_resulttype rt2))
   | CaseV ("FUNC", [ rt1; rt2 ]) ->
     FuncT (al_to_resulttype rt1, (al_to_resulttype rt2))
+  | CaseV ("CONT", [ ht ]) -> ContT (al_to_heaptype ht)
   | v -> error_value "comptype" v
 
 and al_to_subtype: value -> subtype = function
@@ -171,6 +172,8 @@ and al_to_heaptype: value -> heaptype = function
     | "NOFUNC" -> NoFuncHT
     | "EXN" | "EXNREF" -> ExnHT
     | "NOEXN" -> NoExnHT
+    | "CONT" | "CONTREF" -> ContHT
+    | "NOCONT" -> NoContHT
     | "EXTERN" | "EXTERNREF" -> ExternHT
     | "NOEXTERN" -> NoExternHT
     | _ -> error_value "absheaptype" v)
@@ -724,6 +727,11 @@ let al_to_catch' = function
   | v -> error_value "catch" v
 let al_to_catch (v: value): Ast.catch = al_to_phrase al_to_catch' v
 
+let al_to_hdl = function
+  | CaseV ("_LABEL", [ idx1; idx2 ]) -> (al_to_idx idx1, OnLabel (al_to_idx idx2))
+  | CaseV ("_SWITCH", [ idx ]) -> (al_to_idx idx, OnSwitch)
+  | v -> error_value "hdl" v
+
 let al_to_num: value -> num = function
   | CaseV ("CONST", [ CaseV ("I32", []); i32 ]) -> I32 (al_to_nat32 i32)
   | CaseV ("CONST", [ CaseV ("I64", []); i64 ]) -> I64 (al_to_nat64 i64)
@@ -809,6 +817,16 @@ and al_to_instr': value -> Ast.instr' = function
   | CaseV ("RETURN_CALL_REF", [ OptV (Some typeuse) ]) -> ReturnCallRef (al_to_idx_of_typeuse typeuse)
   | CaseV ("RETURN_CALL_INDIRECT", [ idx1; typeuse2 ]) ->
     ReturnCallIndirect (al_to_idx idx1, al_to_idx_of_typeuse typeuse2)
+  | CaseV ("CONT.NEW", [ idx ]) -> ContNew (al_to_idx idx)
+  | CaseV ("CONT.BIND", [ idx1; idx2 ]) ->
+    ContBind (al_to_idx idx1, al_to_idx idx2)
+  | CaseV ("SUSPEND", [ idx ]) -> Suspend (al_to_idx idx)
+  | CaseV ("RESUME", [ idx; handlers ]) ->
+    Resume (al_to_idx idx, al_to_list al_to_hdl handlers)
+  | CaseV ("RESUME_THROW", [ idx1; idx2; handlers ]) ->
+    ResumeThrow (al_to_idx idx1, al_to_idx idx2, al_to_list al_to_hdl handlers)
+  | CaseV ("SWITCH", [ idx1; idx2 ]) ->
+    Switch (al_to_idx idx1, al_to_idx idx2)
   | CaseV ("THROW", [ idx ]) -> Throw (al_to_idx idx)
   | CaseV ("THROW_REF", []) -> ThrowRef
   | CaseV ("TRY_TABLE", [ bt; catches; instrs ]) ->
@@ -1152,6 +1170,7 @@ and al_of_comptype = function
       CaseV ("FUNC", [ CaseV ("->", [ al_of_resulttype rt1; al_of_resulttype rt2 ])])
     else
       CaseV ("FUNC", [ al_of_resulttype rt1; al_of_resulttype rt2 ])
+  | ContT ht -> CaseV ("CONT", [ al_of_heaptype ht ])
 
 and al_of_subtype = function
   | SubT (fin, tul, st) ->
@@ -1765,6 +1784,11 @@ let al_of_catch catch =
   | CatchAll idx -> CaseV ("CATCH_ALL", [ al_of_idx idx ])
   | CatchAllRef idx -> CaseV ("CATCH_ALL_REF", [ al_of_idx idx ])
 
+let al_of_hdl (idx1, hdl) =
+  match hdl with
+  | OnLabel idx2 -> CaseV ("_LABEL", [ al_of_idx idx1; al_of_idx idx2 ])
+  | OnSwitch -> CaseV ("_SWITCH", [ al_of_idx idx1 ])
+
 let rec al_of_instr instr =
   match instr.it with
   (* wasm values *)
@@ -1842,6 +1866,19 @@ let rec al_of_instr instr =
   | ReturnCallRef idx -> CaseV ("RETURN_CALL_REF", [ optV (Some (al_of_idx idx)) ])
   | ReturnCallIndirect (idx1, idx2) ->
     CaseV ("RETURN_CALL_INDIRECT", [ al_of_idx idx1; al_of_typeuse_of_idx idx2 ])
+  | ContNew idx -> CaseV ("CONT.NEW", [ al_of_idx idx ])
+  | ContBind (idx1, idx2) -> CaseV ("CONT.BIND", [ al_of_idx idx1; al_of_idx idx2 ])
+  | Suspend idx -> CaseV ("SUSPEND", [ al_of_idx idx ])
+  | Resume (idx, handlers) ->
+    CaseV ("RESUME", [ al_of_idx idx; al_of_list al_of_hdl handlers ])
+  | ResumeThrow (idx1, idx2, handlers) ->
+    CaseV ("RESUME_THROW", [
+      al_of_idx idx1;
+      al_of_idx idx2;
+      al_of_list al_of_hdl handlers;
+    ])
+  | Switch (idx1, idx2) ->
+    CaseV ("SWITCH", [ al_of_idx idx1; al_of_idx idx2 ])
   | Throw idx -> CaseV ("THROW", [ al_of_idx idx ])
   | ThrowRef -> nullary "THROW_REF"
   | TryTable (bt, catches, instrs) ->
