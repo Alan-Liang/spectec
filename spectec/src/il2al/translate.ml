@@ -319,7 +319,7 @@ and translate_iterexp (iter, xes) =
 let insert_assert exp =
   let at = exp.at in
   match exp.it with
-  | Il.CaseE ([{it = Atom.Atom id; _}]::_, _) when List.mem id context_names ->
+  | Il.CaseE (({it = Atom.Atom id; _}::_)::_, _) when List.mem id context_names ->
     assertI (contextKindE (atom_of_name id "gframe") ~note:boolT) ~at:at
   | Il.IterE (_, (Il.ListN (e, None), _)) ->
     assertI (topValuesE (translate_exp e) ~at ~note:boolT) ~at:at
@@ -1103,7 +1103,7 @@ let translate_context ctx =
   let at = ctx.at in
 
   match ctx.it with
-  | Il.CaseE ([{it = Atom.Atom id; _} as atom]::_ as case, { it = Il.TupE args; _ }) when List.mem id context_names ->
+  | Il.CaseE (({it = Atom.Atom id; _} as atom ::_)::_ as case, { it = Il.TupE args; _ }) when List.mem id context_names ->
     let destruct = caseE (case, List.map translate_exp args) ~note:gframeT ~at in
     [
       letI (destruct, getCurContextE atom ~note:gframeT) ~at:at;

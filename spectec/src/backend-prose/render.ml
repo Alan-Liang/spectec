@@ -345,7 +345,7 @@ and al_to_el_expr expr =
         | _ -> ele
       in
       Some (El.Ast.IterE (ele, eliter))
-    | Al.Ast.CaseE _  when Al.Valid.sub_typ expr.note Al.Al_util.gframeT -> None
+    | Al.Ast.CaseE _ when Al.Valid.sub_typ expr.note Al.Al_util.gframeT -> None
     | Al.Ast.CaseE (op, el) ->
       (match Prose_util.extract_case_hint expr.note op with
       | Some {it = TextE _; _} -> None
@@ -702,13 +702,23 @@ and render_expr' env expr =
       (render_expr env elhs)
       (render_math "=")
       (render_expr env erhs)
-  | Al.Ast.CaseE (mixop, [ arity; arg ]) when Al.Valid.sub_typ expr.note Al.Al_util.gframeT ->
+  | Al.Ast.CaseE (mixop, args) when Al.Valid.sub_typ expr.note Al.Al_util.gframeT ->
+    let arity_opt, arg = match args with
+      | [ arity; arg ] -> Some arity, arg
+      | [ arg ] -> None, arg
+      | _ ->
+        expr
+        |> Al.Print.string_of_expr
+        |> sprintf "Rendering control frame %s failed: argument format unknown"
+        |> failwith
+    in
     let atom_name = mixop |> List.hd |> List.hd |> Atom.to_string in
     let context_var = get_context_var expr in
     let rendered_arity =
-      match arity.it with
-      | NumE (`Nat z) when z = Z.zero -> ""
-      | _ -> sprintf "whose arity is %s" (render_expr env arity) in
+      match arity_opt with
+      | None -> ""
+      | Some { it = NumE (`Nat z); _ } when z = Z.zero -> ""
+      | Some arity -> sprintf "whose arity is %s" (render_expr env arity) in
     let rendered_arg =
       (match atom_name with
       | "LABEL_" ->
@@ -1028,7 +1038,16 @@ let render_stack_prefix = Prose_util.string_of_stack_prefix
 let render_control_frame_binding env expr =
   let open Al in
   match expr.it with
-  | Ast.CaseE (mixop, [ arity; arg ]) ->
+  | Ast.CaseE (mixop, args) ->
+    let arity_opt, arg = match args with
+      | [ arity; arg ] -> Some arity, arg
+      | [ arg ] -> None, arg
+      | _ ->
+        expr
+        |> Al.Print.string_of_expr
+        |> sprintf "Rendering control frame %s failed: argument format unknown"
+        |> failwith
+    in
     let atom = mixop |> List.hd |> List.hd in
     let atom_name = Atom.to_string atom in
     let context_var = get_context_var expr in
@@ -1054,9 +1073,10 @@ let render_control_frame_binding env expr =
         |> failwith
     in
     let rendered_arity =
-      match arity.it with
-      | NumE (`Nat z) when z = Z.zero -> ""
-      | _ -> sprintf "whose arity is %s" (render_expr env arity) in
+      match arity_opt with
+      | None -> ""
+      | Some { it = NumE (`Nat z); _} when z = Z.zero -> ""
+      | Some arity -> sprintf "whose arity is %s" (render_expr env arity) in
     let space_opt = if (rendered_arg ^ rendered_arity) = "" then "" else " " in
     let and_opt = if rendered_arg <> "" && rendered_arity <> "" then " and " else "" in
     sprintf "Let %s be %s%s%s%s%s."
@@ -1265,8 +1285,14 @@ let rec render_instr env algoname index depth instr =
     render_instr env algoname index depth {instr with it = instr'}
   | Al.Ast.LetI (e1, e2) ->
     (match e1.it with
-    (* NOTE: This assumes that the first argument of control frame is arity *)
-    | Al.Ast.CaseE (mixop, [ arity; arg ] ) when Al.Valid.sub_typ e1.note Al.Al_util.gframeT ->
+    (* NOTE: This assumes that the first argument of control frame is arity, if an arity exists at all *)
+    | Al.Ast.CaseE (mixop, ([ _; _ ] as args))
+    | Al.Ast.CaseE (mixop, ([ _ ] as args)) when Al.Valid.sub_typ e1.note Al.Al_util.gframeT ->
+      let arity_opt, arg = match args with
+        | [ arity; arg ] -> Some arity, arg
+        | [ arg ] -> None, arg
+        | _ -> assert false
+      in
       let atom_name = mixop |> List.hd |> List.hd |> Atom.to_string in
       let context_var = get_context_var e1 in
       let rendered_let =
@@ -1276,14 +1302,17 @@ let rec render_instr env algoname index depth instr =
           (render_expr env e2) in
       (* XXX: It could introduce dead assignment *)
       let rendered_arity =
-        match render_expr env arity with
-        | "" -> ""
-        | s ->
-          sprintf "\n\n%s%s Let %s be the arity of %s"
-            (repeat indent depth)
-            (render_order index depth)
-            s
-            (render_expr env context_var) in
+        match arity_opt with
+        | None -> ""
+        | Some arity ->
+          match render_expr env arity with
+          | "" -> ""
+          | s ->
+            sprintf "\n\n%s%s Let %s be the arity of %s"
+              (repeat indent depth)
+              (render_order index depth)
+              s
+              (render_expr env context_var) in
       (* XXX: It could introduce dead assignment *)
       let rendered_arg =
         match atom_name with
