@@ -14526,7 +14526,7 @@ The tag type :math:`{\mathit{typeuse}}` is :ref:`valid <valid-val>` if:
 
    * The type use :math:`{\mathit{typeuse}}` is :ref:`valid <valid-val>`.
 
-   * The :ref:`expansion <aux-expand-typeuse>` of :math:`C` is :math:`(\mathsf{func}~{t_1^\ast}~\rightarrow~{t_2^\ast})`.
+   * The :ref:`expansion <aux-expand-typeuse>` of :math:`{\mathit{typeuse}}` is :math:`(\mathsf{func}~{t_1^\ast}~\rightarrow~{t_2^\ast})`.
 
 
 
@@ -14587,7 +14587,7 @@ The external type :math:`{\mathit{externtype}}` is :ref:`valid <valid-val>` if:
 
       * The type use :math:`{\mathit{typeuse}}` is :ref:`valid <valid-val>`.
 
-      * The :ref:`expansion <aux-expand-typeuse>` of :math:`C` is :math:`(\mathsf{func}~{t_1^\ast}~\rightarrow~{t_2^\ast})`.
+      * The :ref:`expansion <aux-expand-typeuse>` of :math:`{\mathit{typeuse}}` is :math:`(\mathsf{func}~{t_1^\ast}~\rightarrow~{t_2^\ast})`.
 
 
 
@@ -14629,7 +14629,7 @@ The external type :math:`(\mathsf{func}~{\mathit{typeuse}})` is :ref:`valid <val
 
    * The type use :math:`{\mathit{typeuse}}` is :ref:`valid <valid-val>`.
 
-   * The :ref:`expansion <aux-expand-typeuse>` of :math:`C` is :math:`(\mathsf{func}~{t_1^\ast}~\rightarrow~{t_2^\ast})`.
+   * The :ref:`expansion <aux-expand-typeuse>` of :math:`{\mathit{typeuse}}` is :math:`(\mathsf{func}~{t_1^\ast}~\rightarrow~{t_2^\ast})`.
 
 
 
@@ -26891,7 +26891,7 @@ Limits_ok
 Tagtype_ok
 - the tag type typeuse is valid if:
   - typeuse is valid.
-  - The :ref:`expansion <aux-expand-typeuse>` of C is (FUNC t_1* -> t_2*).
+  - The :ref:`expansion <aux-expand-typeuse>` of typeuse is (FUNC t_1* -> t_2*).
 
 Globaltype_ok
 - the global type (MUT? t) is valid if:
@@ -26923,7 +26923,7 @@ Externtype_ok
   - Or:
     - externtype is (FUNC typeuse).
     - the type use typeuse is valid.
-    - The :ref:`expansion <aux-expand-typeuse>` of C is (FUNC t_1* -> t_2*).
+    - The :ref:`expansion <aux-expand-typeuse>` of typeuse is (FUNC t_1* -> t_2*).
 
 Externtype_ok/tag
 - the external type (TAG tagtype) is valid if:
@@ -26944,7 +26944,7 @@ Externtype_ok/table
 Externtype_ok/func
 - the external type (FUNC typeuse) is valid if:
   - the type use typeuse is valid.
-  - The :ref:`expansion <aux-expand-typeuse>` of C is (FUNC t_1* -> t_2*).
+  - The :ref:`expansion <aux-expand-typeuse>` of typeuse is (FUNC t_1* -> t_2*).
 
 Instrtype_sub
 - the instruction type t_11* ->_ x_1* t_12* matches the instruction type t_21* ->_ x_2* t_22* if:
