@@ -387,7 +387,7 @@ and al_to_el_expr expr =
         let ele = El.Ast.SeqE eles in
         (match elal, elel with
         | _, [] -> Some ele
-        | None :: Some _ :: _, _ -> Some ele
+        | [] :: (_::_) :: _, _ -> Some ele
         | _ ->
           (match find_brace_opt op with
           | Some (lbr, rbr) ->
@@ -416,27 +416,28 @@ and al_to_el_expr expr =
 
 and case_to_el_exprs al el =
   match al with
-  | [] -> error no_region "empty mixop in a AL case expr"
+  | [] -> error no_region "empty mixop in an AL case expr"
   | hd::tl ->
     List.fold_left2
       (fun acc a e ->
         match e.it with
         (* Remove epsilon argument for case *)
-        | El.Ast.EpsE when hd <> None -> a::None::acc
-        | _ -> a::Some(e)::acc
+        | El.Ast.EpsE when hd <> [] -> Some a :: None :: acc
+        | _ -> Some a :: Some [e] :: acc
       )
-      [ hd ]
+      [ Some hd ]
       tl
       el
     |> List.filter_map (fun x -> x)
     |> List.rev
+    |> List.flatten
 
-and mixop_to_el_exprs op =
+and mixop_to_el_exprs (op: Mixop.mixop) : El.Ast.exp list list =
   List.map
     (fun al ->
       match al with
-      | [ a ] -> Some((El.Ast.AtomE a) $ no_region)
-      | _ -> None
+      | [] -> []
+      | _ -> (List.map (fun a -> ((El.Ast.AtomE a) $ no_region)) al)
     )
   op
 
