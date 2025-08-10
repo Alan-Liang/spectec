@@ -120,6 +120,7 @@ let rec eq_instr i1 i2 =
   | PopI e1, PopI e2
   | PopAllI e1, PopAllI e2 -> eq_expr e1 e2
   | CaptureI e1, CaptureI e2 -> eq_expr e1 e2
+  | RestoreI e1, RestoreI e2 -> eq_expr e1 e2
   | LetI (e11, e12), LetI (e21, e22) -> eq_expr e11 e21 && eq_expr e12 e22
   | TrapI, TrapI
   | FailI, FailI

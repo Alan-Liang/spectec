@@ -126,6 +126,7 @@ and instr' =
   | PopI of expr                          (* `pop` expr *)
   | PopAllI of expr                       (* `popall` expr *)
   | CaptureI of expr                      (* `capture` expr: capture current instruction stack *)
+  | RestoreI of expr                      (* `restore` expr: restore instruction stack *)
   | LetI of expr * expr                   (* `let` expr `=` expr *)
   | TrapI                                 (* `trap` *)
   | FailI                                 (* `fail` *)

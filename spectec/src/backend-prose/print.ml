@@ -310,6 +310,9 @@ let rec string_of_instr' depth instr =
   | CaptureI e ->
     sprintf "%s Let %s be the remaining instruction sequence." (make_index depth)
       (string_of_expr e)
+  | RestoreI e ->
+    sprintf "%s Prepend %s to the remaining instruction sequence." (make_index depth)
+      (string_of_expr e)
   | LetI (e1, e2) ->
     sprintf "%s Let %s be %s." (make_index depth) (string_of_expr e1)
       (string_of_expr e2)
