@@ -1256,6 +1256,9 @@ let rec render_instr env algoname index depth instr =
   | Al.Ast.CaptureI e ->
     sprintf "%s Let %s be the remaining instruction sequence." (render_order index depth)
       (render_expr env e)
+  | Al.Ast.RestoreI e ->
+    sprintf "%s Prepend %s to the remaining instruction sequence." (render_order index depth)
+      (render_expr env e)
   (* HARDCODE: lsize *)
   | Al.Ast.LetI (e1, {it = Al.Ast.InvCallE (id, _, [{it = ExpA a; _}]); _}) when String.starts_with ~prefix:"lsize" id  ->
     let instr' = Al.Ast.LetI ({a with it = Al.Ast.CallE (id, [Al.Ast.ExpA e1 $ e1.at])}, a) in

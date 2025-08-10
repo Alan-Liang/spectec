@@ -636,6 +636,15 @@ and step_instr (fname: string) (ctx: AlContext.t) (env: value Env.t) (instr: ins
     let v = instrs |> listV_of_list in
     let new_env = assign e v env in
     AlContext.set_env new_env ctx
+  | RestoreI e ->
+    let v = eval_expr env e in
+    (match v with
+    | ListV _ ->
+      let instrs = unwrap_listv_to_list v in
+      WasmContext.push_instrs instrs;
+      ctx
+    | _ -> failwith (sprintf "%s is not a sequence value" (string_of_value v))
+    )
   | LetI (e1, e2) ->
     let new_env = ctx |> AlContext.get_env |> assign e1 (eval_expr env e2) in
     AlContext.set_env new_env ctx

@@ -299,6 +299,9 @@ let rec string_of_instr' depth instr =
   | CaptureI e ->
     sprintf " Capture %s"
       (string_of_expr e)
+  | RestoreI e ->
+    sprintf " Restore %s"
+      (string_of_expr e)
   | LetI (e1, e2) ->
     sprintf " Let %s = %s" (string_of_expr e1)
       (string_of_expr e2)
@@ -565,6 +568,7 @@ let rec structured_string_of_instr' depth instr =
   | PopI e -> "PopI (" ^ structured_string_of_expr e ^ ")"
   | PopAllI e -> "PopAllI (" ^ structured_string_of_expr e ^ ")"
   | CaptureI e -> "CaptureI (" ^ structured_string_of_expr e ^ ")"
+  | RestoreI e -> "RestoreI (" ^ structured_string_of_expr e ^ ")"
   | LetI (e1, e2) ->
     "LetI ("
     ^ structured_string_of_expr e1

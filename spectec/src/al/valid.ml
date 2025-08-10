@@ -675,7 +675,7 @@ let rec valid_instr (env: Env.t) (instr: instr) : Env.t =
     then
       error_mismatch source (get_base_typ expr.note) (varT "val");
     new_env
-  | CaptureI expr ->
+  | CaptureI expr | RestoreI expr ->
     let new_env = Env.add_bound_vars expr env in
     valid_expr new_env expr;
     if
