@@ -89,6 +89,7 @@ module WasmContext : sig
   val pop_value : unit -> value
 
   val capture_instr_stack : unit -> value list
+  val push_instrs : value list -> unit
   val pop_instr : unit -> value
 end
 
