@@ -271,7 +271,7 @@ module AlContext = struct
     | Al (name, args, il, env, n) :: t when n > 0 ->
       Al (name, args, il, env, n-1) :: t
     | Al (_, _, _, _, 0) as mode :: t -> mode :: decrease_depth t
-    | Execute 0 :: t -> decrease_depth t
+    | Execute _ :: t -> decrease_depth t
     | _ -> failwith "decrease_depth: Not in AL or Wasm context"
 end
 
