@@ -8823,7 +8823,7 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
    #. Return :math:`{\mathit{zero}}`.
 
-#. Assert: Due to validation, :math:`{\mathit{vcvtop}} = `.
+#. Assert: Due to validation, :math:`{\mathit{vcvtop}} = \mathsf{promote}~\mathsf{low}`.
 
 #. Return :math:`\epsilon`.
 
@@ -8852,7 +8852,7 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
    a. Return :math:`\epsilon`.
 
-#. Assert: Due to validation, :math:`{\mathit{vcvtop}} = `.
+#. Assert: Due to validation, :math:`{\mathit{vcvtop}} = \mathsf{promote}~\mathsf{low}`.
 
 #. Return :math:`\mathsf{low}`.
 
@@ -9134,7 +9134,7 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
       #) Return :math:`{\mathit{v{\kern-0.1em\scriptstyle 128}}}`.
 
-   #. If :math:`{\mathit{vbinop}} = `, then:
+   #. If :math:`{\mathit{vbinop}} = \mathsf{avgr}~\mathsf{u}`, then:
 
       1) Let :math:`{{\mathit{lane}}_1^\ast}` be :math:`{{\mathrm{lanes}}}_{{{\mathit{lanetype}}}{\mathsf{x}}{M}}({\mathit{v{\kern-0.1em\scriptstyle 128}}}_1)`.
 
@@ -9144,7 +9144,7 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
       #) Return :math:`{\mathit{v{\kern-0.1em\scriptstyle 128}}}`.
 
-   #. If :math:`{\mathit{vbinop}} = `, then:
+   #. If :math:`{\mathit{vbinop}} = \mathsf{q{\scriptstyle 15}mulr\_sat}~\mathsf{s}`, then:
 
       1) Let :math:`{{\mathit{lane}}_1^\ast}` be :math:`{{\mathrm{lanes}}}_{{{\mathit{lanetype}}}{\mathsf{x}}{M}}({\mathit{v{\kern-0.1em\scriptstyle 128}}}_1)`.
 
@@ -9586,7 +9586,7 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
    #. Return :math:`{{\mathit{fN}}_2^\ast}`.
 
-#. Assert: Due to validation, :math:`{\mathit{vcvtop}} = `.
+#. Assert: Due to validation, :math:`{\mathit{vcvtop}} = \mathsf{promote}~\mathsf{low}`.
 
 #. Let :math:`{{\mathit{fN}}_2^\ast}` be :math:`{{\mathrm{promote}}}_{N_1, N_2}({\mathit{iN}}_1)`.
 
@@ -9622,7 +9622,7 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
    #. Return :math:`c`.
 
-#. Assert: Due to validation, :math:`{\mathit{vextbinop}} = `.
+#. Assert: Due to validation, :math:`{\mathit{vextbinop}} = \mathsf{dot}~\mathsf{s}`.
 
 #. Let :math:`{{\mathit{ci}}_1^\ast}` be :math:`{{\mathrm{lanes}}}_{{{{\mathsf{i}}{n}}_2}{\mathsf{x}}{M_2}}(c_1)`.
 
@@ -24025,7 +24025,7 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    #. Return :math:`{\mathit{zero}}`.
 
-#. Assert: Due to validation, :math:`{\mathit{vcvtop}} = `.
+#. Assert: Due to validation, :math:`{\mathit{vcvtop}} = {\mathsf{promote}}{\mathsf{\_}}{\mathsf{low}}~\mathsf{low}`.
 
 #. Return :math:`\epsilon`.
 
@@ -24066,7 +24066,7 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    a. Return :math:`\epsilon`.
 
-#. Assert: Due to validation, :math:`{\mathit{vcvtop}} = `.
+#. Assert: Due to validation, :math:`{\mathit{vcvtop}} = {\mathsf{promote}}{\mathsf{\_}}{\mathsf{low}}~\mathsf{low}`.
 
 #. Return :math:`\mathsf{low}`.
 
@@ -24534,15 +24534,15 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
       #) Return :math:`{{\mathrm{ivbinopsx}}}_{{{\mathit{lanetype}}}{\mathsf{x}}{M}}({\mathrm{imax}}, {\mathit{sx}}, v_1, v_2)`.
 
-   #. If :math:`{\mathit{vbinop}} = `, then:
+   #. If :math:`{\mathit{vbinop}} = {\mathsf{avgr}}{\mathsf{\_}}{\mathsf{u}}`, then:
 
       1) Return :math:`{{\mathrm{ivbinopsx}}}_{{{\mathit{lanetype}}}{\mathsf{x}}{M}}({\mathrm{iavgr}}, \mathsf{u}, v_1, v_2)`.
 
-   #. If :math:`{\mathit{vbinop}} = `, then:
+   #. If :math:`{\mathit{vbinop}} = {\mathsf{q{\scriptstyle 15}mulr\_sat}}{\mathsf{\_}}{\mathsf{s}}`, then:
 
       1) Return :math:`{{\mathrm{ivbinopsx}}}_{{{\mathit{lanetype}}}{\mathsf{x}}{M}}({\mathrm{iq{\kern-0.1em\scriptstyle 15\kern-0.1em}mulr}}_{{\mathit{sat}}}, \mathsf{s}, v_1, v_2)`.
 
-   #. If :math:`{\mathit{vbinop}} = `, then:
+   #. If :math:`{\mathit{vbinop}} = {\mathsf{relaxed\_q{\scriptstyle 15}mulr}}{\mathsf{\_}}{\mathsf{s}}`, then:
 
       1) Return :math:`{{\mathrm{ivbinopsxnd}}}_{{{\mathit{lanetype}}}{\mathsf{x}}{M}}({\mathrm{irelaxed}}_{{\mathit{q{\kern-0.1em\scriptstyle 15\kern-0.1em}mulr}}}, \mathsf{s}, v_1, v_2)`.
 
@@ -24730,7 +24730,7 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    #. Return :math:`{c^\ast}`.
 
-#. Assert: Due to validation, :math:`{\mathit{vcvtop}} = `.
+#. Assert: Due to validation, :math:`{\mathit{vcvtop}} = {\mathsf{promote}}{\mathsf{\_}}{\mathsf{low}}~\mathsf{low}`.
 
 #. Let :math:`{c^\ast}` be :math:`{{\mathrm{promote}}}_{N_1, N_2}(c_1)`.
 
@@ -24944,24 +24944,24 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    #. Return :math:`{{\mathrm{ivextbinop}}}_{{{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M_1}, {{{\mathsf{i}}{N}}_2}{\mathsf{x}}{M_2}}({\mathrm{ivmul}}, {\mathit{sx}}, {\mathit{sx}}, {\mathrm{half}}({\mathit{half}}, 0, M_2), M_2, v_1, v_2)`.
 
-#. If :math:`{\mathit{vextbinop}} = `, then:
+#. If :math:`{\mathit{vextbinop}} = {\mathsf{dot}}{\mathsf{\_}}{\mathsf{s}}`, then:
 
    a. Return :math:`{{\mathrm{ivextbinop}}}_{{{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M_1}, {{{\mathsf{i}}{N}}_2}{\mathsf{x}}{M_2}}({\mathrm{ivdot}}, \mathsf{s}, \mathsf{s}, 0, M_1, v_1, v_2)`.
 
-#. Assert: Due to validation, :math:`{\mathit{vextbinop}} = `.
+#. Assert: Due to validation, :math:`{\mathit{vextbinop}} = {\mathsf{relaxed\_dot}}{\mathsf{\_}}{\mathsf{s}}`.
 
 #. Return :math:`{{\mathrm{ivextbinop}}}_{{{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M_1}, {{{\mathsf{i}}{N}}_2}{\mathsf{x}}{M_2}}({\mathrm{ivdot}}_{{\mathit{sat}}}, \mathsf{s}, {{\mathrm{relaxed}}({\mathrm{R}}_{\mathit{idot}})}{{}[ \mathsf{s}, \mathsf{u} ]}, 0, M_1, v_1, v_2)`.
 
 
-:math:`{}{{}_{{{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M_1}, {{{\mathsf{i}}{N}}_2}{\mathsf{x}}{M_2}}(c_1, c_2, c_3)}`
-..............................................................................................................
+:math:`{{\mathsf{relaxed\_dot\_add}}{\mathsf{\_}}{\mathsf{s}}}{{}_{{{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M_1}, {{{\mathsf{i}}{N}}_2}{\mathsf{x}}{M_2}}(c_1, c_2, c_3)}`
+...................................................................................................................................................................
 
 
 1. Let :math:`M` be :math:`2 \, M_2`.
 
 #. Let :math:`{\mathsf{i}}{N}` be the result for which :math:`N` :math:`=` :math:`2 \cdot N_1`.
 
-#. Let :math:`{c'}` be :math:`{}{{}_{{{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M_1}, {{\mathsf{i}}{N}}{\mathsf{x}}{M}}(c_1, c_2)}`.
+#. Let :math:`{c'}` be :math:`{{\mathsf{relaxed\_dot}}{\mathsf{\_}}{\mathsf{s}}}{{}_{{{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M_1}, {{\mathsf{i}}{N}}{\mathsf{x}}{M}}(c_1, c_2)}`.
 
 #. Let :math:`{c''}` be :math:`{{\mathsf{extadd\_pairwise}}{\mathsf{\_}}{\mathsf{s}}}{{}_{{{\mathsf{i}}{N}}{\mathsf{x}}{M}, {{{\mathsf{i}}{N}}_2}{\mathsf{x}}{M_2}}({c'})}`.
 
