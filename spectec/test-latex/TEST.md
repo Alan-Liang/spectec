@@ -2788,6 +2788,7 @@ $$
 & & | & \mathsf{func} ~|~ \mathsf{nofunc} \\
 & & | & \mathsf{exn} ~|~ \mathsf{noexn} \\
 & & | & \mathsf{extern} ~|~ \mathsf{noextern} \\
+& & | & \mathsf{cont} ~|~ \mathsf{nocont} \\
 & & | & \mathsf{bot} \\
 \end{array}
 $$
@@ -2860,6 +2861,12 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
+\mathsf{contref} & = & (\mathsf{ref}~\mathsf{null}~\mathsf{cont}) \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lcl@{}l@{}}
 \mathsf{externref} & = & (\mathsf{ref}~\mathsf{null}~\mathsf{extern}) \\
 \end{array}
 $$
@@ -2879,6 +2886,12 @@ $$
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
 \mathsf{nullexnref} & = & (\mathsf{ref}~\mathsf{null}~\mathsf{noexn}) \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lcl@{}l@{}}
+\mathsf{nullcontref} & = & (\mathsf{ref}~\mathsf{null}~\mathsf{nocont}) \\
 \end{array}
 $$
 
@@ -2928,6 +2941,7 @@ $$
 \mbox{(composite type)} & {\mathit{comptype}} & ::= & \mathsf{struct}~{\mathit{list}}({\mathit{fieldtype}}) \\
 & & | & \mathsf{array}~{\mathit{fieldtype}} \\
 & & | & \mathsf{func}~{\mathit{resulttype}} \rightarrow {\mathit{resulttype}} \\
+& & | & \mathsf{cont}~{\mathit{typeuse}} \\
 \mbox{(sub type)} & {\mathit{subtype}} & ::= & \mathsf{sub}~{\mathsf{final}^?}~{{\mathit{typeuse}}^\ast}~{\mathit{comptype}} \\
 \mbox{(recursive type)} & {\mathit{rectype}} & ::= & \mathsf{rec}~{\mathit{list}}({\mathit{subtype}}) \\
 \end{array}
@@ -3302,6 +3316,7 @@ $$
 {(\mathsf{struct}~{{\mathit{ft}}^\ast})}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]} & = & \mathsf{struct}~{{{\mathit{ft}}}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]}^\ast} \\
 {(\mathsf{array}~{\mathit{ft}})}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]} & = & \mathsf{array}~{{\mathit{ft}}}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]} \\
 {(\mathsf{func}~{t_1^\ast} \rightarrow {t_2^\ast})}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]} & = & \mathsf{func}~{{t_1}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]}^\ast} \rightarrow {{t_2}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]}^\ast} \\
+{(\mathsf{cont}~{\mathit{tv}'})}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]} & = & \mathsf{cont}~{{\mathit{tv}'}}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]} \\
 \end{array}
 $$
 
@@ -3592,6 +3607,7 @@ $$
 {\mathrm{free}}_{\mathit{comptype}}(\mathsf{struct}~{{\mathit{fieldtype}}^\ast}) & = & {\mathrm{free}}_{\mathit{list}}({{\mathrm{free}}_{\mathit{fieldtype}}({\mathit{fieldtype}})^\ast}) \\
 {\mathrm{free}}_{\mathit{comptype}}(\mathsf{array}~{\mathit{fieldtype}}) & = & {\mathrm{free}}_{\mathit{fieldtype}}({\mathit{fieldtype}}) \\
 {\mathrm{free}}_{\mathit{comptype}}(\mathsf{func}~{\mathit{resulttype}}_1 \rightarrow {\mathit{resulttype}}_2) & = & {\mathrm{free}}_{\mathit{resulttype}}({\mathit{resulttype}}_1) \oplus {\mathrm{free}}_{\mathit{resulttype}}({\mathit{resulttype}}_2) \\
+{\mathrm{free}}_{\mathit{comptype}}(\mathsf{cont}~{\mathit{typeuse}}) & = & {\mathrm{free}}_{\mathit{typeuse}}({\mathit{typeuse}}) \\
 \end{array}
 $$
 
@@ -4044,6 +4060,16 @@ $$
 & & | & {\mathit{shape}}{.}\mathsf{splat} \\
 & & | & {{\mathit{shape}}{.}\mathsf{extract\_lane}}{\mathsf{\_}}{{{\mathit{sx}}^?}}~{\mathit{laneidx}} & \quad \mbox{if}~ {{\mathit{sx}}^?} = \epsilon \Leftrightarrow {\mathrm{lanetype}}({\mathit{shape}}) \in \mathsf{i{\scriptstyle 32}}~\mathsf{i{\scriptstyle 64}}~\mathsf{f{\scriptstyle 32}}~\mathsf{f{\scriptstyle 64}} \\
 & & | & {\mathit{shape}}{.}\mathsf{replace\_lane}~{\mathit{laneidx}} \\
+& & | & \dots \\
+\mbox{(effect handler)} & {\mathit{hdl}} & ::= & \mathsf{on}~{\mathit{tagidx}}~{\mathit{labelidx}} \\
+& & | & \mathsf{on}~{\mathit{tagidx}}~\mathsf{switch} \\
+\mbox{(instruction)} & {\mathit{instr}} & ::= & \dots \\
+& & | & \mathsf{cont{.}new}~{\mathit{typeidx}} \\
+& & | & \mathsf{cont{.}bind}~{\mathit{typeidx}}~{\mathit{typeidx}} \\
+& & | & \mathsf{resume}~{\mathit{typeidx}}~{{\mathit{hdl}}^\ast} \\
+& & | & \mathsf{resume\_throw}~{\mathit{typeidx}}~{\mathit{tagidx}}~{{\mathit{hdl}}^\ast} \\
+& & | & \mathsf{suspend}~{\mathit{tagidx}} \\
+& & | & \mathsf{switch}~{\mathit{typeidx}}~{\mathit{tagidx}} \\
 & & | & \dots \\
 \end{array}
 $$
@@ -4922,6 +4948,19 @@ C \vdash \mathsf{func}~{t_1^\ast} \rightarrow {t_2^\ast} : \mathsf{ok}
 \end{array}
 $$
 
+$$
+\begin{array}{@{}c@{}}\displaystyle
+\frac{
+C \vdash {\mathit{typeuse}} : \mathsf{ok}
+ \qquad
+{\mathit{typeuse}} \approx_{C} \mathsf{func}~{t_1^\ast} \rightarrow {t_2^\ast}
+}{
+C \vdash \mathsf{cont}~{\mathit{typeuse}} : \mathsf{ok}
+} \, {[\textsc{\scriptsize K{-}comp{-}cont}]}
+\qquad
+\end{array}
+$$
+
 \vspace{1ex}
 
 $$
@@ -5327,6 +5366,17 @@ $$
 $$
 \begin{array}{@{}c@{}}\displaystyle
 \frac{
+{\mathit{deftype}} \approx \mathsf{cont}~{\mathit{typeuse}}
+}{
+C \vdash {\mathit{deftype}} \leq \mathsf{cont}
+} \, {[\textsc{\scriptsize S{-}heap{-}cont}]}
+\qquad
+\end{array}
+$$
+
+$$
+\begin{array}{@{}c@{}}\displaystyle
+\frac{
 C \vdash {\mathit{deftype}}_1 \leq {\mathit{deftype}}_2
 }{
 C \vdash {\mathit{deftype}}_1 \leq {\mathit{deftype}}_2
@@ -5408,6 +5458,17 @@ C \vdash {\mathit{heaptype}} \leq \mathsf{extern}
 }{
 C \vdash \mathsf{noextern} \leq {\mathit{heaptype}}
 } \, {[\textsc{\scriptsize S{-}heap{-}noextern}]}
+\qquad
+\end{array}
+$$
+
+$$
+\begin{array}{@{}c@{}}\displaystyle
+\frac{
+C \vdash {\mathit{heaptype}} \leq \mathsf{cont}
+}{
+C \vdash \mathsf{nocont} \leq {\mathit{heaptype}}
+} \, {[\textsc{\scriptsize S{-}heap{-}nocont}]}
 \qquad
 \end{array}
 $$
@@ -5628,6 +5689,17 @@ C \vdash {t_{12}^\ast} \leq {t_{22}^\ast}
 }{
 C \vdash \mathsf{func}~{t_{11}^\ast} \rightarrow {t_{12}^\ast} \leq \mathsf{func}~{t_{21}^\ast} \rightarrow {t_{22}^\ast}
 } \, {[\textsc{\scriptsize S{-}comp{-}func}]}
+\qquad
+\end{array}
+$$
+
+$$
+\begin{array}{@{}c@{}}\displaystyle
+\frac{
+C \vdash {\mathit{tu}}_1 \leq {\mathit{tu}}_2
+}{
+C \vdash \mathsf{cont}~{\mathit{tu}}_1 \leq \mathsf{cont}~{\mathit{tu}}_2
+} \, {[\textsc{\scriptsize S{-}comp{-}cont}]}
 \qquad
 \end{array}
 $$
@@ -7269,6 +7341,146 @@ $$
 $$
 \begin{array}{@{}c@{}}\displaystyle
 \frac{
+C{.}\mathsf{types}{}[x] \approx \mathsf{cont}~{\mathit{tu}}
+ \qquad
+{\mathit{tu}} \approx_{C} \mathsf{func}~{t_1^\ast} \rightarrow {t_2^\ast}
+}{
+C \vdash \mathsf{cont{.}new}~x : (\mathsf{ref}~\mathsf{null}~{\mathit{tu}}) \rightarrow (\mathsf{ref}~x)
+} \, {[\textsc{\scriptsize T{-}cont.new}]}
+\qquad
+\end{array}
+$$
+
+$$
+\begin{array}{@{}c@{}}\displaystyle
+\frac{
+\begin{array}{@{}c@{}}
+C{.}\mathsf{types}{}[x] \approx \mathsf{cont}~{\mathit{tu}}
+ \qquad
+{\mathit{tu}} \approx_{C} \mathsf{func}~{t_3^\ast}~{t_1^\ast} \rightarrow {t_2^\ast}
+ \\
+C{.}\mathsf{types}{}[{x'}] \approx \mathsf{cont}~{\mathit{tu}'}
+ \qquad
+{\mathit{tu}'} \approx_{C} \mathsf{func}~{{t'}_1^\ast} \rightarrow {{t'}_2^\ast}
+ \\
+C \vdash (\mathsf{func}~{t_1^\ast} \rightarrow {t_2^\ast}) \leq (\mathsf{func}~{{t'}_1^\ast} \rightarrow {{t'}_2^\ast})
+\end{array}
+}{
+C \vdash \mathsf{cont{.}bind}~x~{x'} : {t_3^\ast}~(\mathsf{ref}~\mathsf{null}~x) \rightarrow (\mathsf{ref}~{x'})
+} \, {[\textsc{\scriptsize T{-}cont.bind}]}
+\qquad
+\end{array}
+$$
+
+$\boxed{{\mathit{context}} \vdash {\mathit{hdl}} : {\mathit{resulttype}}}$
+
+$$
+\begin{array}{@{}c@{}}\displaystyle
+\frac{
+C{.}\mathsf{types}{}[x] \approx \mathsf{cont}~{\mathit{tu}}
+ \qquad
+{\mathit{tu}} \approx_{C} \mathsf{func}~{t_1^\ast} \rightarrow {t_2^\ast}
+ \qquad
+(C \vdash {\mathit{hdl}} : {t_2^\ast})^\ast
+}{
+C \vdash \mathsf{resume}~x~{{\mathit{hdl}}^\ast} : {t_1^\ast}~(\mathsf{ref}~\mathsf{null}~x) \rightarrow {t_2^\ast}
+} \, {[\textsc{\scriptsize T{-}resume}]}
+\qquad
+\end{array}
+$$
+
+$$
+\begin{array}{@{}c@{}}\displaystyle
+\frac{
+C{.}\mathsf{types}{}[x] \approx \mathsf{cont}~{\mathit{tu}}
+ \qquad
+{\mathit{tu}} \approx_{C} \mathsf{func}~{t_1^\ast} \rightarrow {t_2^\ast}
+ \qquad
+C{.}\mathsf{tags}{}[{\mathit{xe}}] \approx \mathsf{func}~{{\mathit{te}}^\ast} \rightarrow \epsilon
+ \qquad
+C \vdash {\mathit{hdl}} : {t_2^\ast}
+}{
+C \vdash \mathsf{resume\_throw}~x~{\mathit{xe}}~{{\mathit{hdl}}^\ast} : {{\mathit{te}}^\ast}~(\mathsf{ref}~\mathsf{null}~x) \rightarrow {t_2^\ast}
+} \, {[\textsc{\scriptsize T{-}resume\_throw}]}
+\qquad
+\end{array}
+$$
+
+$$
+\begin{array}{@{}c@{}}\displaystyle
+\frac{
+\begin{array}{@{}c@{}}
+C{.}\mathsf{tags}{}[x] \approx \mathsf{func}~{t_1^\ast} \rightarrow {t_2^\ast}
+ \qquad
+C{.}\mathsf{labels}{}[l] = {{t'}_1^\ast}~(\mathsf{ref}~{\mathsf{null}^?}~{x'})
+ \qquad
+C \vdash {t_1^\ast} \leq {{t'}_1^\ast}
+ \\
+C{.}\mathsf{types}{}[{x'}] \approx \mathsf{cont}~{\mathit{tu}}
+ \qquad
+{\mathit{tu}} \approx_{C} \mathsf{func}~{{t'}_2^\ast} \rightarrow {{t'}^\ast}
+ \qquad
+C \vdash (\mathsf{func}~{t_2^\ast} \rightarrow {t^\ast}) \leq (\mathsf{func}~{{t'}_2^\ast} \rightarrow {{t'}^\ast})
+\end{array}
+}{
+C \vdash \mathsf{on}~x~l : {t^\ast}
+} \, {[\textsc{\scriptsize Hdl\_ok{-}label}]}
+\qquad
+\end{array}
+$$
+
+$$
+\begin{array}{@{}c@{}}\displaystyle
+\frac{
+C{.}\mathsf{tags}{}[x] \approx \mathsf{func}~\epsilon \rightarrow {t^\ast}
+}{
+C \vdash \mathsf{on}~x~\mathsf{switch} : {t^\ast}
+} \, {[\textsc{\scriptsize Hdl\_ok{-}switch}]}
+\qquad
+\end{array}
+$$
+
+$$
+\begin{array}{@{}c@{}}\displaystyle
+\frac{
+C{.}\mathsf{tags}{}[x] \approx \mathsf{func}~{t_1^\ast} \rightarrow {t_2^\ast}
+}{
+C \vdash \mathsf{suspend}~x : {t_1^\ast} \rightarrow {t_2^\ast}
+} \, {[\textsc{\scriptsize T{-}suspend}]}
+\qquad
+\end{array}
+$$
+
+$$
+\begin{array}{@{}c@{}}\displaystyle
+\frac{
+\begin{array}{@{}c@{}}
+C{.}\mathsf{tags}{}[{\mathit{xe}}] \approx \mathsf{func}~\epsilon \rightarrow {t^\ast}
+ \\
+C{.}\mathsf{types}{}[x] \approx \mathsf{cont}~{\mathit{tu}}_1
+ \qquad
+{\mathit{tu}}_1 \approx_{C} \mathsf{func}~{t_1^\ast}~(\mathsf{ref}~{\mathsf{null}^?}~y) \rightarrow {{\mathit{te}}_1^\ast}
+ \qquad
+C \vdash {{\mathit{te}}_1^\ast} \leq {t^\ast}
+ \\
+C{.}\mathsf{types}{}[y] \approx \mathsf{cont}~{\mathit{tu}}_2
+ \qquad
+{\mathit{tu}}_2 \approx_{C} \mathsf{func}~{t_2^\ast} \rightarrow {{\mathit{te}}_2^\ast}
+ \qquad
+C \vdash {t^\ast} \leq {{\mathit{te}}_2^\ast}
+\end{array}
+}{
+C \vdash \mathsf{switch}~x~{\mathit{xe}} : {t_1^\ast}~(\mathsf{ref}~\mathsf{null}~x) \rightarrow {t_2^\ast}
+} \, {[\textsc{\scriptsize T{-}switch}]}
+\qquad
+\end{array}
+$$
+
+\vspace{1ex}
+
+$$
+\begin{array}{@{}c@{}}\displaystyle
+\frac{
 }{
 C \vdash \epsilon : \epsilon \rightarrow \epsilon
 } \, {[\textsc{\scriptsize T{-}instr*{-}empty}]}
@@ -8897,6 +9109,7 @@ $$
 \mbox{(array address)} & {\mathit{arrayaddr}} & ::= & {\mathit{addr}} \\
 \mbox{(exception address)} & {\mathit{exnaddr}} & ::= & {\mathit{addr}} \\
 \mbox{(host address)} & {\mathit{hostaddr}} & ::= & {\mathit{addr}} \\
+\mbox{(continuation address)} & {\mathit{contaddr}} & ::= & {\mathit{addr}} \\
 \mbox{(external address)} & {\mathit{externaddr}} & ::= & \mathsf{tag}~{\mathit{tagaddr}} ~|~ \mathsf{global}~{\mathit{globaladdr}} ~|~ \mathsf{mem}~{\mathit{memaddr}} ~|~ \mathsf{table}~{\mathit{tableaddr}} ~|~ \mathsf{func}~{\mathit{funcaddr}} \\
 \end{array}
 $$
@@ -8912,6 +9125,7 @@ $$
 & & | & \mathsf{ref{.}array}~{\mathit{arrayaddr}} \\
 & & | & \mathsf{ref{.}func}~{\mathit{funcaddr}} \\
 & & | & \mathsf{ref{.}exn}~{\mathit{exnaddr}} \\
+& & | & \mathsf{ref{.}cont}~{\mathit{contaddr}} \\
 & & | & \mathsf{ref{.}host}~{\mathit{hostaddr}} \\
 & & | & \mathsf{ref{.}extern}~{\mathit{addrref}} \\
 \mbox{(reference value)} & {\mathit{ref}} & ::= & {\mathit{addrref}} \\
@@ -9004,7 +9218,8 @@ $$
 \mathsf{elems}~{{\mathit{eleminst}}^\ast} \\
 \mathsf{structs}~{{\mathit{structinst}}^\ast} \\
 \mathsf{arrays}~{{\mathit{arrayinst}}^\ast} \\
-\mathsf{exns}~{{\mathit{exninst}}^\ast} \} \\
+\mathsf{exns}~{{\mathit{exninst}}^\ast} \\
+\mathsf{conts}~{{{\mathit{continst}}^?}^\ast} \} \\
 \end{array} \\
 \mbox{(frame)} & {\mathit{frame}} & ::= & \{ \begin{array}[t]{@{}l@{}l@{}}
 \mathsf{locals}~{({{\mathit{val}}^?})^\ast} ,  \mathsf{module}~{\mathit{moduleinst}} \} \\
@@ -9021,7 +9236,20 @@ $$
 & & | & {{\mathsf{label}}_{n}}{\{ {{\mathit{instr}}^\ast} \}}~{{\mathit{instr}}^\ast} \\
 & & | & {{\mathsf{frame}}_{n}}{\{ {\mathit{frame}} \}}~{{\mathit{instr}}^\ast} \\
 & & | & {{\mathsf{handler}}_{n}}{\{ {{\mathit{catch}}^\ast} \}}~{{\mathit{instr}}^\ast} \\
+& & | & {\mathsf{prompt}}{\{ {{\mathit{addrhdl}}^\ast} \}}~{{\mathit{instr}}^\ast} \\
+& & | & \mathsf{suspending}~{\mathit{tagaddr}}~{\mathit{resumption}}~{\mathit{continst}} \\
+& & | & \mathsf{resuming}~{\mathit{continst}} \\
 & & | & \mathsf{trap} \\
+\mbox{(general frames)} & {\mathit{generalframe}} & ::= & {\mathsf{label}}_{n}\,\{ {{\mathit{instr}}^\ast} \} \\
+& & | & {\mathsf{frame}}_{n}\,\{ {\mathit{frame}} \} \\
+& & | & {\mathsf{handler}}_{n}\,\{ {{\mathit{catch}}^\ast} \} \\
+& & | & \mathsf{prompt}~\{ {{\mathit{addrhdl}}^\ast} \} \\
+\mbox{(continuation instance)} & {\mathit{continst}} & ::= & \mathsf{vals}~{{\mathit{val}}^\ast}~\mathsf{hole}~{{\mathit{instr}}^\ast} \\
+& & | & \mathsf{frame}~{{\mathit{val}}^\ast}~{\mathit{generalframe}}~{\mathit{continst}}~{{\mathit{instr}}^\ast} \\
+\mbox{(runtime effect handler)} & {\mathit{addrhdl}} & ::= & \mathsf{on}~{\mathit{tagaddr}}~{\mathit{labelidx}} \\
+& & | & \mathsf{on}~{\mathit{tagaddr}}~\mathsf{switch} \\
+& {\mathit{resumption}} & ::= & \mathsf{suspend}~{{\mathit{val}}^\ast} \\
+& & | & \mathsf{switch}~{\mathit{continst}} \\
 \end{array}
 $$
 
@@ -9188,6 +9416,12 @@ $$
 \end{array}
 $$
 
+$$
+\begin{array}[t]{@{}lcl@{}l@{}}
+(s ; f){.}\mathsf{conts} & = & s{.}\mathsf{conts} \\
+\end{array}
+$$
+
 \vspace{1ex}
 
 $$
@@ -9306,6 +9540,12 @@ $$
 \end{array}
 $$
 
+$$
+\begin{array}[t]{@{}lcl@{}l@{}}
+{\mathrm{with}}_{\mathit{cont}}((s ; f), a, {c^?}) & = & s{}[{.}\mathsf{conts}{}[a] = {c^?}] ; f \\
+\end{array}
+$$
+
 \vspace{1ex}
 
 $$
@@ -9323,6 +9563,12 @@ $$
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
 (s ; f){}[{.}\mathsf{exns} \mathrel{{=}{\oplus}} {{\mathit{exn}}^\ast}] & = & s{}[{.}\mathsf{exns} \mathrel{{=}{\oplus}} {{\mathit{exn}}^\ast}] ; f \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lcl@{}l@{}}
+(s ; f){}[{.}\mathsf{conts} \mathrel{{=}{\oplus}} {{\mathit{cont}}^\ast}] & = & s{}[{.}\mathsf{conts} \mathrel{{=}{\oplus}} {{\mathit{cont}}^\ast}] ; f \\
 \end{array}
 $$
 
@@ -9351,6 +9597,42 @@ $$
 \mathsf{type}~({\mathit{at}}~{}[ {i'} .. j ]~\mathsf{page}),\; \mathsf{bytes}~{b^\ast}~{(\mathtt{0x00})^{n \cdot 64 \, {\mathrm{Ki}}}} \}\end{array} \\
 {\land}~ {i'} = {|{b^\ast}|} / (64 \, {\mathrm{Ki}}) + n \leq j \\
 \end{array} \\
+\end{array}
+$$
+
+\vspace{1ex}
+
+$$
+\begin{array}[t]{@{}lcl@{}l@{}}
+{\mathrm{contfill}}(\mathsf{vals}~{{\mathit{val}}^\ast}~\mathsf{hole}~{{\mathit{instr}}^\ast}, {{\mathit{val}'}^\ast}, {{\mathit{instr}'}^\ast}) & = & \mathsf{vals}~{{\mathit{val}}^\ast}~{{\mathit{val}'}^\ast}~\mathsf{hole}~{{\mathit{instr}'}^\ast}~{{\mathit{instr}}^\ast} \\
+{\mathrm{contfill}}(\mathsf{frame}~{{\mathit{val}}^\ast}~{\mathit{generalframe}}~{\mathit{continst}}~{{\mathit{instr}}^\ast}, {{\mathit{val}'}^\ast}, {{\mathit{instr}'}^\ast}) & = & \mathsf{frame}~{{\mathit{val}}^\ast}~{\mathit{generalframe}}~{\mathrm{contfill}}({\mathit{continst}}, {{\mathit{val}'}^\ast}, {{\mathit{instr}'}^\ast})~{{\mathit{instr}}^\ast} \\
+\end{array}
+$$
+
+\vspace{1ex}
+
+$$
+\begin{array}[t]{@{}lcl@{}l@{}}
+{\mathrm{gethandlersuspend}}(\epsilon, {\mathit{ea}}) & = & \epsilon \\
+{\mathrm{gethandlersuspend}}((\mathsf{on}~{\mathit{ea}'}~\mathsf{switch})~{{\mathit{addrhdl}}^\ast}, {\mathit{ea}}) & = & {\mathrm{gethandlersuspend}}({{\mathit{addrhdl}}^\ast}, {\mathit{ea}}) \\
+{\mathrm{gethandlersuspend}}((\mathsf{on}~{\mathit{ea}'}~l)~{{\mathit{addrhdl}}^\ast}, {\mathit{ea}}) & = & l & \quad \mbox{if}~ {\mathit{ea}} = {\mathit{ea}'} \\
+{\mathrm{gethandlersuspend}}((\mathsf{on}~{\mathit{ea}'}~l)~{{\mathit{addrhdl}}^\ast}, {\mathit{ea}}) & = & {\mathrm{gethandlersuspend}}({{\mathit{addrhdl}}^\ast}, {\mathit{ea}}) & \quad \mbox{otherwise} \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lcl@{}l@{}}
+{\mathrm{gethandlerswitch}}(\epsilon, {\mathit{ea}}) & = & \mathsf{false} \\
+{\mathrm{gethandlerswitch}}((\mathsf{on}~{\mathit{ea}'}~l)~{{\mathit{addrhdl}}^\ast}, {\mathit{ea}}) & = & {\mathrm{gethandlerswitch}}({{\mathit{addrhdl}}^\ast}, {\mathit{ea}}) \\
+{\mathrm{gethandlerswitch}}((\mathsf{on}~{\mathit{ea}'}~\mathsf{switch})~{{\mathit{addrhdl}}^\ast}, {\mathit{ea}}) & = & \mathsf{true} & \quad \mbox{if}~ {\mathit{ea}} = {\mathit{ea}'} \\
+{\mathrm{gethandlerswitch}}((\mathsf{on}~{\mathit{ea}'}~\mathsf{switch})~{{\mathit{addrhdl}}^\ast}, {\mathit{ea}}) & = & {\mathrm{gethandlerswitch}}({{\mathit{addrhdl}}^\ast}, {\mathit{ea}}) & \quad \mbox{otherwise} \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lcl@{}l@{}}
+{\mathrm{hdlinst}}(z, (\mathsf{on}~x~l)) & = & \mathsf{on}~z{.}\mathsf{tags}{}[x]~l \\
+{\mathrm{hdlinst}}(z, (\mathsf{on}~x~\mathsf{switch})) & = & \mathsf{on}~z{.}\mathsf{tags}{}[x]~\mathsf{switch} \\
 \end{array}
 $$
 
@@ -9482,6 +9764,17 @@ s{.}\mathsf{exns}{}[a] = {\mathit{exn}}
 }{
 s \vdash \mathsf{ref{.}exn}~a : (\mathsf{ref}~\mathsf{exn})
 } \, {[\textsc{\scriptsize Ref\_ok{-}exn}]}
+\qquad
+\end{array}
+$$
+
+$$
+\begin{array}{@{}c@{}}\displaystyle
+\frac{
+s{.}\mathsf{conts}{}[a] = \epsilon \lor s{.}\mathsf{conts}{}[a] = {\mathit{continst}}
+}{
+s \vdash \mathsf{ref{.}cont}~a : (\mathsf{ref}~{\mathit{dt}})
+} \, {[\textsc{\scriptsize Ref\_ok{-}cont}]}
 \qquad
 \end{array}
 $$
@@ -9698,6 +9991,7 @@ $$
 \end{array} \\
 {[\textsc{\scriptsize E{-}ctxt{-}label}]} \quad & z ; ({{\mathsf{label}}_{n}}{\{ {{\mathit{instr}}_0^\ast} \}}~{{\mathit{instr}}^\ast}) & \hookrightarrow & {z'} ; ({{\mathsf{label}}_{n}}{\{ {{\mathit{instr}}_0^\ast} \}}~{{\mathit{instr}'}^\ast}) & \quad \mbox{if}~ z ; {{\mathit{instr}}^\ast} \hookrightarrow {z'} ; {{\mathit{instr}'}^\ast} \\
 {[\textsc{\scriptsize E{-}ctxt{-}frame}]} \quad & s ; f ; ({{\mathsf{frame}}_{n}}{\{ {f'} \}}~{{\mathit{instr}}^\ast}) & \hookrightarrow & {s'} ; f ; ({{\mathsf{frame}}_{n}}{\{ {f''} \}}~{{\mathit{instr}'}^\ast}) & \quad \mbox{if}~ s ; {f'} ; {{\mathit{instr}}^\ast} \hookrightarrow {s'} ; {f''} ; {{\mathit{instr}'}^\ast} \\
+{[\textsc{\scriptsize E{-}ctxt{-}prompt}]} \quad & z ; ({\mathsf{prompt}}{\{ {{\mathit{addrhdl}}^\ast} \}}~{{\mathit{instr}}^\ast}) & \hookrightarrow & {z'} ; ({\mathsf{prompt}}{\{ {{\mathit{addrhdl}}^\ast} \}}~{{\mathit{instr}'}^\ast}) & \quad \mbox{if}~ z ; {{\mathit{instr}}^\ast} \hookrightarrow {z'} ; {{\mathit{instr}'}^\ast} \\
 \end{array}
 $$
 
@@ -9758,6 +10052,7 @@ $$
 {[\textsc{\scriptsize E{-}br{-}label{-}zero}]} \quad & ({{\mathsf{label}}_{n}}{\{ {{\mathit{instr}'}^\ast} \}}~{{\mathit{val}'}^\ast}~{{\mathit{val}}^{n}}~(\mathsf{br}~l)~{{\mathit{instr}}^\ast}) & \hookrightarrow & {{\mathit{val}}^{n}}~{{\mathit{instr}'}^\ast} & \quad \mbox{if}~ l = 0 \\
 {[\textsc{\scriptsize E{-}br{-}label{-}succ}]} \quad & ({{\mathsf{label}}_{n}}{\{ {{\mathit{instr}'}^\ast} \}}~{{\mathit{val}}^\ast}~(\mathsf{br}~l)~{{\mathit{instr}}^\ast}) & \hookrightarrow & {{\mathit{val}}^\ast}~(\mathsf{br}~l - 1) & \quad \mbox{if}~ l > 0 \\
 {[\textsc{\scriptsize E{-}br{-}handler}]} \quad & ({{\mathsf{handler}}_{n}}{\{ {{\mathit{catch}}^\ast} \}}~{{\mathit{val}}^\ast}~(\mathsf{br}~l)~{{\mathit{instr}}^\ast}) & \hookrightarrow & {{\mathit{val}}^\ast}~(\mathsf{br}~l) \\
+{[\textsc{\scriptsize E{-}br{-}prompt}]} \quad & ({\mathsf{prompt}}{\{ {{\mathit{addrhdl}}^\ast} \}}~{{\mathit{val}}^\ast}~(\mathsf{br}~l)~{{\mathit{instr}}^\ast}) & \hookrightarrow & {{\mathit{val}}^\ast}~(\mathsf{br}~l) \\
 \end{array}
 $$
 
@@ -9884,6 +10179,7 @@ $$
 {[\textsc{\scriptsize E{-}return{-}frame}]} \quad & ({{\mathsf{frame}}_{n}}{\{ f \}}~{{\mathit{val}'}^\ast}~{{\mathit{val}}^{n}}~\mathsf{return}~{{\mathit{instr}}^\ast}) & \hookrightarrow & {{\mathit{val}}^{n}} \\
 {[\textsc{\scriptsize E{-}return{-}label}]} \quad & ({{\mathsf{label}}_{n}}{\{ {{\mathit{instr}'}^\ast} \}}~{{\mathit{val}}^\ast}~\mathsf{return}~{{\mathit{instr}}^\ast}) & \hookrightarrow & {{\mathit{val}}^\ast}~\mathsf{return} \\
 {[\textsc{\scriptsize E{-}return{-}handler}]} \quad & ({{\mathsf{handler}}_{n}}{\{ {{\mathit{catch}}^\ast} \}}~{{\mathit{val}}^\ast}~\mathsf{return}~{{\mathit{instr}}^\ast}) & \hookrightarrow & {{\mathit{val}}^\ast}~\mathsf{return} \\
+{[\textsc{\scriptsize E{-}return{-}prompt}]} \quad & ({\mathsf{prompt}}{\{ {{\mathit{addrhdl}}^\ast} \}}~{{\mathit{val}}^\ast}~\mathsf{return}~{{\mathit{instr}}^\ast}) & \hookrightarrow & {{\mathit{val}}^\ast}~\mathsf{return} \\
 \end{array}
 $$
 
@@ -9907,6 +10203,7 @@ $$
 {[\textsc{\scriptsize E{-}throw\_ref{-}instrs}]} \quad & z ; {{\mathit{val}}^\ast}~(\mathsf{ref{.}exn}~a)~\mathsf{throw\_ref}~{{\mathit{instr}}^\ast} & \hookrightarrow & (\mathsf{ref{.}exn}~a)~\mathsf{throw\_ref} & \quad \mbox{if}~ {{\mathit{val}}^\ast} \neq \epsilon \lor {{\mathit{instr}}^\ast} \neq \epsilon \\
 {[\textsc{\scriptsize E{-}throw\_ref{-}label}]} \quad & z ; ({{\mathsf{label}}_{n}}{\{ {{\mathit{instr}'}^\ast} \}}~(\mathsf{ref{.}exn}~a)~\mathsf{throw\_ref}) & \hookrightarrow & (\mathsf{ref{.}exn}~a)~\mathsf{throw\_ref} \\
 {[\textsc{\scriptsize E{-}throw\_ref{-}frame}]} \quad & z ; ({{\mathsf{frame}}_{n}}{\{ f \}}~(\mathsf{ref{.}exn}~a)~\mathsf{throw\_ref}) & \hookrightarrow & (\mathsf{ref{.}exn}~a)~\mathsf{throw\_ref} \\
+{[\textsc{\scriptsize E{-}throw\_ref{-}prompt}]} \quad & z ; ({\mathsf{prompt}}{\{ {{\mathit{addrhdl}}^\ast} \}}~(\mathsf{ref{.}exn}~a)~\mathsf{throw\_ref}) & \hookrightarrow & (\mathsf{ref{.}exn}~a)~\mathsf{throw\_ref} \\
 {[\textsc{\scriptsize E{-}throw\_ref{-}handler{-}empty}]} \quad & z ; ({{\mathsf{handler}}_{n}}{\{ \epsilon \}}~(\mathsf{ref{.}exn}~a)~\mathsf{throw\_ref}) & \hookrightarrow & (\mathsf{ref{.}exn}~a)~\mathsf{throw\_ref} \\
 {[\textsc{\scriptsize E{-}throw\_ref{-}handler{-}catch}]} \quad & z ; ({{\mathsf{handler}}_{n}}{\{ (\mathsf{catch}~x~l)~{{\mathit{catch}'}^\ast} \}}~(\mathsf{ref{.}exn}~a)~\mathsf{throw\_ref}) & \hookrightarrow & {{\mathit{val}}^\ast}~(\mathsf{br}~l) & \quad
 \begin{array}[t]{@{}l@{}}
@@ -9937,9 +10234,141 @@ $$
 
 $$
 \begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize E{-}cont.new{-}null}]} \quad & z ; (\mathsf{ref{.}null}~{\mathit{ht}})~(\mathsf{cont{.}new}~x) & \hookrightarrow & z ; \mathsf{trap} \\
+{[\textsc{\scriptsize E{-}cont.new{-}func}]} \quad & z ; (\mathsf{ref{.}func}~a)~(\mathsf{cont{.}new}~y) & \hookrightarrow & z{}[{.}\mathsf{conts} \mathrel{{=}{\oplus}} \mathsf{vals}~\epsilon~\mathsf{hole}~{{\mathit{instr}}^\ast}] ; (\mathsf{ref{.}cont}~{\mathit{ca}}) & \quad
+\begin{array}[t]{@{}l@{}}
+\mbox{if}~ z{.}\mathsf{types}{}[y] \approx \mathsf{cont}~{\mathit{dt}} \\
+{\land}~ {\mathit{dt}} \approx \mathsf{func}~{t_1^\ast} \rightarrow {t_2^\ast} \\
+{\land}~ {{\mathit{instr}}^\ast} = (\mathsf{ref{.}func}~a)~(\mathsf{call\_ref}~{\mathit{dt}}) \\
+{\land}~ {\mathit{ca}} = {|z{.}\mathsf{conts}|} \\
+\end{array} \\
+{[\textsc{\scriptsize E{-}cont.bind{-}null}]} \quad & z ; (\mathsf{ref{.}null}~{\mathit{ht}})~(\mathsf{cont{.}bind}~x~y) & \hookrightarrow & z ; \mathsf{trap} \\
+{[\textsc{\scriptsize E{-}cont.bind{-}consumed}]} \quad & z ; (\mathsf{ref{.}cont}~a)~(\mathsf{cont{.}bind}~x~y) & \hookrightarrow & z ; \mathsf{trap} & \quad \mbox{if}~ z{.}\mathsf{conts}{}[a] = \epsilon \\
+{[\textsc{\scriptsize E{-}cont.bind{-}cont}]} \quad & z ; {{\mathit{val}}^{n}}~(\mathsf{ref{.}cont}~a)~(\mathsf{cont{.}bind}~x~y) & \hookrightarrow & {\mathrm{with}}_{\mathit{cont}}({z'}, a, \epsilon) ; (\mathsf{ref{.}cont}~{\mathit{ca}}) & \quad
+\begin{array}[t]{@{}l@{}}
+\mbox{if}~ z{.}\mathsf{types}{}[x] \approx \mathsf{cont}~{\mathit{dt}} \\
+{\land}~ {\mathit{dt}} \approx \mathsf{func}~{t_1^\ast} \rightarrow {t_2^\ast} \\
+{\land}~ z{.}\mathsf{types}{}[y] \approx \mathsf{cont}~{\mathit{dt}'} \\
+{\land}~ {\mathit{dt}'} \approx \mathsf{func}~{{t'}_1^\ast} \rightarrow {{t'}_2^\ast} \\
+{\land}~ n = {|{t_1^\ast}|} - {|{{t'}_1^\ast}|} \\
+{\land}~ {\mathit{ca}} = {|z{.}\mathsf{conts}|} \\
+{\land}~ z{.}\mathsf{conts}{}[a] = {\mathit{cont}} \\
+{\land}~ {z'} = z{}[{.}\mathsf{conts} \mathrel{{=}{\oplus}} {\mathrm{contfill}}({\mathit{cont}}, {{\mathit{val}}^{n}}, \epsilon)] \\
+\end{array} \\
+{[\textsc{\scriptsize E{-}resume{-}null}]} \quad & z ; (\mathsf{ref{.}null}~{\mathit{ht}})~(\mathsf{resume}~{\mathit{kx}}~{{\mathit{hdl}}^\ast}) & \hookrightarrow & z ; \mathsf{trap} \\
+{[\textsc{\scriptsize E{-}resume{-}consumed}]} \quad & z ; (\mathsf{ref{.}cont}~a)~(\mathsf{resume}~{\mathit{kx}}~{{\mathit{hdl}}^\ast}) & \hookrightarrow & z ; \mathsf{trap} & \quad \mbox{if}~ z{.}\mathsf{conts}{}[a] = \epsilon \\
+{[\textsc{\scriptsize E{-}resume{-}cont}]} \quad & z ; {{\mathit{val}}^{n}}~(\mathsf{ref{.}cont}~a)~(\mathsf{resume}~{\mathit{kx}}~{{\mathit{hdl}}^\ast}) & \hookrightarrow & {\mathrm{with}}_{\mathit{cont}}(z, a, \epsilon) ; ({\mathsf{prompt}}{\{ {{\mathit{addrhdl}}^\ast} \}}~(\mathsf{resuming}~{\mathit{cont}'})) & \quad
+\begin{array}[t]{@{}l@{}}
+\mbox{if}~ z{.}\mathsf{types}{}[{\mathit{kx}}] \approx \mathsf{cont}~{\mathit{dt}} \\
+{\land}~ {\mathit{dt}} \approx \mathsf{func}~{t_1^{n}} \rightarrow {t_2^\ast} \\
+{\land}~ {\mathit{cont}} = z{.}\mathsf{conts}{}[a] \\
+{\land}~ {\mathit{cont}'} = {\mathrm{contfill}}({\mathit{cont}}, {{\mathit{val}}^{n}}, \epsilon) \\
+{\land}~ (({\mathit{addrhdl}} = {\mathrm{hdlinst}}(z, {\mathit{hdl}})))^\ast \\
+\end{array} \\
+{[\textsc{\scriptsize E{-}resume\_throw{-}null}]} \quad & z ; (\mathsf{ref{.}null}~{\mathit{ht}})~(\mathsf{resume\_throw}~{\mathit{kx}}~{\mathit{ax}}~{{\mathit{hdl}}^\ast}) & \hookrightarrow & z ; \mathsf{trap} \\
+{[\textsc{\scriptsize E{-}resume\_throw{-}consumed}]} \quad & z ; (\mathsf{ref{.}cont}~a)~(\mathsf{resume\_throw}~{\mathit{kx}}~{\mathit{ax}}~{{\mathit{hdl}}^\ast}) & \hookrightarrow & z ; \mathsf{trap} & \quad \mbox{if}~ z{.}\mathsf{conts}{}[a] = \epsilon \\
+{[\textsc{\scriptsize E{-}resume\_throw{-}cont}]} \quad & z ; {{\mathit{val}}^{m}}~(\mathsf{ref{.}cont}~a)~(\mathsf{resume\_throw}~{\mathit{kx}}~{\mathit{ax}}~{{\mathit{hdl}}^\ast}) & \hookrightarrow & {\mathrm{with}}_{\mathit{cont}}({z'}, a, \epsilon) ; ({\mathsf{prompt}}{\{ {{\mathit{addrhdl}}^\ast} \}}~(\mathsf{resuming}~{\mathit{cont}'})) & \quad
+\begin{array}[t]{@{}l@{}}
+\mbox{if}~ z{.}\mathsf{conts}{}[a] = {\mathit{cont}} \\
+{\land}~ z{.}\mathsf{tags}{}[{\mathit{ax}}]{.}\mathsf{type} \approx \mathsf{func}~{t^{m}} \rightarrow \epsilon \\
+{\land}~ {a'} = {|z{.}\mathsf{exns}|} \\
+{\land}~ {\mathit{exn}} = \{ \begin{array}[t]{@{}l@{}}
+\mathsf{tag}~z{.}\mathsf{tags}{}[{\mathit{ax}}],\; \mathsf{fields}~{{\mathit{val}}^{m}} \}\end{array} \\
+{\land}~ {z'} = z{}[{.}\mathsf{exns} \mathrel{{=}{\oplus}} {\mathit{exn}}] \\
+{\land}~ (({\mathit{addrhdl}} = {\mathrm{hdlinst}}(z, {\mathit{hdl}})))^\ast \\
+{\land}~ {\mathit{cont}'} = {\mathrm{contfill}}({\mathit{cont}}, (\mathsf{ref{.}exn}~{a'}), \mathsf{throw\_ref}) \\
+\end{array} \\
+\end{array}
+$$
+
+\vspace{1ex}
+
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize E{-}resuming{-}vals}]} \quad & (\mathsf{resuming}~(\mathsf{vals}~{{\mathit{val}}^\ast}~\mathsf{hole}~{{\mathit{instr}}^\ast})) & \hookrightarrow & {{\mathit{val}}^\ast}~{{\mathit{instr}}^\ast} \\
+{[\textsc{\scriptsize E{-}resuming{-}label}]} \quad & (\mathsf{resuming}~(\mathsf{frame}~{{\mathit{val}'}^\ast}~({\mathsf{label}}_{n}\,\{ {{\mathit{instr}}^\ast} \})~{\mathit{cont}}~{{\mathit{instr}'}^\ast})) & \hookrightarrow & {{\mathit{val}'}^\ast}~({{\mathsf{label}}_{n}}{\{ {{\mathit{instr}}^\ast} \}}~(\mathsf{resuming}~{\mathit{cont}}))~{{\mathit{instr}'}^\ast} \\
+{[\textsc{\scriptsize E{-}resuming{-}frame}]} \quad & (\mathsf{resuming}~(\mathsf{frame}~{{\mathit{val}'}^\ast}~({\mathsf{frame}}_{n}\,\{ {\mathit{frame}} \})~{\mathit{cont}}~{{\mathit{instr}'}^\ast})) & \hookrightarrow & {{\mathit{val}'}^\ast}~({{\mathsf{frame}}_{n}}{\{ {\mathit{frame}} \}}~(\mathsf{resuming}~{\mathit{cont}}))~{{\mathit{instr}'}^\ast} \\
+{[\textsc{\scriptsize E{-}resuming{-}handler}]} \quad & (\mathsf{resuming}~(\mathsf{frame}~{{\mathit{val}'}^\ast}~({\mathsf{handler}}_{n}\,\{ {{\mathit{catch}}^\ast} \})~{\mathit{cont}}~{{\mathit{instr}'}^\ast})) & \hookrightarrow & {{\mathit{val}'}^\ast}~({{\mathsf{handler}}_{n}}{\{ {{\mathit{catch}}^\ast} \}}~(\mathsf{resuming}~{\mathit{cont}}))~{{\mathit{instr}'}^\ast} \\
+{[\textsc{\scriptsize E{-}resuming{-}prompt}]} \quad & (\mathsf{resuming}~(\mathsf{frame}~{{\mathit{val}'}^\ast}~(\mathsf{prompt}~\{ {{\mathit{addrhdl}}^\ast} \})~{\mathit{cont}}~{{\mathit{instr}'}^\ast})) & \hookrightarrow & {{\mathit{val}'}^\ast}~({\mathsf{prompt}}{\{ {{\mathit{addrhdl}}^\ast} \}}~(\mathsf{resuming}~{\mathit{cont}}))~{{\mathit{instr}'}^\ast} \\
+\end{array}
+$$
+
+\vspace{1ex}
+
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize E{-}prompt{-}vals}]} \quad & ({\mathsf{prompt}}{\{ {{\mathit{addrhdl}}^\ast} \}}~{{\mathit{val}}^\ast}) & \hookrightarrow & {{\mathit{val}}^\ast} \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize E{-}suspend}]} \quad & z ; {{\mathit{val}'}^\ast}~{{\mathit{val}}^{n}}~(\mathsf{suspend}~x)~{{\mathit{instr}'}^\ast} & \hookrightarrow & (\mathsf{suspending}~{\mathit{tagaddr}}~(\mathsf{suspend}~{{\mathit{val}}^{n}})~(\mathsf{vals}~{{\mathit{val}'}^\ast}~\mathsf{hole}~{{\mathit{instr}'}^\ast})) & \quad
+\begin{array}[t]{@{}l@{}}
+\mbox{if}~ {\mathit{tagaddr}} = z{.}\mathsf{tags}{}[x] \\
+{\land}~ z{.}\mathsf{tags}{}[{\mathit{tagaddr}}]{.}\mathsf{type} \approx \mathsf{func}~{t_1^{n}} \rightarrow {t_2^\ast} \\
+\end{array} \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize E{-}switch{-}null}]} \quad & z ; (\mathsf{ref{.}null}~{\mathit{ht}})~(\mathsf{switch}~x~{\mathit{xe}}) & \hookrightarrow & z ; \mathsf{trap} \\
+{[\textsc{\scriptsize E{-}switch{-}consumed}]} \quad & z ; (\mathsf{ref{.}cont}~a)~(\mathsf{switch}~x~{\mathit{xe}}) & \hookrightarrow & z ; \mathsf{trap} & \quad \mbox{if}~ z{.}\mathsf{conts}{}[a] = \epsilon \\
+{[\textsc{\scriptsize E{-}switch{-}cont}]} \quad & z ; {{\mathit{val}'}^\ast}~{{\mathit{val}}^{n}}~(\mathsf{ref{.}cont}~a)~(\mathsf{switch}~x~{\mathit{xe}})~{{\mathit{instr}'}^\ast} & \hookrightarrow & {\mathrm{with}}_{\mathit{cont}}(z, a, \epsilon) ; (\mathsf{suspending}~{\mathit{tagaddr}}~(\mathsf{switch}~{\mathit{cont}'})~(\mathsf{vals}~{{\mathit{val}'}^\ast}~\mathsf{hole}~{{\mathit{instr}'}^\ast})) & \quad
+\begin{array}[t]{@{}l@{}}
+\mbox{if}~ z{.}\mathsf{conts}{}[a] = {\mathit{cont}} \\
+{\land}~ {\mathit{tagaddr}} = z{.}\mathsf{tags}{}[{\mathit{xe}}] \\
+{\land}~ z{.}\mathsf{types}{}[x] \approx \mathsf{cont}~{\mathit{dt}} \\
+{\land}~ {\mathit{dt}} \approx \mathsf{func}~{t_1^\ast}~(\mathsf{ref}~{\mathsf{null}^?}~{\mathit{dt}}_1) \rightarrow {{\mathit{te}}_1^\ast} \\
+{\land}~ {\mathit{dt}}_1 \approx \mathsf{cont}~{\mathit{dt}'}_1 \\
+{\land}~ {\mathit{dt}'}_1 \approx \mathsf{func}~{t_2^{m}} \rightarrow {{\mathit{te}}_2^\ast} \\
+{\land}~ n = {|{t_1^\ast}|} \\
+{\land}~ {\mathit{cont}'} = {\mathrm{contfill}}({\mathit{cont}}, {{\mathit{val}}^{n}}, \epsilon) \\
+\end{array} \\
+\end{array}
+$$
+
+\vspace{1ex}
+
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize E{-}suspending{-}label}]} \quad & z ; {{\mathit{val}'}^\ast}~({{\mathsf{label}}_{n}}{\{ {{\mathit{instr}}^\ast} \}}~(\mathsf{suspending}~{\mathit{tagaddr}}~{\mathit{resumption}}~{\mathit{cont}}))~{{\mathit{instr}'}^\ast} & \hookrightarrow & z ; (\mathsf{suspending}~{\mathit{tagaddr}}~{\mathit{resumption}}~{\mathit{cont}'}) & \quad \mbox{if}~ {\mathit{cont}'} = \mathsf{frame}~{{\mathit{val}'}^\ast}~({\mathsf{label}}_{n}\,\{ {{\mathit{instr}}^\ast} \})~{\mathit{cont}}~{{\mathit{instr}'}^\ast} \\
+{[\textsc{\scriptsize E{-}suspending{-}frame}]} \quad & z ; {{\mathit{val}'}^\ast}~({{\mathsf{frame}}_{n}}{\{ {\mathit{frame}} \}}~(\mathsf{suspending}~{\mathit{tagaddr}}~{\mathit{resumption}}~{\mathit{cont}}))~{{\mathit{instr}'}^\ast} & \hookrightarrow & z ; (\mathsf{suspending}~{\mathit{tagaddr}}~{\mathit{resumption}}~{\mathit{cont}'}) & \quad \mbox{if}~ {\mathit{cont}'} = \mathsf{frame}~{{\mathit{val}'}^\ast}~({\mathsf{frame}}_{n}\,\{ {\mathit{frame}} \})~{\mathit{cont}}~{{\mathit{instr}'}^\ast} \\
+{[\textsc{\scriptsize E{-}suspending{-}handler}]} \quad & z ; {{\mathit{val}'}^\ast}~({{\mathsf{handler}}_{n}}{\{ {{\mathit{catch}}^\ast} \}}~(\mathsf{suspending}~{\mathit{tagaddr}}~{\mathit{resumption}}~{\mathit{cont}}))~{{\mathit{instr}'}^\ast} & \hookrightarrow & z ; (\mathsf{suspending}~{\mathit{tagaddr}}~{\mathit{resumption}}~{\mathit{cont}'}) & \quad \mbox{if}~ {\mathit{cont}'} = \mathsf{frame}~{{\mathit{val}'}^\ast}~({\mathsf{handler}}_{n}\,\{ {{\mathit{catch}}^\ast} \})~{\mathit{cont}}~{{\mathit{instr}'}^\ast} \\
+{[\textsc{\scriptsize E{-}suspending{-}prompt{-}suspend}]} \quad & z ; ({\mathsf{prompt}}{\{ {{\mathit{addrhdl}}^\ast} \}}~(\mathsf{suspending}~{\mathit{tagaddr}}~(\mathsf{suspend}~{{\mathit{val}}^{n}})~{\mathit{cont}})) & \hookrightarrow & z{}[{.}\mathsf{conts} \mathrel{{=}{\oplus}} {\mathit{cont}}] ; {{\mathit{val}}^{n}}~(\mathsf{ref{.}cont}~a)~(\mathsf{br}~l) & \quad
+\begin{array}[t]{@{}l@{}}
+\mbox{if}~ {\mathrm{gethandlersuspend}}({{\mathit{addrhdl}}^\ast}, {\mathit{tagaddr}}) = l \\
+{\land}~ z{.}\mathsf{tags}{}[{\mathit{tagaddr}}]{.}\mathsf{type} \approx \mathsf{func}~{t_1^{n}} \rightarrow {t_2^\ast} \\
+{\land}~ a = {|z{.}\mathsf{conts}|} \\
+\end{array} \\
+{[\textsc{\scriptsize E{-}suspending{-}prompt{-}suspend{-}skip}]} \quad & z ; {{\mathit{val}'}^\ast}~({\mathsf{prompt}}{\{ {{\mathit{addrhdl}}^\ast} \}}~(\mathsf{suspending}~{\mathit{tagaddr}}~(\mathsf{suspend}~{{\mathit{val}}^\ast})~{\mathit{cont}}))~{{\mathit{instr}'}^\ast} & \hookrightarrow & z ; (\mathsf{suspending}~{\mathit{tagaddr}}~(\mathsf{suspend}~{{\mathit{val}}^\ast})~{\mathit{cont}'}) & \quad
+\begin{array}[t]{@{}l@{}}
+\mbox{if}~ {\mathrm{gethandlersuspend}}({{\mathit{addrhdl}}^\ast}, {\mathit{tagaddr}}) = \epsilon \\
+{\land}~ {\mathit{cont}'} = \mathsf{frame}~{{\mathit{val}'}^\ast}~(\mathsf{prompt}~\{ {{\mathit{addrhdl}}^\ast} \})~{\mathit{cont}}~{{\mathit{instr}'}^\ast} \\
+\end{array} \\
+{[\textsc{\scriptsize E{-}suspending{-}prompt{-}switch}]} \quad & z ; ({\mathsf{prompt}}{\{ {{\mathit{addrhdl}}^\ast} \}}~(\mathsf{suspending}~{\mathit{tagaddr}}~(\mathsf{switch}~{\mathit{continst}})~{\mathit{cont}})) & \hookrightarrow & z{}[{.}\mathsf{conts} \mathrel{{=}{\oplus}} {\mathit{cont}}] ; ({\mathsf{prompt}}{\{ {{\mathit{addrhdl}}^\ast} \}}~(\mathsf{resuming}~{\mathit{cont}'})) & \quad
+\begin{array}[t]{@{}l@{}}
+\mbox{if}~ {\mathrm{gethandlerswitch}}({{\mathit{addrhdl}}^\ast}, {\mathit{tagaddr}}) \\
+{\land}~ {\mathit{cont}'} = {\mathrm{contfill}}({\mathit{continst}}, (\mathsf{ref{.}cont}~a), \epsilon) \\
+{\land}~ a = {|z{.}\mathsf{conts}|} \\
+\end{array} \\
+{[\textsc{\scriptsize E{-}suspending{-}prompt{-}switch{-}skip}]} \quad & z ; {{\mathit{val}'}^\ast}~({\mathsf{prompt}}{\{ {{\mathit{addrhdl}}^\ast} \}}~(\mathsf{suspending}~{\mathit{tagaddr}}~(\mathsf{switch}~{\mathit{continst}})~{\mathit{cont}}))~{{\mathit{instr}'}^\ast} & \hookrightarrow & z ; (\mathsf{suspending}~{\mathit{tagaddr}}~(\mathsf{switch}~{\mathit{continst}})~{\mathit{cont}'}) & \quad
+\begin{array}[t]{@{}l@{}}
+\mbox{if}~ {\neg{\mathrm{gethandlerswitch}}({{\mathit{addrhdl}}^\ast}, {\mathit{tagaddr}})} \\
+{\land}~ {\mathit{cont}'} = \mathsf{frame}~{{\mathit{val}'}^\ast}~(\mathsf{prompt}~\{ {{\mathit{addrhdl}}^\ast} \})~{\mathit{cont}}~{{\mathit{instr}'}^\ast} \\
+\end{array} \\
+\end{array}
+$$
+
+\vspace{1ex}
+
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
 {[\textsc{\scriptsize E{-}trap{-}instrs}]} \quad & {{\mathit{val}}^\ast}~\mathsf{trap}~{{\mathit{instr}}^\ast} & \hookrightarrow & \mathsf{trap} & \quad \mbox{if}~ {{\mathit{val}}^\ast} \neq \epsilon \lor {{\mathit{instr}}^\ast} \neq \epsilon \\
 {[\textsc{\scriptsize E{-}trap{-}label}]} \quad & ({{\mathsf{label}}_{n}}{\{ {{\mathit{instr}'}^\ast} \}}~\mathsf{trap}) & \hookrightarrow & \mathsf{trap} \\
 {[\textsc{\scriptsize E{-}trap{-}frame}]} \quad & ({{\mathsf{frame}}_{n}}{\{ f \}}~\mathsf{trap}) & \hookrightarrow & \mathsf{trap} \\
+{[\textsc{\scriptsize E{-}trap{-}prompt}]} \quad & ({\mathsf{prompt}}{\{ {{\mathit{addrhdl}}^\ast} \}}~\mathsf{trap}) & \hookrightarrow & \mathsf{trap} \\
 \end{array}
 $$
 
@@ -11355,7 +11784,8 @@ $$
 & & | & \mathtt{0x7E} & \quad\Rightarrow\quad{} & \mathsf{i{\scriptstyle 64}} \\
 & & | & \mathtt{0x7F} & \quad\Rightarrow\quad{} & \mathsf{i{\scriptstyle 32}} \\
 & {\mathtt{vectype}} & ::= & \mathtt{0x7B} & \quad\Rightarrow\quad{} & \mathsf{v{\scriptstyle 128}} \\
-& {\mathtt{absheaptype}} & ::= & \mathtt{0x69} & \quad\Rightarrow\quad{} & \mathsf{exn} \\
+& {\mathtt{absheaptype}} & ::= & \mathtt{0x68} & \quad\Rightarrow\quad{} & \mathsf{cont} \\
+& & | & \mathtt{0x69} & \quad\Rightarrow\quad{} & \mathsf{exn} \\
 & & | & \mathtt{0x6A} & \quad\Rightarrow\quad{} & \mathsf{array} \\
 & & | & \mathtt{0x6B} & \quad\Rightarrow\quad{} & \mathsf{struct} \\
 & & | & \mathtt{0x6C} & \quad\Rightarrow\quad{} & \mathsf{i{\scriptstyle 31}} \\
@@ -11367,6 +11797,7 @@ $$
 & & | & \mathtt{0x72} & \quad\Rightarrow\quad{} & \mathsf{noextern} \\
 & & | & \mathtt{0x73} & \quad\Rightarrow\quad{} & \mathsf{nofunc} \\
 & & | & \mathtt{0x74} & \quad\Rightarrow\quad{} & \mathsf{noexn} \\
+& & | & \mathtt{0x75} & \quad\Rightarrow\quad{} & \mathsf{nocont} \\
 & {\mathtt{heaptype}} & ::= & {\mathit{ht}}{:}{\mathtt{absheaptype}} & \quad\Rightarrow\quad{} & {\mathit{ht}} \\
 & & | & x{:}{\mathtt{s33}} & \quad\Rightarrow\quad{} & x & \quad \mbox{if}~ x \geq 0 \\
 & {\mathtt{reftype}} & ::= & \mathtt{0x63}~~{\mathit{ht}}{:}{\mathtt{heaptype}} & \quad\Rightarrow\quad{} & \mathsf{ref}~\mathsf{null}~{\mathit{ht}} \\
@@ -11397,7 +11828,8 @@ $$
 & {\mathtt{storagetype}} & ::= & t{:}{\mathtt{valtype}} & \quad\Rightarrow\quad{} & t \\
 & & | & {\mathit{pt}}{:}{\mathtt{packtype}} & \quad\Rightarrow\quad{} & {\mathit{pt}} \\
 & {\mathtt{fieldtype}} & ::= & {\mathit{zt}}{:}{\mathtt{storagetype}}~~{\mathsf{mut}^?}{:}{\mathtt{mut}} & \quad\Rightarrow\quad{} & {\mathsf{mut}^?}~{\mathit{zt}} \\
-& {\mathtt{comptype}} & ::= & \mathtt{0x5E}~~{\mathit{ft}}{:}{\mathtt{fieldtype}} & \quad\Rightarrow\quad{} & \mathsf{array}~{\mathit{ft}} \\
+& {\mathtt{comptype}} & ::= & \mathtt{0x5D}~~{\mathit{tu}}{:}{\mathtt{heaptype}} & \quad\Rightarrow\quad{} & \mathsf{cont}~{\mathit{tu}} \\
+& & | & \mathtt{0x5E}~~{\mathit{ft}}{:}{\mathtt{fieldtype}} & \quad\Rightarrow\quad{} & \mathsf{array}~{\mathit{ft}} \\
 & & | & \mathtt{0x5F}~~{{\mathit{ft}}^\ast}{:}{\mathtt{list}}({\mathtt{fieldtype}}) & \quad\Rightarrow\quad{} & \mathsf{struct}~{{\mathit{ft}}^\ast} \\
 & & | & \mathtt{0x60}~~{t_1^\ast}{:}{\mathtt{resulttype}}~~{t_2^\ast}{:}{\mathtt{resulttype}} & \quad\Rightarrow\quad{} & \mathsf{func}~{t_1^\ast} \rightarrow {t_2^\ast} \\
 & {\mathtt{subtype}} & ::= & \mathtt{0x4F}~~{x^\ast}{:}{\mathtt{list}}({\mathtt{typeidx}})~~{\mathit{ct}}{:}{\mathtt{comptype}} & \quad\Rightarrow\quad{} & \mathsf{sub}~\mathsf{final}~{x^\ast}~{\mathit{ct}} \\
@@ -11472,7 +11904,15 @@ $$
 & & | & \mathtt{0x12}~~x{:}{\mathtt{funcidx}} & \quad\Rightarrow\quad{} & \mathsf{return\_call}~x \\
 & & | & \mathtt{0x13}~~y{:}{\mathtt{typeidx}}~~x{:}{\mathtt{tableidx}} & \quad\Rightarrow\quad{} & \mathsf{return\_call\_indirect}~x~y \\
 & & | & \mathtt{0x1F}~~{\mathit{bt}}{:}{\mathtt{blocktype}}~~{c^\ast}{:}{\mathtt{list}}({\mathtt{catch}})~~{({\mathit{in}}{:}{\mathtt{instr}})^\ast}~~\mathtt{0x0B} & \quad\Rightarrow\quad{} & \mathsf{try\_table}~{\mathit{bt}}~{c^\ast}~{{\mathit{in}}^\ast} \\
+& & | & \mathtt{0xE0}~~x{:}{\mathtt{typeidx}} & \quad\Rightarrow\quad{} & \mathsf{cont{.}new}~x \\
+& & | & \mathtt{0xE1}~~x{:}{\mathtt{typeidx}}~~y{:}{\mathtt{typeidx}} & \quad\Rightarrow\quad{} & \mathsf{cont{.}bind}~x~y \\
+& & | & \mathtt{0xE2}~~x{:}{\mathtt{tagidx}} & \quad\Rightarrow\quad{} & \mathsf{suspend}~x \\
+& & | & \mathtt{0xE3}~~x{:}{\mathtt{typeidx}}~~{{\mathit{hdl}}^\ast}{:}{\mathtt{list}}({\mathtt{hdl}}) & \quad\Rightarrow\quad{} & \mathsf{resume}~x~{{\mathit{hdl}}^\ast} \\
+& & | & \mathtt{0xE4}~~x{:}{\mathtt{typeidx}}~~y{:}{\mathtt{tagidx}}~~{{\mathit{hdl}}^\ast}{:}{\mathtt{list}}({\mathtt{hdl}}) & \quad\Rightarrow\quad{} & \mathsf{resume\_throw}~x~y~{{\mathit{hdl}}^\ast} \\
+& & | & \mathtt{0xE5}~~x{:}{\mathtt{typeidx}}~~y{:}{\mathtt{tagidx}} & \quad\Rightarrow\quad{} & \mathsf{switch}~x~y \\
 & & | & \dots \\
+& {\mathtt{hdl}} & ::= & \mathtt{0x00}~~x{:}{\mathtt{typeidx}}~~y{:}{\mathtt{labelidx}} & \quad\Rightarrow\quad{} & \mathsf{on}~x~y \\
+& & | & \mathtt{0x01}~~x{:}{\mathtt{typeidx}} & \quad\Rightarrow\quad{} & \mathsf{on}~x~\mathsf{switch} \\
 & {\mathtt{catch}} & ::= & \mathtt{0x00}~~x{:}{\mathtt{tagidx}}~~l{:}{\mathtt{labelidx}} & \quad\Rightarrow\quad{} & \mathsf{catch}~x~l \\
 & & | & \mathtt{0x01}~~x{:}{\mathtt{tagidx}}~~l{:}{\mathtt{labelidx}} & \quad\Rightarrow\quad{} & \mathsf{catch\_ref}~x~l \\
 & & | & \mathtt{0x02}~~l{:}{\mathtt{labelidx}} & \quad\Rightarrow\quad{} & \mathsf{catch\_all}~l \\
@@ -12636,9 +13076,11 @@ $$
 & & | & \mbox{`$\mathtt{func}$'} & \quad\Rightarrow\quad{} & \mathsf{func} \\
 & & | & \mbox{`$\mathtt{nofunc}$'} & \quad\Rightarrow\quad{} & \mathsf{nofunc} \\
 & & | & \mbox{`$\mathtt{exn}$'} & \quad\Rightarrow\quad{} & \mathsf{exn} \\
+& & | & \mbox{`$\mathtt{cont}$'} & \quad\Rightarrow\quad{} & \mathsf{cont} \\
 & & | & \mbox{`$\mathtt{noexn}$'} & \quad\Rightarrow\quad{} & \mathsf{noexn} \\
 & & | & \mbox{`$\mathtt{extern}$'} & \quad\Rightarrow\quad{} & \mathsf{extern} \\
 & & | & \mbox{`$\mathtt{noextern}$'} & \quad\Rightarrow\quad{} & \mathsf{noextern} \\
+& & | & \mbox{`$\mathtt{nocont}$'} & \quad\Rightarrow\quad{} & \mathsf{nocont} \\
 & {{\mathtt{heaptype}}}_{I} & ::= & {\mathit{ht}}{:}{\mathtt{absheaptype}} & \quad\Rightarrow\quad{} & {\mathit{ht}} \\
 & & | & x{:}{{\mathtt{typeidx}}}_{I} & \quad\Rightarrow\quad{} & x \\
 & {\mathtt{nul}} & ::= & \epsilon & \quad\Rightarrow\quad{} & \epsilon \\
@@ -12683,6 +13125,8 @@ $$
 & & | & \mbox{`$\mathtt{(}$'}~~\mbox{`$\mathtt{array}$'}~~{\mathit{ft}}{:}{{\mathtt{fieldtype}}}_{I}~~\mbox{`$\mathtt{)}$'} & \quad\Rightarrow\quad{} & (\mathsf{array}~{\mathit{ft}}, \{ \begin{array}[t]{@{}l@{}}
  \}\end{array}) \\
 & & | & \mbox{`$\mathtt{(}$'}~~\mbox{`$\mathtt{func}$'}~~{(t_1, {{\mathit{id}}^?})^\ast}{:}{\mathtt{list}}({{\mathtt{param}}}_{I})~~{t_2^\ast}{:}{\mathtt{list}}({{\mathtt{result}}}_{I})~~\mbox{`$\mathtt{)}$'} & \quad\Rightarrow\quad{} & (\mathsf{func}~{t_1^\ast} \rightarrow {t_2^\ast}, \{ \begin{array}[t]{@{}l@{}}
+ \}\end{array}) \\
+& & | & \mbox{`$\mathtt{(}$'}~~\mbox{`$\mathtt{cont}$'}~~{\mathit{tu}}{:}{{\mathtt{heaptype}}}_{I}~~\mbox{`$\mathtt{)}$'} & \quad\Rightarrow\quad{} & (\mathsf{cont}~{\mathit{tu}}, \{ \begin{array}[t]{@{}l@{}}
  \}\end{array}) \\
 \end{array}
 $$
@@ -12859,6 +13303,8 @@ $$
 \mbox{`$\mathtt{if}$'}~~{{\mathtt{label}}}_{I}~~{{\mathtt{blocktype}}}_{I}~~{{\mathtt{instrs}}}_{I}~~\mbox{`$\mathtt{else}$'}~~\mbox{`$\mathtt{end}$'}~~{{\mathtt{id}}^?} \\
 \end{array}
 } \\
+& {{\mathtt{hdl}}}_{I} & ::= & \mbox{`$\mathtt{(}$'}~~\mbox{`$\mathtt{on}$'}~~x{:}{{\mathtt{typeidx}}}_{I}~~l{:}{{\mathtt{labelidx}}}_{I}~~\mbox{`$\mathtt{)}$'} & \quad\Rightarrow\quad{} & \mathsf{on}~x~l \\
+& & | & \mbox{`$\mathtt{(}$'}~~\mbox{`$\mathtt{on}$'}~~x{:}{{\mathtt{typeidx}}}_{I}~~\mbox{`$\mathtt{switch}$'}~~\mbox{`$\mathtt{)}$'} & \quad\Rightarrow\quad{} & \mathsf{on}~x~\mathsf{switch} \\
 & {{\mathtt{catch}}}_{I} & ::= & \mbox{`$\mathtt{(}$'}~~\mbox{`$\mathtt{catch}$'}~~x{:}{{\mathtt{tagidx}}}_{I}~~l{:}{{\mathtt{labelidx}}}_{I}~~\mbox{`$\mathtt{)}$'} & \quad\Rightarrow\quad{} & \mathsf{catch}~x~l \\
 & & | & \mbox{`$\mathtt{(}$'}~~\mbox{`$\mathtt{catch\_ref}$'}~~x{:}{{\mathtt{tagidx}}}_{I}~~l{:}{{\mathtt{labelidx}}}_{I}~~\mbox{`$\mathtt{)}$'} & \quad\Rightarrow\quad{} & \mathsf{catch\_ref}~x~l \\
 & & | & \mbox{`$\mathtt{(}$'}~~\mbox{`$\mathtt{catch\_all}$'}~~l{:}{{\mathtt{labelidx}}}_{I}~~\mbox{`$\mathtt{)}$'} & \quad\Rightarrow\quad{} & \mathsf{catch\_all}~l \\
@@ -12891,6 +13337,12 @@ $$
 & & | & \mbox{`$\mathtt{return\_call\_indirect}$'}~~{{\mathtt{typeuse}}}_{I} & \quad\equiv\quad{} & \mbox{`$\mathtt{return\_call\_indirect}$'}~~\mbox{`$\mathtt{0}$'}~~{{\mathtt{typeuse}}}_{I} \\
 & & | & \mbox{`$\mathtt{throw}$'}~~x{:}{{\mathtt{tagidx}}}_{I} & \quad\Rightarrow\quad{} & \mathsf{throw}~x \\
 & & | & \mbox{`$\mathtt{throw\_ref}$'} & \quad\Rightarrow\quad{} & \mathsf{throw\_ref} \\
+& & | & \mbox{`$\mathtt{cont.new}$'}~~x{:}{{\mathtt{typeidx}}}_{I} & \quad\Rightarrow\quad{} & \mathsf{cont{.}new}~x \\
+& & | & \mbox{`$\mathtt{cont.bind}$'}~~x{:}{{\mathtt{typeidx}}}_{I}~~y{:}{{\mathtt{typeidx}}}_{I} & \quad\Rightarrow\quad{} & \mathsf{cont{.}bind}~x~y \\
+& & | & \mbox{`$\mathtt{suspend}$'}~~x{:}{{\mathtt{tagidx}}}_{I} & \quad\Rightarrow\quad{} & \mathsf{suspend}~x \\
+& & | & \mbox{`$\mathtt{resume}$'}~~x{:}{{\mathtt{typeidx}}}_{I}~~{{\mathit{hdl}}^\ast}{:}{{{\mathtt{hdl}}}_{I}^\ast} & \quad\Rightarrow\quad{} & \mathsf{resume}~x~{{\mathit{hdl}}^\ast} \\
+& & | & \mbox{`$\mathtt{resume\_throw}$'}~~x{:}{{\mathtt{typeidx}}}_{I}~~y{:}{{\mathtt{tagidx}}}_{I}~~{{\mathit{hdl}}^\ast}{:}{{{\mathtt{hdl}}}_{I}^\ast} & \quad\Rightarrow\quad{} & \mathsf{resume\_throw}~x~y~{{\mathit{hdl}}^\ast} \\
+& & | & \mbox{`$\mathtt{switch}$'}~~x{:}{{\mathtt{typeidx}}}_{I}~~y{:}{{\mathtt{tagidx}}}_{I} & \quad\Rightarrow\quad{} & \mathsf{switch}~x~y \\
 & & | & \dots \\
 \end{array}
 $$
@@ -14030,6 +14482,7 @@ $$
 \begin{array}[t]{@{}lrrl@{}l@{}}
 \mbox{(label)} & {\mathit{label}} & ::= & {{\mathsf{label}}_{n}}{\{ {{\mathit{instr}}^\ast} \}} \\
 \mbox{(call frame)} & {\mathit{callframe}} & ::= & {{\mathsf{frame}}_{n}}{\{ {\mathit{frame}} \}} \\
+\mbox{(effect handler)} & {\mathit{prompt}} & ::= & {\mathsf{prompt}}{\{ {{\mathit{addrhdl}}^\ast} \}} \\
 \end{array}
 $$
 

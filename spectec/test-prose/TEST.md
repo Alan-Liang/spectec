@@ -1059,6 +1059,8 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
    #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
 
+   #. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
+
    #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
 
    #. Pop the :math:`\mathsf{label}` L from the stack.
@@ -1069,9 +1071,11 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 #. Else:
 
-   a. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+   a. Let :math:`l` be the label index :math:`{n'} - 1`.
 
-   #. Let :math:`l` be the label index :math:`{n'} - 1`.
+   #. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
+
+   #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
    #. Pop the :math:`\mathsf{label}` L from the stack.
 
@@ -1149,6 +1153,8 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
    #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
 
+   #. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
+
    #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
 
    #. Pop the :math:`\mathsf{frame}` F from the stack.
@@ -1158,6 +1164,8 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 #. Else:
 
    a. Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{label}`.
+
+   #. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
 
    #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
@@ -1268,23 +1276,19 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 #. Execute the instruction :math:`(\mathsf{local{.}set}~x)`.
 
 
-:math:`\mathsf{block}~{t^?}~{{\mathit{instr}}^\ast}`
-....................................................
+:math:`\mathsf{block}~{\mathit{blocktype}}~{{\mathit{instr}}^\ast}`
+...................................................................
 
 
-1. Let :math:`n` be :math:`0`.
+1. If :math:`{\mathit{blocktype}}` is not defined, then:
 
-#. If :math:`{t^?}` is not defined, then:
-
-   #. Let L be the :math:`\mathsf{label}` whose arity is :math:`n` and whose continuation is the end of the block.
+   #. Let L be the :math:`\mathsf{label}` whose continuation is the end of the block.
 
    a. Enter the block :math:`{{\mathit{instr}}^\ast}` with the :math:`\mathsf{label}` L.
 
-#. Let :math:`n` be :math:`1`.
+#. Else:
 
-#. If :math:`{t^?} \neq \epsilon`, then:
-
-   #. Let L be the :math:`\mathsf{label}` whose arity is :math:`n` and whose continuation is the end of the block.
+   #. Let L be the :math:`\mathsf{label}` whose arity is :math:`1` and whose continuation is the end of the block.
 
    a. Enter the block :math:`{{\mathit{instr}}^\ast}` with the :math:`\mathsf{label}` L.
 
@@ -3504,16 +3508,18 @@ Step_pure/br n'
 3. If (n' = 0), then:
   a. Assert: Due to validation, there are at least n values on the top of the stack.
   b. Pop the values val^n from the stack.
-  c. Pop all values val'* from the top of the stack.
-  d. Pop the label (LABEL_ _ { _ }) from the stack.
-  e. Push the values val^n to the stack.
-  f. Execute the sequence instr'*.
+  c. Let instr* be the remaining instruction sequence.
+  d. Pop all values val'* from the top of the stack.
+  e. Pop the label (LABEL_ _ { _ }) from the stack.
+  f. Push the values val^n to the stack.
+  g. Execute the sequence instr'*.
 4. Else:
-  a. Pop all values val* from the top of the stack.
-  b. Let l be (n' - 1).
-  c. Pop the label (LABEL_ _ { _ }) from the stack.
-  d. Push the values val* to the stack.
-  e. Execute the instruction (BR l).
+  a. Let l be (n' - 1).
+  b. Let instr* be the remaining instruction sequence.
+  c. Pop all values val* from the top of the stack.
+  d. Pop the label (LABEL_ _ { _ }) from the stack.
+  e. Push the values val* to the stack.
+  f. Execute the instruction (BR l).
 
 Step_pure/br_if l
 1. Assert: Due to validation, a value of value type I32 is on the top of the stack.
@@ -3545,15 +3551,17 @@ Step_pure/return
   a. Let (FRAME_ n { f }) be the topmost FRAME_.
   b. Assert: Due to validation, there are at least n values on the top of the stack.
   c. Pop the values val^n from the stack.
-  d. Pop all values val'* from the top of the stack.
-  e. Pop the frame (FRAME_ _ { _ }) from the stack.
-  f. Push the values val^n to the stack.
+  d. Let instr* be the remaining instruction sequence.
+  e. Pop all values val'* from the top of the stack.
+  f. Pop the frame (FRAME_ _ { _ }) from the stack.
+  g. Push the values val^n to the stack.
 2. Else:
   a. Assert: Due to validation, the first non-value entry of the stack is a LABEL_.
-  b. Pop all values val* from the top of the stack.
-  c. Pop the label (LABEL_ _ { _ }) from the stack.
-  d. Push the values val* to the stack.
-  e. Execute the instruction RETURN.
+  b. Let instr* be the remaining instruction sequence.
+  c. Pop all values val* from the top of the stack.
+  d. Pop the label (LABEL_ _ { _ }) from the stack.
+  e. Push the values val* to the stack.
+  f. Execute the instruction RETURN.
 
 Step_pure/unop t unop
 1. Assert: Due to validation, a value of value type t is on the top of the stack.
@@ -3602,13 +3610,11 @@ Step_pure/local.tee x
 4. Push the value val to the stack.
 5. Execute the instruction (LOCAL.SET x).
 
-Step_read/block t? instr*
-1. Let n be 0.
-2. If t? is not defined, then:
-  a. Enter instr* with label (LABEL_ n { [] }).
-3. Let n be 1.
-4. If (t? =/= ?()), then:
-  a. Enter instr* with label (LABEL_ n { [] }).
+Step_read/block blocktype instr*
+1. If blocktype is not defined, then:
+  a. Enter instr* with label (LABEL_ 0 { [] }).
+2. Else:
+  a. Enter instr* with label (LABEL_ 1 { [] }).
 
 Step_read/loop t? instr*
 1. Enter instr* with label (LABEL_ 0 { [(LOOP t? instr*)] }).
@@ -5828,60 +5834,6 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
    * The memory type sequence :math:`{{\mathit{imt}}^\ast}` is of the form :math:`{\mathrm{mems}}({{\mathit{ixt}}^\ast})`.
 
 
-:math:`\mathsf{table{.}copy}~x~y`
-.................................
-
-
-1. Let :math:`z` be the current state.
-
-#. Assert: Due to validation, a value of number type :math:`\mathsf{i{\scriptstyle 32}}` is on the top of the stack.
-
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~n)` from the stack.
-
-#. Assert: Due to validation, a value of number type :math:`\mathsf{i{\scriptstyle 32}}` is on the top of the stack.
-
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~i)` from the stack.
-
-#. Assert: Due to validation, a value of number type :math:`\mathsf{i{\scriptstyle 32}}` is on the top of the stack.
-
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~j)` from the stack.
-
-#. If :math:`i + n > {|z{.}\mathsf{tables}{}[y]{.}\mathsf{refs}|}`, then:
-
-   a. Trap.
-
-#. If :math:`j + n > {|z{.}\mathsf{tables}{}[x]{.}\mathsf{refs}|}`, then:
-
-   a. Trap.
-
-
-:math:`\mathsf{table{.}init}~x~y`
-.................................
-
-
-1. Let :math:`z` be the current state.
-
-#. Assert: Due to validation, a value of number type :math:`\mathsf{i{\scriptstyle 32}}` is on the top of the stack.
-
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~n)` from the stack.
-
-#. Assert: Due to validation, a value of number type :math:`\mathsf{i{\scriptstyle 32}}` is on the top of the stack.
-
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~i)` from the stack.
-
-#. Assert: Due to validation, a value of number type :math:`\mathsf{i{\scriptstyle 32}}` is on the top of the stack.
-
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~j)` from the stack.
-
-#. If :math:`i + n > {|z{.}\mathsf{elems}{}[y]{.}\mathsf{refs}|}`, then:
-
-   a. Trap.
-
-#. If :math:`j + n > {|z{.}\mathsf{tables}{}[x]{.}\mathsf{refs}|}`, then:
-
-   a. Trap.
-
-
 :math:`\mathsf{load}~{\mathit{nt}}~{\mathit{ao}}`
 .................................................
 
@@ -5987,60 +5939,6 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 #. Let :math:`c` be :math:`{{{{\mathrm{extend}}}_{N, 128}^{\mathsf{u}}}}{(j)}`.
 
 #. Push the value :math:`(\mathsf{v{\scriptstyle 128}}{.}\mathsf{const}~c)` to the stack.
-
-
-:math:`\mathsf{memory{.}copy}`
-..............................
-
-
-1. Let :math:`z` be the current state.
-
-#. Assert: Due to validation, a value of number type :math:`\mathsf{i{\scriptstyle 32}}` is on the top of the stack.
-
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~n)` from the stack.
-
-#. Assert: Due to validation, a value of number type :math:`\mathsf{i{\scriptstyle 32}}` is on the top of the stack.
-
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~i)` from the stack.
-
-#. Assert: Due to validation, a value of number type :math:`\mathsf{i{\scriptstyle 32}}` is on the top of the stack.
-
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~j)` from the stack.
-
-#. If :math:`i + n > {|z{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}|}`, then:
-
-   a. Trap.
-
-#. If :math:`j + n > {|z{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}|}`, then:
-
-   a. Trap.
-
-
-:math:`\mathsf{memory{.}init}~x`
-................................
-
-
-1. Let :math:`z` be the current state.
-
-#. Assert: Due to validation, a value of number type :math:`\mathsf{i{\scriptstyle 32}}` is on the top of the stack.
-
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~n)` from the stack.
-
-#. Assert: Due to validation, a value of number type :math:`\mathsf{i{\scriptstyle 32}}` is on the top of the stack.
-
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~i)` from the stack.
-
-#. Assert: Due to validation, a value of number type :math:`\mathsf{i{\scriptstyle 32}}` is on the top of the stack.
-
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~j)` from the stack.
-
-#. If :math:`i + n > {|z{.}\mathsf{datas}{}[x]{.}\mathsf{bytes}|}`, then:
-
-   a. Trap.
-
-#. If :math:`j + n > {|z{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}|}`, then:
-
-   a. Trap.
 
 
 :math:`\mathsf{store}~{\mathit{nt}}~{\mathit{ao}}`
@@ -6183,6 +6081,8 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
    #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
 
+   #. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
+
    #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
 
    #. Pop the :math:`\mathsf{label}` L from the stack.
@@ -6193,9 +6093,11 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 #. Else:
 
-   a. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+   a. Let :math:`l` be the label index :math:`{n'} - 1`.
 
-   #. Let :math:`l` be the label index :math:`{n'} - 1`.
+   #. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
+
+   #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
    #. Pop the :math:`\mathsf{label}` L from the stack.
 
@@ -6273,6 +6175,8 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
    #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
 
+   #. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
+
    #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
 
    #. Pop the :math:`\mathsf{frame}` F from the stack.
@@ -6282,6 +6186,8 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 #. Else:
 
    a. Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{label}`.
+
+   #. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
 
    #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
@@ -7019,11 +6925,7 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 #. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~j)` from the stack.
 
-#. If :math:`i + n > {|z{.}\mathsf{tables}{}[y]{.}\mathsf{refs}|}`, then:
-
-   a. Trap.
-
-#. If :math:`j + n > {|z{.}\mathsf{tables}{}[x]{.}\mathsf{refs}|}`, then:
+#. If :math:`i + n > {|z{.}\mathsf{tables}{}[y]{.}\mathsf{refs}|}` or :math:`j + n > {|z{.}\mathsf{tables}{}[x]{.}\mathsf{refs}|}`, then:
 
    a. Trap.
 
@@ -7084,11 +6986,7 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 #. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~j)` from the stack.
 
-#. If :math:`i + n > {|z{.}\mathsf{elems}{}[y]{.}\mathsf{refs}|}`, then:
-
-   a. Trap.
-
-#. If :math:`j + n > {|z{.}\mathsf{tables}{}[x]{.}\mathsf{refs}|}`, then:
+#. If :math:`i + n > {|z{.}\mathsf{elems}{}[y]{.}\mathsf{refs}|}` or :math:`j + n > {|z{.}\mathsf{tables}{}[x]{.}\mathsf{refs}|}`, then:
 
    a. Trap.
 
@@ -7326,11 +7224,7 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 #. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~j)` from the stack.
 
-#. If :math:`i + n > {|z{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}|}`, then:
-
-   a. Trap.
-
-#. If :math:`j + n > {|z{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}|}`, then:
+#. If :math:`i + n > {|z{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}|}` or :math:`j + n > {|z{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}|}`, then:
 
    a. Trap.
 
@@ -7391,11 +7285,7 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 #. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~j)` from the stack.
 
-#. If :math:`i + n > {|z{.}\mathsf{datas}{}[x]{.}\mathsf{bytes}|}`, then:
-
-   a. Trap.
-
-#. If :math:`j + n > {|z{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}|}`, then:
+#. If :math:`i + n > {|z{.}\mathsf{datas}{}[x]{.}\mathsf{bytes}|}` or :math:`j + n > {|z{.}\mathsf{mems}{}[0]{.}\mathsf{bytes}|}`, then:
 
    a. Trap.
 
@@ -8833,7 +8723,7 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
    #. Return :math:`{\mathit{zero}}`.
 
-#. Assert: Due to validation, :math:`{\mathit{vcvtop}} = `.
+#. Assert: Due to validation, :math:`{\mathit{vcvtop}} = \mathsf{promote}~\mathsf{low}`.
 
 #. Return :math:`\epsilon`.
 
@@ -8862,7 +8752,7 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
    a. Return :math:`\epsilon`.
 
-#. Assert: Due to validation, :math:`{\mathit{vcvtop}} = `.
+#. Assert: Due to validation, :math:`{\mathit{vcvtop}} = \mathsf{promote}~\mathsf{low}`.
 
 #. Return :math:`\mathsf{low}`.
 
@@ -9102,7 +8992,7 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
       #) Return :math:`{\mathit{v{\kern-0.1em\scriptstyle 128}}}`.
 
-   #. If :math:`{\mathit{vbinop}} = `, then:
+   #. If :math:`{\mathit{vbinop}} = \mathsf{avgr}~\mathsf{u}`, then:
 
       1) Let :math:`{{\mathit{lane}}_1^\ast}` be :math:`{{\mathrm{lanes}}}_{{{\mathit{lanetype}}}{\mathsf{x}}{M}}({\mathit{v{\kern-0.1em\scriptstyle 128}}}_1)`.
 
@@ -9112,7 +9002,7 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
       #) Return :math:`{\mathit{v{\kern-0.1em\scriptstyle 128}}}`.
 
-   #. If :math:`{\mathit{vbinop}} = `, then:
+   #. If :math:`{\mathit{vbinop}} = \mathsf{q{\scriptstyle 15}mulr\_sat}~\mathsf{s}`, then:
 
       1) Let :math:`{{\mathit{lane}}_1^\ast}` be :math:`{{\mathrm{lanes}}}_{{{\mathit{lanetype}}}{\mathsf{x}}{M}}({\mathit{v{\kern-0.1em\scriptstyle 128}}}_1)`.
 
@@ -9434,7 +9324,7 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
    #. Return :math:`{{\mathit{fN}}_2^\ast}`.
 
-#. Assert: Due to validation, :math:`{\mathit{vcvtop}} = `.
+#. Assert: Due to validation, :math:`{\mathit{vcvtop}} = \mathsf{promote}~\mathsf{low}`.
 
 #. Let :math:`{{\mathit{fN}}_2^\ast}` be :math:`{{\mathrm{promote}}}_{N_1, N_2}({\mathit{iN}}_1)`.
 
@@ -9470,7 +9360,7 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
    #. Return :math:`c`.
 
-#. Assert: Due to validation, :math:`{\mathit{vextbinop}} = `.
+#. Assert: Due to validation, :math:`{\mathit{vextbinop}} = \mathsf{dot}~\mathsf{s}`.
 
 #. Let :math:`{{\mathit{ci}}_1^\ast}` be :math:`{{\mathrm{lanes}}}_{{{{\mathsf{i}}{n}}_2}{\mathsf{x}}{M_2}}(c_1)`.
 
@@ -11140,32 +11030,6 @@ Module_ok
   - the table type sequence itt* is $tablesxt(ixt*).
   - the memory type sequence imt* is $memsxt(ixt*).
 
-Step_read/table.copy-trap-* x y
-1. Let z be the current state.
-2. Assert: Due to validation, a value of value type I32 is on the top of the stack.
-3. Pop the value (I32.CONST n) from the stack.
-4. Assert: Due to validation, a value of value type I32 is on the top of the stack.
-5. Pop the value (I32.CONST i) from the stack.
-6. Assert: Due to validation, a value of value type I32 is on the top of the stack.
-7. Pop the value (I32.CONST j) from the stack.
-8. If ((i + n) > |$table(z, y).REFS|), then:
-  a. Trap.
-9. If ((j + n) > |$table(z, x).REFS|), then:
-  a. Trap.
-
-Step_read/table.init-trap-* x y
-1. Let z be the current state.
-2. Assert: Due to validation, a value of value type I32 is on the top of the stack.
-3. Pop the value (I32.CONST n) from the stack.
-4. Assert: Due to validation, a value of value type I32 is on the top of the stack.
-5. Pop the value (I32.CONST i) from the stack.
-6. Assert: Due to validation, a value of value type I32 is on the top of the stack.
-7. Pop the value (I32.CONST j) from the stack.
-8. If ((i + n) > |$elem(z, y).REFS|), then:
-  a. Trap.
-9. If ((j + n) > |$table(z, x).REFS|), then:
-  a. Trap.
-
 Step_read/load-num-* nt ?() ao
 1. Let z be the current state.
 2. Assert: Due to validation, a value of value type I32 is on the top of the stack.
@@ -11216,32 +11080,6 @@ Step_read/vload-zero-* V128 ?((ZERO N)) ao
 5. Let j be $ibytes__1^-1(N, $mem(z, 0).BYTES[(i + ao.OFFSET) : (N / 8)]).
 6. Let c be $extend__(N, 128, U, j).
 7. Push the value (V128.CONST c) to the stack.
-
-Step_read/memory.copy-trap-*
-1. Let z be the current state.
-2. Assert: Due to validation, a value of value type I32 is on the top of the stack.
-3. Pop the value (I32.CONST n) from the stack.
-4. Assert: Due to validation, a value of value type I32 is on the top of the stack.
-5. Pop the value (I32.CONST i) from the stack.
-6. Assert: Due to validation, a value of value type I32 is on the top of the stack.
-7. Pop the value (I32.CONST j) from the stack.
-8. If ((i + n) > |$mem(z, 0).BYTES|), then:
-  a. Trap.
-9. If ((j + n) > |$mem(z, 0).BYTES|), then:
-  a. Trap.
-
-Step_read/memory.init-trap-* x
-1. Let z be the current state.
-2. Assert: Due to validation, a value of value type I32 is on the top of the stack.
-3. Pop the value (I32.CONST n) from the stack.
-4. Assert: Due to validation, a value of value type I32 is on the top of the stack.
-5. Pop the value (I32.CONST i) from the stack.
-6. Assert: Due to validation, a value of value type I32 is on the top of the stack.
-7. Pop the value (I32.CONST j) from the stack.
-8. If ((i + n) > |$data(z, x).BYTES|), then:
-  a. Trap.
-9. If ((j + n) > |$mem(z, 0).BYTES|), then:
-  a. Trap.
 
 Step/store-num-* nt ?() ao
 1. Let z be the current state.
@@ -11307,16 +11145,18 @@ Step_pure/br n'
 3. If (n' = 0), then:
   a. Assert: Due to validation, there are at least n values on the top of the stack.
   b. Pop the values val^n from the stack.
-  c. Pop all values val'* from the top of the stack.
-  d. Pop the label (LABEL_ _ { _ }) from the stack.
-  e. Push the values val^n to the stack.
-  f. Execute the sequence instr'*.
+  c. Let instr* be the remaining instruction sequence.
+  d. Pop all values val'* from the top of the stack.
+  e. Pop the label (LABEL_ _ { _ }) from the stack.
+  f. Push the values val^n to the stack.
+  g. Execute the sequence instr'*.
 4. Else:
-  a. Pop all values val* from the top of the stack.
-  b. Let l be (n' - 1).
-  c. Pop the label (LABEL_ _ { _ }) from the stack.
-  d. Push the values val* to the stack.
-  e. Execute the instruction (BR l).
+  a. Let l be (n' - 1).
+  b. Let instr* be the remaining instruction sequence.
+  c. Pop all values val* from the top of the stack.
+  d. Pop the label (LABEL_ _ { _ }) from the stack.
+  e. Push the values val* to the stack.
+  f. Execute the instruction (BR l).
 
 Step_pure/br_if l
 1. Assert: Due to validation, a value of value type I32 is on the top of the stack.
@@ -11348,15 +11188,17 @@ Step_pure/return
   a. Let (FRAME_ n { f }) be the topmost FRAME_.
   b. Assert: Due to validation, there are at least n values on the top of the stack.
   c. Pop the values val^n from the stack.
-  d. Pop all values val'* from the top of the stack.
-  e. Pop the frame (FRAME_ _ { _ }) from the stack.
-  f. Push the values val^n to the stack.
+  d. Let instr* be the remaining instruction sequence.
+  e. Pop all values val'* from the top of the stack.
+  f. Pop the frame (FRAME_ _ { _ }) from the stack.
+  g. Push the values val^n to the stack.
 2. Else:
   a. Assert: Due to validation, the first non-value entry of the stack is a LABEL_.
-  b. Pop all values val* from the top of the stack.
-  c. Pop the label (LABEL_ _ { _ }) from the stack.
-  d. Push the values val* to the stack.
-  e. Execute the instruction RETURN.
+  b. Let instr* be the remaining instruction sequence.
+  c. Pop all values val* from the top of the stack.
+  d. Pop the label (LABEL_ _ { _ }) from the stack.
+  e. Push the values val* to the stack.
+  f. Execute the instruction RETURN.
 
 Step_pure/unop nt unop
 1. Assert: Due to validation, a value of value type nt is on the top of the stack.
@@ -11698,13 +11540,11 @@ Step_read/table.copy x y
 5. Pop the value (I32.CONST i) from the stack.
 6. Assert: Due to validation, a value of value type I32 is on the top of the stack.
 7. Pop the value (I32.CONST j) from the stack.
-8. If ((i + n) > |$table(z, y).REFS|), then:
+8. If (((i + n) > |$table(z, y).REFS|) \/ ((j + n) > |$table(z, x).REFS|)), then:
   a. Trap.
-9. If ((j + n) > |$table(z, x).REFS|), then:
-  a. Trap.
-10. If (n = 0), then:
+9. If (n = 0), then:
   a. Do nothing.
-11. Else:
+10. Else:
   a. If (j <= i), then:
     1) Push the value (I32.CONST j) to the stack.
     2) Push the value (I32.CONST i) to the stack.
@@ -11730,13 +11570,11 @@ Step_read/table.init x y
 5. Pop the value (I32.CONST i) from the stack.
 6. Assert: Due to validation, a value of value type I32 is on the top of the stack.
 7. Pop the value (I32.CONST j) from the stack.
-8. If ((i + n) > |$elem(z, y).REFS|), then:
+8. If (((i + n) > |$elem(z, y).REFS|) \/ ((j + n) > |$table(z, x).REFS|)), then:
   a. Trap.
-9. If ((j + n) > |$table(z, x).REFS|), then:
-  a. Trap.
-10. If (n = 0), then:
+9. If (n = 0), then:
   a. Do nothing.
-11. Else:
+10. Else:
   a. Assert: Due to validation, (i < |$elem(z, y).REFS|).
   b. Push the value (I32.CONST j) to the stack.
   c. Push the value $elem(z, y).REFS[i] to the stack.
@@ -11848,13 +11686,11 @@ Step_read/memory.copy
 5. Pop the value (I32.CONST i) from the stack.
 6. Assert: Due to validation, a value of value type I32 is on the top of the stack.
 7. Pop the value (I32.CONST j) from the stack.
-8. If ((i + n) > |$mem(z, 0).BYTES|), then:
+8. If (((i + n) > |$mem(z, 0).BYTES|) \/ ((j + n) > |$mem(z, 0).BYTES|)), then:
   a. Trap.
-9. If ((j + n) > |$mem(z, 0).BYTES|), then:
-  a. Trap.
-10. If (n = 0), then:
+9. If (n = 0), then:
   a. Do nothing.
-11. Else:
+10. Else:
   a. If (j <= i), then:
     1) Push the value (I32.CONST j) to the stack.
     2) Push the value (I32.CONST i) to the stack.
@@ -11880,13 +11716,11 @@ Step_read/memory.init x
 5. Pop the value (I32.CONST i) from the stack.
 6. Assert: Due to validation, a value of value type I32 is on the top of the stack.
 7. Pop the value (I32.CONST j) from the stack.
-8. If ((i + n) > |$data(z, x).BYTES|), then:
+8. If (((i + n) > |$data(z, x).BYTES|) \/ ((j + n) > |$mem(z, 0).BYTES|)), then:
   a. Trap.
-9. If ((j + n) > |$mem(z, 0).BYTES|), then:
-  a. Trap.
-10. If (n = 0), then:
+9. If (n = 0), then:
   a. Do nothing.
-11. Else:
+10. Else:
   a. Assert: Due to validation, (i < |$data(z, x).BYTES|).
   b. Push the value (I32.CONST j) to the stack.
   c. Push the value (I32.CONST $data(z, x).BYTES[i]) to the stack.
@@ -13553,6 +13387,13 @@ The composite type :math:`{\mathit{comptype}}` is :ref:`valid <valid-val>` if:
       * The result type :math:`{t_1^\ast}` is :ref:`valid <valid-val>`.
 
       * The result type :math:`{t_2^\ast}` is :ref:`valid <valid-val>`.
+   * Or:
+
+      * The composite type :math:`{\mathit{comptype}}` is of the form :math:`(\mathsf{cont}~{\mathit{typeuse}})`.
+
+      * The heap type :math:`{\mathit{typeuse}}` is :ref:`valid <valid-val>`.
+
+      * The :ref:`expansion <aux-expand-typeuse>` of the context :math:`C` is the composite type :math:`(\mathsf{func}~{t_1^\ast}~\rightarrow~{t_2^\ast})`.
 
 
 
@@ -13581,6 +13422,16 @@ The composite type :math:`(\mathsf{func}~{t_1^\ast}~\rightarrow~{t_2^\ast})` is 
    * The result type :math:`{t_1^\ast}` is :ref:`valid <valid-val>`.
 
    * The result type :math:`{t_2^\ast}` is :ref:`valid <valid-val>`.
+
+
+
+
+The composite type :math:`(\mathsf{cont}~{\mathit{typeuse}})` is :ref:`valid <valid-val>` if:
+
+
+   * The heap type :math:`{\mathit{typeuse}}` is :ref:`valid <valid-val>`.
+
+   * The :ref:`expansion <aux-expand-typeuse>` of the context :math:`C` is the composite type :math:`(\mathsf{func}~{t_1^\ast}~\rightarrow~{t_2^\ast})`.
 
 
 
@@ -13738,6 +13589,13 @@ The composite type :math:`{\mathit{comptype}}_1` :ref:`matches <match>` the comp
       * The result type :math:`{t_{21}^\ast}` :ref:`matches <match>` the result type :math:`{t_{11}^\ast}`.
 
       * The result type :math:`{t_{12}^\ast}` :ref:`matches <match>` the result type :math:`{t_{22}^\ast}`.
+   * Or:
+
+      * The composite type :math:`{\mathit{comptype}}_1` is of the form :math:`(\mathsf{cont}~{\mathit{tu}}_1)`.
+
+      * The composite type :math:`{\mathit{comptype}}_2` is of the form :math:`(\mathsf{cont}~{\mathit{tu}}_2)`.
+
+      * The heap type :math:`{\mathit{tu}}_1` :ref:`matches <match>` the heap type :math:`{\mathit{tu}}_2`.
 
 
 
@@ -13766,6 +13624,14 @@ The composite type :math:`(\mathsf{func}~{t_{11}^\ast}~\rightarrow~{t_{12}^\ast}
    * The result type :math:`{t_{21}^\ast}` :ref:`matches <match>` the result type :math:`{t_{11}^\ast}`.
 
    * The result type :math:`{t_{12}^\ast}` :ref:`matches <match>` the result type :math:`{t_{22}^\ast}`.
+
+
+
+
+The composite type :math:`(\mathsf{cont}~{\mathit{tu}}_1)` :ref:`matches <match>` the composite type :math:`(\mathsf{cont}~{\mathit{tu}}_2)` if:
+
+
+   * The heap type :math:`{\mathit{tu}}_1` :ref:`matches <match>` the heap type :math:`{\mathit{tu}}_2`.
 
 
 
@@ -13865,6 +13731,13 @@ The heap type :math:`{\mathit{heaptype}}_1` :ref:`matches <match>` the heap type
       * The :ref:`expansion <aux-expand-deftype>` of the defined type :math:`{\mathit{deftype}}` is the composite type :math:`(\mathsf{func}~{t_1^\ast}~\rightarrow~{t_2^\ast})`.
    * Or:
 
+      * The heap type :math:`{\mathit{heaptype}}_1` is of the form :math:`{\mathit{deftype}}`.
+
+      * The heap type :math:`{\mathit{heaptype}}_2` is of the form :math:`\mathsf{cont}`.
+
+      * The :ref:`expansion <aux-expand-deftype>` of the defined type :math:`{\mathit{deftype}}` is the composite type :math:`(\mathsf{cont}~{\mathit{typeuse}})`.
+   * Or:
+
       * The heap type :math:`{\mathit{heaptype}}_1` is of the form :math:`{\mathit{deftype}}_1`.
 
       * The heap type :math:`{\mathit{heaptype}}_2` is of the form :math:`{\mathit{deftype}}_2`.
@@ -13915,6 +13788,11 @@ The heap type :math:`{\mathit{heaptype}}_1` :ref:`matches <match>` the heap type
       * The heap type :math:`{\mathit{heaptype}}_1` is of the form :math:`\mathsf{noextern}`.
 
       * The heap type :math:`{\mathit{heaptype}}_2` :ref:`matches <match>` the heap type :math:`\mathsf{extern}`.
+   * Or:
+
+      * The heap type :math:`{\mathit{heaptype}}_1` is of the form :math:`\mathsf{nocont}`.
+
+      * The heap type :math:`{\mathit{heaptype}}_2` :ref:`matches <match>` the heap type :math:`\mathsf{cont}`.
    * Or:
 
       * The heap type :math:`{\mathit{heaptype}}_1` is of the form :math:`\mathsf{bot}`.
@@ -13979,6 +13857,14 @@ The heap type :math:`{\mathit{deftype}}` :ref:`matches <match>` the heap type :m
 
 
    * The :ref:`expansion <aux-expand-deftype>` of the defined type :math:`{\mathit{deftype}}` is the composite type :math:`(\mathsf{func}~{t_1^\ast}~\rightarrow~{t_2^\ast})`.
+
+
+
+
+The heap type :math:`{\mathit{deftype}}` :ref:`matches <match>` the heap type :math:`\mathsf{cont}` if:
+
+
+   * The :ref:`expansion <aux-expand-deftype>` of the defined type :math:`{\mathit{deftype}}` is the composite type :math:`(\mathsf{cont}~{\mathit{typeuse}})`.
 
 
 
@@ -14051,6 +13937,14 @@ The heap type :math:`\mathsf{noextern}` :ref:`matches <match>` the heap type :ma
 
 
    * The heap type :math:`{\mathit{heaptype}}` :ref:`matches <match>` the heap type :math:`\mathsf{extern}`.
+
+
+
+
+The heap type :math:`\mathsf{nocont}` :ref:`matches <match>` the heap type :math:`{\mathit{heaptype}}` if:
+
+
+   * The heap type :math:`{\mathit{heaptype}}` :ref:`matches <match>` the heap type :math:`\mathsf{cont}`.
 
 
 
@@ -14699,6 +14593,74 @@ The value type :math:`t` is defaultable if:
 
 
    * The value :math:`{{\mathrm{default}}}_{t}` is not absent.
+
+
+
+
+The effect handler :math:`{\mathit{hdl}}` is :ref:`valid <valid-val>` with the result type :math:`{t^\ast}` if:
+
+
+   * The tag :math:`C{.}\mathsf{tags}{}[x]` exists.
+
+   * Either:
+
+      * The effect handler :math:`{\mathit{hdl}}` is of the form :math:`(\mathsf{on}~x~l)`.
+
+      * The :ref:`expansion <aux-expand-deftype>` of the defined type :math:`C{.}\mathsf{tags}{}[x]` is the composite type :math:`(\mathsf{func}~{t_1^\ast}~\rightarrow~{t_2^\ast})`.
+
+      * The label :math:`C{.}\mathsf{labels}{}[l]` exists.
+
+      * The label :math:`C{.}\mathsf{labels}{}[l]` is of the form :math:`{{t'}_1^\ast}~(\mathsf{ref}~{\mathsf{null}^?}~{x'})`.
+
+      * The result type :math:`{t_1^\ast}` :ref:`matches <match>` the result type :math:`{{t'}_1^\ast}`.
+
+      * The type :math:`C{.}\mathsf{types}{}[{x'}]` exists.
+
+      * The :ref:`expansion <aux-expand-deftype>` of the type :math:`C{.}\mathsf{types}{}[{x'}]` is the composite type :math:`(\mathsf{cont}~{\mathit{tu}})`.
+
+      * The :ref:`expansion <aux-expand-typeuse>` of the context :math:`C` is the composite type :math:`(\mathsf{func}~{{t'}_2^\ast}~\rightarrow~{{t'}^\ast})`.
+
+      * The composite type :math:`(\mathsf{func}~{t_2^\ast}~\rightarrow~{t^\ast})` :ref:`matches <match>` the composite type :math:`(\mathsf{func}~{{t'}_2^\ast}~\rightarrow~{{t'}^\ast})`.
+
+   * Or:
+
+      * The effect handler :math:`{\mathit{hdl}}` is of the form :math:`(\mathsf{on}~x~\mathsf{switch})`.
+
+      * The :ref:`expansion <aux-expand-deftype>` of the defined type :math:`C{.}\mathsf{tags}{}[x]` is the composite type :math:`(\mathsf{func}~\rightarrow~{t^\ast})`.
+
+
+
+
+The effect handler :math:`(\mathsf{on}~x~l)` is :ref:`valid <valid-val>` with the result type :math:`{t^\ast}` if:
+
+
+   * The tag :math:`C{.}\mathsf{tags}{}[x]` exists.
+
+   * The :ref:`expansion <aux-expand-deftype>` of the defined type :math:`C{.}\mathsf{tags}{}[x]` is the composite type :math:`(\mathsf{func}~{t_1^\ast}~\rightarrow~{t_2^\ast})`.
+
+   * The label :math:`C{.}\mathsf{labels}{}[l]` exists.
+
+   * The label :math:`C{.}\mathsf{labels}{}[l]` is of the form :math:`{{t'}_1^\ast}~(\mathsf{ref}~{\mathsf{null}^?}~{x'})`.
+
+   * The result type :math:`{t_1^\ast}` :ref:`matches <match>` the result type :math:`{{t'}_1^\ast}`.
+
+   * The type :math:`C{.}\mathsf{types}{}[{x'}]` exists.
+
+   * The :ref:`expansion <aux-expand-deftype>` of the type :math:`C{.}\mathsf{types}{}[{x'}]` is the composite type :math:`(\mathsf{cont}~{\mathit{tu}})`.
+
+   * The :ref:`expansion <aux-expand-typeuse>` of the context :math:`C` is the composite type :math:`(\mathsf{func}~{{t'}_2^\ast}~\rightarrow~{{t'}^\ast})`.
+
+   * The composite type :math:`(\mathsf{func}~{t_2^\ast}~\rightarrow~{t^\ast})` :ref:`matches <match>` the composite type :math:`(\mathsf{func}~{{t'}_2^\ast}~\rightarrow~{{t'}^\ast})`.
+
+
+
+
+The effect handler :math:`(\mathsf{on}~x~\mathsf{switch})` is :ref:`valid <valid-val>` with the result type :math:`{t^\ast}` if:
+
+
+   * The tag :math:`C{.}\mathsf{tags}{}[x]` exists.
+
+   * The :ref:`expansion <aux-expand-deftype>` of the defined type :math:`C{.}\mathsf{tags}{}[x]` is the composite type :math:`(\mathsf{func}~\rightarrow~{t^\ast})`.
 
 
 
@@ -15822,6 +15784,108 @@ The instruction :math:`({\mathit{sh}}_1 {.} {{\mathit{vcvtop}}}{\mathsf{\_}}{{\m
 
 
 
+The instruction :math:`(\mathsf{cont{.}new}~x)` is :ref:`valid <valid-val>` with the instruction type :math:`(\mathsf{ref}~\mathsf{null}~{\mathit{tu}})~\rightarrow~(\mathsf{ref}~x)` if:
+
+
+   * The type :math:`C{.}\mathsf{types}{}[x]` exists.
+
+   * The :ref:`expansion <aux-expand-deftype>` of the type :math:`C{.}\mathsf{types}{}[x]` is the composite type :math:`(\mathsf{cont}~{\mathit{tu}})`.
+
+   * The :ref:`expansion <aux-expand-typeuse>` of the context :math:`C` is the composite type :math:`(\mathsf{func}~{t_1^\ast}~\rightarrow~{t_2^\ast})`.
+
+
+
+
+The instruction :math:`(\mathsf{cont{.}bind}~x~{x'})` is :ref:`valid <valid-val>` with the instruction type :math:`{t_3^\ast}~(\mathsf{ref}~\mathsf{null}~x)~\rightarrow~(\mathsf{ref}~{x'})` if:
+
+
+   * The type :math:`C{.}\mathsf{types}{}[x]` exists.
+
+   * The :ref:`expansion <aux-expand-deftype>` of the type :math:`C{.}\mathsf{types}{}[x]` is the composite type :math:`(\mathsf{cont}~{\mathit{tu}})`.
+
+   * The :ref:`expansion <aux-expand-typeuse>` of the context :math:`C` is the composite type :math:`(\mathsf{func}~{t_3^\ast}~{t_1^\ast}~\rightarrow~{t_2^\ast})`.
+
+   * The type :math:`C{.}\mathsf{types}{}[{x'}]` exists.
+
+   * The :ref:`expansion <aux-expand-deftype>` of the type :math:`C{.}\mathsf{types}{}[{x'}]` is the composite type :math:`(\mathsf{cont}~{\mathit{tu}'})`.
+
+   * The :ref:`expansion <aux-expand-typeuse>` of the context :math:`C` is the composite type :math:`(\mathsf{func}~{{t'}_1^\ast}~\rightarrow~{{t'}_2^\ast})`.
+
+   * The composite type :math:`(\mathsf{func}~{t_1^\ast}~\rightarrow~{t_2^\ast})` :ref:`matches <match>` the composite type :math:`(\mathsf{func}~{{t'}_1^\ast}~\rightarrow~{{t'}_2^\ast})`.
+
+
+
+
+The instruction :math:`(\mathsf{resume}~x~{{\mathit{hdl}}^\ast})` is :ref:`valid <valid-val>` with the instruction type :math:`{t_1^\ast}~(\mathsf{ref}~\mathsf{null}~x)~\rightarrow~{t_2^\ast}` if:
+
+
+   * The type :math:`C{.}\mathsf{types}{}[x]` exists.
+
+   * The :ref:`expansion <aux-expand-deftype>` of the type :math:`C{.}\mathsf{types}{}[x]` is the composite type :math:`(\mathsf{cont}~{\mathit{tu}})`.
+
+   * The :ref:`expansion <aux-expand-typeuse>` of the context :math:`C` is the composite type :math:`(\mathsf{func}~{t_1^\ast}~\rightarrow~{t_2^\ast})`.
+
+   * For all :math:`{\mathit{hdl}}` in :math:`{{\mathit{hdl}}^\ast}`:
+
+      * The effect handler :math:`{\mathit{hdl}}` is :ref:`valid <valid-val>` with the result type :math:`{t_2^\ast}`.
+
+
+
+
+The instruction :math:`(\mathsf{resume\_throw}~x~{\mathit{xe}}~{{\mathit{hdl}}^\ast})` is :ref:`valid <valid-val>` with the instruction type :math:`{{\mathit{te}}^\ast}~(\mathsf{ref}~\mathsf{null}~x)~\rightarrow~{t_2^\ast}` if:
+
+
+   * The type :math:`C{.}\mathsf{types}{}[x]` exists.
+
+   * The :ref:`expansion <aux-expand-deftype>` of the type :math:`C{.}\mathsf{types}{}[x]` is the composite type :math:`(\mathsf{cont}~{\mathit{tu}})`.
+
+   * The :ref:`expansion <aux-expand-typeuse>` of the context :math:`C` is the composite type :math:`(\mathsf{func}~{t_1^\ast}~\rightarrow~{t_2^\ast})`.
+
+   * The tag :math:`C{.}\mathsf{tags}{}[{\mathit{xe}}]` exists.
+
+   * The :ref:`expansion <aux-expand-deftype>` of the defined type :math:`C{.}\mathsf{tags}{}[{\mathit{xe}}]` is the composite type :math:`(\mathsf{func}~{{\mathit{te}}^\ast}~\rightarrow)`.
+
+   * The effect handler :math:`{\mathit{hdl}}` is :ref:`valid <valid-val>` with the result type :math:`{t_2^\ast}`.
+
+
+
+
+The instruction :math:`(\mathsf{suspend}~x)` is :ref:`valid <valid-val>` with the instruction type :math:`{t_1^\ast}~\rightarrow~{t_2^\ast}` if:
+
+
+   * The tag :math:`C{.}\mathsf{tags}{}[x]` exists.
+
+   * The :ref:`expansion <aux-expand-deftype>` of the defined type :math:`C{.}\mathsf{tags}{}[x]` is the composite type :math:`(\mathsf{func}~{t_1^\ast}~\rightarrow~{t_2^\ast})`.
+
+
+
+
+The instruction :math:`(\mathsf{switch}~x~{\mathit{xe}})` is :ref:`valid <valid-val>` with the instruction type :math:`{t_1^\ast}~(\mathsf{ref}~\mathsf{null}~x)~\rightarrow~{t_2^\ast}` if:
+
+
+   * The tag :math:`C{.}\mathsf{tags}{}[{\mathit{xe}}]` exists.
+
+   * The :ref:`expansion <aux-expand-deftype>` of the defined type :math:`C{.}\mathsf{tags}{}[{\mathit{xe}}]` is the composite type :math:`(\mathsf{func}~\rightarrow~{t^\ast})`.
+
+   * The type :math:`C{.}\mathsf{types}{}[x]` exists.
+
+   * The :ref:`expansion <aux-expand-deftype>` of the type :math:`C{.}\mathsf{types}{}[x]` is the composite type :math:`(\mathsf{cont}~{\mathit{tu}}_1)`.
+
+   * The :ref:`expansion <aux-expand-typeuse>` of the context :math:`C` is the composite type :math:`(\mathsf{func}~{t_1^\ast}~(\mathsf{ref}~{\mathsf{null}^?}~y)~\rightarrow~{{\mathit{te}}_1^\ast})`.
+
+   * The result type :math:`{{\mathit{te}}_1^\ast}` :ref:`matches <match>` the result type :math:`{t^\ast}`.
+
+   * The type :math:`C{.}\mathsf{types}{}[y]` exists.
+
+   * The :ref:`expansion <aux-expand-deftype>` of the type :math:`C{.}\mathsf{types}{}[y]` is the composite type :math:`(\mathsf{cont}~{\mathit{tu}}_2)`.
+
+   * The :ref:`expansion <aux-expand-typeuse>` of the context :math:`C` is the composite type :math:`(\mathsf{func}~{t_2^\ast}~\rightarrow~{{\mathit{te}}_2^\ast})`.
+
+   * The result type :math:`{t^\ast}` :ref:`matches <match>` the result type :math:`{{\mathit{te}}_2^\ast}`.
+
+
+
+
 The instruction :math:`(\mathsf{select}~t)` is :ref:`valid <valid-val>` with the instruction type :math:`t~t~\mathsf{i{\scriptstyle 32}}~\rightarrow~t` if:
 
 
@@ -16778,6 +16842,15 @@ The reference value :math:`{\mathit{ref}}` is :ref:`valid <valid-val>` with the 
       * The exception instance :math:`s{.}\mathsf{exns}{}[a]` exists.
    * Or:
 
+      * The reference value :math:`{\mathit{ref}}` is of the form :math:`(\mathsf{ref{.}cont}~a)`.
+
+      * The reference type :math:`{\mathit{rt}}` is of the form :math:`(\mathsf{ref}~{\mathit{dt}})`.
+
+      * The continuation instance :math:`s{.}\mathsf{conts}{}[a]` exists.
+
+      * The continuation instance :math:`s{.}\mathsf{conts}{}[a]` is absent or :math:`s{.}\mathsf{conts}{}[a]` is of the form :math:`{\mathit{continst}}`.
+   * Or:
+
       * The reference value :math:`{\mathit{ref}}` is of the form :math:`(\mathsf{ref{.}host}~a)`.
 
       * The reference type :math:`{\mathit{rt}}` is of the form :math:`(\mathsf{ref}~\mathsf{any})`.
@@ -16844,6 +16917,16 @@ The reference value :math:`(\mathsf{ref{.}exn}~a)` is :ref:`valid <valid-val>` w
 
 
    * The exception instance :math:`s{.}\mathsf{exns}{}[a]` exists.
+
+
+
+
+The reference value :math:`(\mathsf{ref{.}cont}~a)` is :ref:`valid <valid-val>` with the reference type :math:`(\mathsf{ref}~{\mathit{dt}})` if:
+
+
+   * The continuation instance :math:`s{.}\mathsf{conts}{}[a]` exists.
+
+   * The continuation instance :math:`s{.}\mathsf{conts}{}[a]` is absent or :math:`s{.}\mathsf{conts}{}[a]` is of the form :math:`{\mathit{continst}}`.
 
 
 
@@ -17150,6 +17233,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
 
+   #. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
+
    #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
 
    #. Pop the :math:`\mathsf{label}` L from the stack.
@@ -17160,7 +17245,9 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Else:
 
-   a. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+   a. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
+
+   #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
    #. Pop the :math:`\mathsf{label}` L from the stack.
 
@@ -17199,6 +17286,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
 
+#. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
+
 #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
 
 #. Pop the :math:`\mathsf{frame}` F from the stack.
@@ -17208,23 +17297,6 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 #. Push the value :math:`(\mathsf{ref{.}func}~a)` to the stack.
 
 #. Execute the instruction :math:`(\mathsf{call\_ref}~y)`.
-
-
-:math:`\mathsf{throw\_ref}`
-...........................
-
-
-1. Assert: Due to validation, a value is on the top of the stack.
-
-#. Pop the value :math:`(\mathsf{ref{.}exn}~a)` from the stack.
-
-#. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
-
-#. Assert: Due to validation, :math:`{{\mathit{val}}^\ast} \neq \epsilon`.
-
-#. Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
-
-#. Execute the instruction :math:`\mathsf{throw\_ref}`.
 
 
 :math:`\mathsf{throw\_ref}`
@@ -17384,60 +17456,6 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
          #) Execute the instruction :math:`(\mathsf{br}~l)`.
 
 
-:math:`\mathsf{table{.}copy}~x_1~x_2`
-.....................................
-
-
-1. Let :math:`z` be the current state.
-
-#. Assert: Due to validation, a number value is on the top of the stack.
-
-#. Pop the value :math:`({\mathit{at}}{.}\mathsf{const}~n)` from the stack.
-
-#. Assert: Due to validation, a number value is on the top of the stack.
-
-#. Pop the value :math:`({\mathit{at}}_2{.}\mathsf{const}~i_2)` from the stack.
-
-#. Assert: Due to validation, a number value is on the top of the stack.
-
-#. Pop the value :math:`({\mathit{at}}_1{.}\mathsf{const}~i_1)` from the stack.
-
-#. If :math:`i_1 + n > {|z{.}\mathsf{tables}{}[x_1]{.}\mathsf{refs}|}`, then:
-
-   a. Trap.
-
-#. If :math:`i_2 + n > {|z{.}\mathsf{tables}{}[x_2]{.}\mathsf{refs}|}`, then:
-
-   a. Trap.
-
-
-:math:`\mathsf{table{.}init}~x~y`
-.................................
-
-
-1. Let :math:`z` be the current state.
-
-#. Assert: Due to validation, a value of number type :math:`\mathsf{i{\scriptstyle 32}}` is on the top of the stack.
-
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~n)` from the stack.
-
-#. Assert: Due to validation, a value of number type :math:`\mathsf{i{\scriptstyle 32}}` is on the top of the stack.
-
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~j)` from the stack.
-
-#. Assert: Due to validation, a number value is on the top of the stack.
-
-#. Pop the value :math:`({\mathit{at}}{.}\mathsf{const}~i)` from the stack.
-
-#. If :math:`i + n > {|z{.}\mathsf{tables}{}[x]{.}\mathsf{refs}|}`, then:
-
-   a. Trap.
-
-#. If :math:`j + n > {|z{.}\mathsf{elems}{}[y]{.}\mathsf{refs}|}`, then:
-
-   a. Trap.
-
-
 :math:`{\mathit{nt}}{.}\mathsf{load}~x~{\mathit{ao}}`
 .....................................................
 
@@ -17545,58 +17563,129 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 #. Push the value :math:`(\mathsf{v{\scriptstyle 128}}{.}\mathsf{const}~c)` to the stack.
 
 
-:math:`\mathsf{memory{.}copy}~x_1~x_2`
-......................................
+:math:`\mathsf{suspending}~{\mathit{tagaddr}}~(\mathsf{suspend}~{{\mathit{val}}^\ast})~{\mathit{cont}}`
+.......................................................................................................
+
+
+1. Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{prompt}`.
+
+#. Let P be the topmost :math:`\mathsf{prompt}`.
+
+#. Let :math:`{{\mathit{addrhdl}}^\ast}` be the effect handler of P
+
+#. Assert: Due to validation, :math:`{\mathrm{gethandlersuspend}}({{\mathit{addrhdl}}^\ast}, {\mathit{tagaddr}})` is not defined.
+
+#. Pop the :math:`\mathsf{prompt}` P from the stack.
+
+#. Let :math:`{{\mathit{instr}'}^\ast}` be the remaining instruction sequence.
+
+#. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
+
+#. Let :math:`{\mathit{cont}'}` be the continuation instance :math:`(\mathsf{frame}~{{\mathit{val}'}^\ast}~(\mathsf{prompt}~\{~{{\mathit{addrhdl}}^\ast}~\})~{\mathit{cont}}~{{\mathit{instr}'}^\ast})`.
+
+#. Execute the instruction :math:`(\mathsf{suspending}~{\mathit{tagaddr}}~(\mathsf{suspend}~{{\mathit{val}}^\ast})~{\mathit{cont}'})`.
+
+
+:math:`\mathsf{suspending}~{\mathit{tagaddr}}~{\mathit{resumption}}~{\mathit{cont}}`
+....................................................................................
 
 
 1. Let :math:`z` be the current state.
 
-#. Assert: Due to validation, a number value is on the top of the stack.
+#. Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{prompt}`.
 
-#. Pop the value :math:`({\mathit{at}}{.}\mathsf{const}~n)` from the stack.
+#. Let P be the topmost :math:`\mathsf{prompt}`.
 
-#. Assert: Due to validation, a number value is on the top of the stack.
+#. Let :math:`{{\mathit{addrhdl}}^\ast}` be the effect handler of P
 
-#. Pop the value :math:`({\mathit{at}}_2{.}\mathsf{const}~i_2)` from the stack.
+#. If :math:`{\mathit{tagaddr}} < {|z{.}\mathsf{tags}|}`, then:
 
-#. Assert: Due to validation, a number value is on the top of the stack.
+   a. If :math:`{\mathit{resumption}}` is some :math:`\mathsf{suspend}~{{\mathit{val}}^\ast}`, then:
 
-#. Pop the value :math:`({\mathit{at}}_1{.}\mathsf{const}~i_1)` from the stack.
+      1) Let :math:`(\mathsf{suspend}~{{\mathit{val}}^{n}})` be the destructuring of :math:`{\mathit{resumption}}`.
 
-#. If :math:`i_1 + n > {|z{.}\mathsf{mems}{}[x_1]{.}\mathsf{bytes}|}`, then:
+      #) Let :math:`a` be the length of :math:`z{.}\mathsf{conts}`.
 
-   a. Trap.
+      #) Assert: Due to validation, :math:`{\mathrm{gethandlersuspend}}({{\mathit{addrhdl}}^\ast}, {\mathit{tagaddr}})` is defined.
 
-#. If :math:`i_2 + n > {|z{.}\mathsf{mems}{}[x_2]{.}\mathsf{bytes}|}`, then:
+      #) Let :math:`l` be :math:`{\mathrm{gethandlersuspend}}({{\mathit{addrhdl}}^\ast}, {\mathit{tagaddr}})`.
 
-   a. Trap.
+      #) Assert: Due to validation, the :ref:`expansion <aux-expand-deftype>` of :math:`z{.}\mathsf{tags}{}[{\mathit{tagaddr}}]{.}\mathsf{type}` is some :math:`\mathsf{func}~{\mathit{resulttype}} \rightarrow {\mathit{resulttype}}`.
+
+      #) Let :math:`(\mathsf{func}~{t_1^{n}}~\rightarrow~{t_2^\ast})` be the destructuring of the :ref:`expansion <aux-expand-deftype>` of :math:`z{.}\mathsf{tags}{}[{\mathit{tagaddr}}]{.}\mathsf{type}`.
+
+      #) Pop the :math:`\mathsf{prompt}` P from the stack.
+
+      #) Append :math:`{\mathit{cont}}` to :math:`z{.}\mathsf{conts}`.
+
+      #) Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
+
+      #) Push the value :math:`(\mathsf{ref{.}cont}~a)` to the stack.
+
+      #) Execute the instruction :math:`(\mathsf{br}~l)`.
+
+   #. Else:
+
+      1) Assert: Due to validation, :math:`{\mathrm{gethandlerswitch}}({{\mathit{addrhdl}}^\ast}, {\mathit{tagaddr}})`.
+
+      #) Assert: Due to validation, :math:`{\mathit{resumption}}` is some :math:`\mathsf{switch}~{\mathit{continst}}`.
+
+      #) Let :math:`(\mathsf{switch}~{\mathit{continst}})` be the destructuring of :math:`{\mathit{resumption}}`.
+
+      #) Let :math:`a` be the length of :math:`z{.}\mathsf{conts}`.
+
+      #) Let :math:`{\mathit{cont}'}` be the continuation instance :math:`{\mathrm{contfill}}({\mathit{continst}}, (\mathsf{ref{.}cont}~a), \epsilon)`.
+
+      #) Pop the :math:`\mathsf{prompt}` P from the stack.
+
+      #) Append :math:`{\mathit{cont}}` to :math:`z{.}\mathsf{conts}`.
+
+      #) Let P be the :math:`\mathsf{prompt}` whose effect handler is :math:`{{\mathit{addrhdl}}^\ast}`.
+
+      #) Enter the block :math:`(\mathsf{resuming}~{\mathit{cont}'})~\mathsf{prompt}` with the :math:`\mathsf{prompt}` P.
+
+#. Else:
+
+   a. Assert: Due to validation, :math:`{\mathrm{gethandlerswitch}}({{\mathit{addrhdl}}^\ast}, {\mathit{tagaddr}})`.
+
+   #. Assert: Due to validation, :math:`{\mathit{resumption}}` is some :math:`\mathsf{switch}~{\mathit{continst}}`.
+
+   #. Let :math:`(\mathsf{switch}~{\mathit{continst}})` be the destructuring of :math:`{\mathit{resumption}}`.
+
+   #. Let :math:`a` be the length of :math:`z{.}\mathsf{conts}`.
+
+   #. Let :math:`{\mathit{cont}'}` be the continuation instance :math:`{\mathrm{contfill}}({\mathit{continst}}, (\mathsf{ref{.}cont}~a), \epsilon)`.
+
+   #. Pop the :math:`\mathsf{prompt}` P from the stack.
+
+   #. Append :math:`{\mathit{cont}}` to :math:`z{.}\mathsf{conts}`.
+
+   #. Let P be the :math:`\mathsf{prompt}` whose effect handler is :math:`{{\mathit{addrhdl}}^\ast}`.
+
+   #. Enter the block :math:`(\mathsf{resuming}~{\mathit{cont}'})~\mathsf{prompt}` with the :math:`\mathsf{prompt}` P.
 
 
-:math:`\mathsf{memory{.}init}~x~y`
-..................................
+:math:`\mathsf{suspending}~{\mathit{tagaddr}}~(\mathsf{switch}~{\mathit{continst}})~{\mathit{cont}}`
+....................................................................................................
 
 
-1. Let :math:`z` be the current state.
+1. Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{prompt}`.
 
-#. Assert: Due to validation, a value of number type :math:`\mathsf{i{\scriptstyle 32}}` is on the top of the stack.
+#. Let P be the topmost :math:`\mathsf{prompt}`.
 
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~n)` from the stack.
+#. Let :math:`{{\mathit{addrhdl}}^\ast}` be the effect handler of P
 
-#. Assert: Due to validation, a value of number type :math:`\mathsf{i{\scriptstyle 32}}` is on the top of the stack.
+#. Assert: Due to validation, not :math:`{\mathrm{gethandlerswitch}}({{\mathit{addrhdl}}^\ast}, {\mathit{tagaddr}})`.
 
-#. Pop the value :math:`(\mathsf{i{\scriptstyle 32}}{.}\mathsf{const}~j)` from the stack.
+#. Pop the :math:`\mathsf{prompt}` P from the stack.
 
-#. Assert: Due to validation, a number value is on the top of the stack.
+#. Let :math:`{{\mathit{instr}'}^\ast}` be the remaining instruction sequence.
 
-#. Pop the value :math:`({\mathit{at}}{.}\mathsf{const}~i)` from the stack.
+#. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
 
-#. If :math:`i + n > {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|}`, then:
+#. Let :math:`{\mathit{cont}'}` be the continuation instance :math:`(\mathsf{frame}~{{\mathit{val}'}^\ast}~(\mathsf{prompt}~\{~{{\mathit{addrhdl}}^\ast}~\})~{\mathit{cont}}~{{\mathit{instr}'}^\ast})`.
 
-   a. Trap.
-
-#. If :math:`j + n > {|z{.}\mathsf{datas}{}[y]{.}\mathsf{bytes}|}`, then:
-
-   a. Trap.
+#. Execute the instruction :math:`(\mathsf{suspending}~{\mathit{tagaddr}}~(\mathsf{switch}~{\mathit{continst}})~{\mathit{cont}'})`.
 
 
 :math:`{\mathit{nt}}{.}\mathsf{store}~x~{\mathit{ao}}`
@@ -17739,6 +17828,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
       #) Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
 
+      #) Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
+
       #) Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
 
       #) Pop the :math:`\mathsf{label}` L from the stack.
@@ -17749,7 +17840,9 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    #. Else:
 
-      1) Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+      1) Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
+
+      #) Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
       #) Pop the :math:`\mathsf{label}` L from the stack.
 
@@ -17757,13 +17850,27 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
       #) Execute the instruction :math:`(\mathsf{br}~l - 1)`.
 
-#. Else:
+#. Else if the first non-value entry of the stack is a :math:`\mathsf{handler}`, then:
 
-   a. Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{handler}`.
+   a. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
 
    #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
    #. Pop the :math:`\mathsf{handler}` H from the stack.
+
+   #. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
+
+   #. Execute the instruction :math:`(\mathsf{br}~l)`.
+
+#. Else:
+
+   a. Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{prompt}`.
+
+   #. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
+
+   #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+
+   #. Pop the :math:`\mathsf{prompt}` P from the stack.
 
    #. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
 
@@ -17897,6 +18004,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
 
+   #. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
+
    #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
 
    #. Pop the :math:`\mathsf{frame}` F from the stack.
@@ -17905,7 +18014,9 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Else if the first non-value entry of the stack is a :math:`\mathsf{label}`, then:
 
-   a. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+   a. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
+
+   #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
    #. Pop the :math:`\mathsf{label}` L from the stack.
 
@@ -17915,15 +18026,31 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Else:
 
-   a. Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{handler}`.
+   a. If the first non-value entry of the stack is a :math:`\mathsf{handler}`, then:
 
-   #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+      1) Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
 
-   #. Pop the :math:`\mathsf{handler}` H from the stack.
+      #) Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
-   #. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
+      #) Pop the :math:`\mathsf{handler}` H from the stack.
 
-   #. Execute the instruction :math:`\mathsf{return}`.
+      #) Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
+
+      #) Execute the instruction :math:`\mathsf{return}`.
+
+   #. Else:
+
+      1) Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{prompt}`.
+
+      #) Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
+
+      #) Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+
+      #) Pop the :math:`\mathsf{prompt}` P from the stack.
+
+      #) Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
+
+      #) Execute the instruction :math:`\mathsf{return}`.
 
 
 :math:`\mathsf{handler}`
@@ -17935,6 +18062,84 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 #. Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{handler}`.
 
 #. Pop the :math:`\mathsf{handler}` H from the stack.
+
+#. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
+
+
+:math:`\mathsf{resuming}~{\mathit{continst}}`
+.............................................
+
+
+1. If :math:`{\mathit{continst}}` is some :math:`\mathsf{vals}~{{\mathit{val}}^\ast}~\mathsf{hole}~{{\mathit{instr}}^\ast}`, then:
+
+   a. Let :math:`(\mathsf{vals}~{{\mathit{val}}^\ast}~\mathsf{hole}~{{\mathit{instr}}^\ast})` be the destructuring of :math:`{\mathit{continst}}`.
+
+   #. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
+
+   #. Execute the sequence :math:`{{\mathit{instr}}^\ast}`.
+
+#. If :math:`{\mathit{continst}}` is some :math:`\mathsf{frame}~{{\mathit{val}}^\ast}~{\mathit{generalframe}}~{\mathit{continst}}~{{\mathit{instr}}^\ast}`, then:
+
+   a. Let :math:`(\mathsf{frame}~{{\mathit{val}'}^\ast}~{\mathit{generalframe}}_0~{\mathit{cont}}~{{\mathit{instr}'}^\ast})` be the destructuring of :math:`{\mathit{continst}}`.
+
+   #. If :math:`{\mathit{generalframe}}_0` is some :math:`{\mathsf{label}}_{n}\,\{ {{\mathit{instr}}^\ast} \}`, then:
+
+      1) Let :math:`({\mathsf{label}}_{n}\,\{~{{\mathit{instr}}^\ast}~\})` be the destructuring of :math:`{\mathit{generalframe}}_0`.
+
+      #) Push the values :math:`{{\mathit{val}'}^\ast}` to the stack.
+
+      #) Prepend :math:`{{\mathit{instr}'}^\ast}` to the remaining instruction sequence.
+
+      #) Let L be the :math:`\mathsf{label}` whose arity is :math:`n` and whose continuation is the start of the block.
+
+      #) Enter the block :math:`(\mathsf{resuming}~{\mathit{cont}})` with the :math:`\mathsf{label}` L.
+
+   #. If :math:`{\mathit{generalframe}}_0` is some :math:`{\mathsf{frame}}_{n}\,\{ {\mathit{frame}} \}`, then:
+
+      1) Let :math:`({\mathsf{frame}}_{n}\,\{~{\mathit{frame}}~\})` be the destructuring of :math:`{\mathit{generalframe}}_0`.
+
+      #) Push the values :math:`{{\mathit{val}'}^\ast}` to the stack.
+
+      #) Prepend :math:`{{\mathit{instr}'}^\ast}` to the remaining instruction sequence.
+
+      #) Let frame be the :math:`\mathsf{frame}` :math:`{\mathit{frame}}` whose arity is :math:`n`.
+
+      #) Enter the block :math:`(\mathsf{resuming}~{\mathit{cont}})~\mathsf{frame}` with the :math:`\mathsf{frame}` F.
+
+   #. If :math:`{\mathit{generalframe}}_0` is some :math:`{\mathsf{handler}}_{n}\,\{ {{\mathit{catch}}^\ast} \}`, then:
+
+      1) Let :math:`({\mathsf{handler}}_{n}\,\{~{{\mathit{catch}}^\ast}~\})` be the destructuring of :math:`{\mathit{generalframe}}_0`.
+
+      #) Push the values :math:`{{\mathit{val}'}^\ast}` to the stack.
+
+      #) Prepend :math:`{{\mathit{instr}'}^\ast}` to the remaining instruction sequence.
+
+      #) Let H be the :math:`\mathsf{handler}` whose arity is :math:`n` and whose catch handler is :math:`{{\mathit{catch}}^\ast}`.
+
+      #) Enter the block :math:`(\mathsf{resuming}~{\mathit{cont}})~\mathsf{handler}` with the :math:`\mathsf{handler}` H.
+
+   #. If :math:`{\mathit{generalframe}}_0` is some :math:`\mathsf{prompt}~\{ {{\mathit{addrhdl}}^\ast} \}`, then:
+
+      1) Let :math:`(\mathsf{prompt}~\{~{{\mathit{addrhdl}}^\ast}~\})` be the destructuring of :math:`{\mathit{generalframe}}_0`.
+
+      #) Push the values :math:`{{\mathit{val}'}^\ast}` to the stack.
+
+      #) Prepend :math:`{{\mathit{instr}'}^\ast}` to the remaining instruction sequence.
+
+      #) Let P be the :math:`\mathsf{prompt}` whose effect handler is :math:`{{\mathit{addrhdl}}^\ast}`.
+
+      #) Enter the block :math:`(\mathsf{resuming}~{\mathit{cont}})~\mathsf{prompt}` with the :math:`\mathsf{prompt}` P.
+
+
+:math:`\mathsf{prompt}`
+.......................
+
+
+1. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+
+#. Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{prompt}`.
+
+#. Pop the :math:`\mathsf{prompt}` P from the stack.
 
 #. Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
 
@@ -18725,7 +18930,9 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. If the first non-value entry of the stack is a :math:`\mathsf{label}`, then:
 
-   a. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+   a. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
+
+   #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
    #. Pop the :math:`\mathsf{label}` L from the stack.
 
@@ -18735,7 +18942,9 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Else if the first non-value entry of the stack is a :math:`\mathsf{handler}`, then:
 
-   a. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+   a. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
+
+   #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
    #. Pop the :math:`\mathsf{handler}` H from the stack.
 
@@ -18769,6 +18978,8 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
 
+   #. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
+
    #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
 
    #. Pop the :math:`\mathsf{frame}` F from the stack.
@@ -18798,9 +19009,11 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    a. Let :math:`(\mathsf{ref{.}exn}~a)` be the destructuring of :math:`{\mathit{val}'}`.
 
+   #. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
+
    #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
-   #. If :math:`{{\mathit{val}}^\ast} \neq \epsilon`, then:
+   #. If :math:`{{\mathit{val}}^\ast} \neq \epsilon` or :math:`{{\mathit{instr}}^\ast} \neq \epsilon`, then:
 
       1) Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
 
@@ -18824,125 +19037,41 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
          #) Execute the instruction :math:`\mathsf{throw\_ref}`.
 
-      #) Else if not the first non-value entry of the stack is a :math:`\mathsf{handler}`, then:
+      #) Else if the first non-value entry of the stack is a :math:`\mathsf{prompt}`, then:
 
-         a) Throw the exception :math:`{\mathit{val}'}` as a result.
+         a) Pop the :math:`\mathsf{prompt}` P from the stack.
+
+         #) Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
+
+         #) Execute the instruction :math:`\mathsf{throw\_ref}`.
 
       #) Else:
 
-         a) Let H be the topmost :math:`\mathsf{handler}`.
+         a) If not the first non-value entry of the stack is a :math:`\mathsf{handler}`, then:
 
-         #) Let :math:`n` be the arity of H
+            1. Throw the exception :math:`{\mathit{val}'}` as a result.
 
-         #) Let :math:`{{\mathit{catch}''}^\ast}` be the catch handler of H
+         #) Else:
 
-         #) If :math:`{{\mathit{catch}''}^\ast} = \epsilon`, then:
+            1. Let H be the topmost :math:`\mathsf{handler}`.
 
-            1. Pop the :math:`\mathsf{handler}` H from the stack.
+            #. Let :math:`n` be the arity of H
 
-            #. Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
+            #. Let :math:`{{\mathit{catch}''}^\ast}` be the catch handler of H
 
-            #. Execute the instruction :math:`\mathsf{throw\_ref}`.
+            #. If :math:`{{\mathit{catch}''}^\ast} = \epsilon`, then:
 
-         #) Else if :math:`a \geq {|z{.}\mathsf{exns}|}`, then:
-
-            1. Let :math:`{\mathit{catch}}_0~{{\mathit{catch}'}^\ast}` be :math:`{{\mathit{catch}''}^\ast}`.
-
-            #. If :math:`{\mathit{catch}}_0` is some :math:`\mathsf{catch\_all}~{\mathit{labelidx}}`, then:
-
-               a. Let :math:`(\mathsf{catch\_all}~l)` be the destructuring of :math:`{\mathit{catch}}_0`.
-
-               #. Pop the :math:`\mathsf{handler}` H from the stack.
-
-               #. Execute the instruction :math:`(\mathsf{br}~l)`.
-
-            #. Else if :math:`{\mathit{catch}}_0` is not some :math:`\mathsf{catch\_all\_ref}~{\mathit{labelidx}}`, then:
-
-               a. Let :math:`{\mathit{catch}}~{{\mathit{catch}'}^\ast}` be :math:`{{\mathit{catch}''}^\ast}`.
-
-               #. Pop the :math:`\mathsf{handler}` H from the stack.
-
-               #. Let H be the :math:`\mathsf{handler}` whose arity is :math:`n` and whose catch handler is :math:`{{\mathit{catch}'}^\ast}`.
-
-               #. Push the :math:`\mathsf{handler}` H.
+               a. Pop the :math:`\mathsf{handler}` H from the stack.
 
                #. Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
 
                #. Execute the instruction :math:`\mathsf{throw\_ref}`.
 
-            #. Else:
+            #. Else if :math:`a \geq {|z{.}\mathsf{exns}|}`, then:
 
-               a. Let :math:`(\mathsf{catch\_all\_ref}~l)` be the destructuring of :math:`{\mathit{catch}}_0`.
+               a. Let :math:`{\mathit{catch}}_0~{{\mathit{catch}'}^\ast}` be :math:`{{\mathit{catch}''}^\ast}`.
 
-               #. Pop the :math:`\mathsf{handler}` H from the stack.
-
-               #. Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
-
-               #. Execute the instruction :math:`(\mathsf{br}~l)`.
-
-         #) Else:
-
-            1. Let :math:`{{\mathit{val}}^\ast}` be :math:`z{.}\mathsf{exns}{}[a]{.}\mathsf{fields}`.
-
-            #. Let :math:`{\mathit{catch}}_0~{{\mathit{catch}'}^\ast}` be :math:`{{\mathit{catch}''}^\ast}`.
-
-            #. If :math:`{\mathit{catch}}_0` is some :math:`\mathsf{catch}~{\mathit{tagidx}}~{\mathit{labelidx}}`, then:
-
-               a. Let :math:`(\mathsf{catch}~x~l)` be the destructuring of :math:`{\mathit{catch}}_0`.
-
-               #. If :math:`x < {|z{.}\mathsf{tags}|}` and :math:`z{.}\mathsf{exns}{}[a]{.}\mathsf{tag} = z{.}\mathsf{tags}{}[x]`, then:
-
-                  1) Pop the :math:`\mathsf{handler}` H from the stack.
-
-                  #) Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
-
-                  #) Execute the instruction :math:`(\mathsf{br}~l)`.
-
-               #. Else:
-
-                  1) Let :math:`{\mathit{catch}}~{{\mathit{catch}'}^\ast}` be :math:`{{\mathit{catch}''}^\ast}`.
-
-                  #) Pop the :math:`\mathsf{handler}` H from the stack.
-
-                  #) Let H be the :math:`\mathsf{handler}` whose arity is :math:`n` and whose catch handler is :math:`{{\mathit{catch}'}^\ast}`.
-
-                  #) Push the :math:`\mathsf{handler}` H.
-
-                  #) Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
-
-                  #) Execute the instruction :math:`\mathsf{throw\_ref}`.
-
-            #. Else if :math:`{\mathit{catch}}_0` is some :math:`\mathsf{catch\_ref}~{\mathit{tagidx}}~{\mathit{labelidx}}`, then:
-
-               a. Let :math:`(\mathsf{catch\_ref}~x~l)` be the destructuring of :math:`{\mathit{catch}}_0`.
-
-               #. If :math:`x \geq {|z{.}\mathsf{tags}|}` or :math:`z{.}\mathsf{exns}{}[a]{.}\mathsf{tag} \neq z{.}\mathsf{tags}{}[x]`, then:
-
-                  1) Let :math:`{\mathit{catch}}~{{\mathit{catch}'}^\ast}` be :math:`{{\mathit{catch}''}^\ast}`.
-
-                  #) Pop the :math:`\mathsf{handler}` H from the stack.
-
-                  #) Let H be the :math:`\mathsf{handler}` whose arity is :math:`n` and whose catch handler is :math:`{{\mathit{catch}'}^\ast}`.
-
-                  #) Push the :math:`\mathsf{handler}` H.
-
-                  #) Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
-
-                  #) Execute the instruction :math:`\mathsf{throw\_ref}`.
-
-               #. Else:
-
-                  1) Pop the :math:`\mathsf{handler}` H from the stack.
-
-                  #) Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
-
-                  #) Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
-
-                  #) Execute the instruction :math:`(\mathsf{br}~l)`.
-
-            #. Else:
-
-               a. If :math:`{\mathit{catch}}_0` is some :math:`\mathsf{catch\_all}~{\mathit{labelidx}}`, then:
+               #. If :math:`{\mathit{catch}}_0` is some :math:`\mathsf{catch\_all}~{\mathit{labelidx}}`, then:
 
                   1) Let :math:`(\mathsf{catch\_all}~l)` be the destructuring of :math:`{\mathit{catch}}_0`.
 
@@ -18974,11 +19103,107 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
                   #) Execute the instruction :math:`(\mathsf{br}~l)`.
 
+            #. Else:
+
+               a. Let :math:`{{\mathit{val}}^\ast}` be :math:`z{.}\mathsf{exns}{}[a]{.}\mathsf{fields}`.
+
+               #. Let :math:`{\mathit{catch}}_0~{{\mathit{catch}'}^\ast}` be :math:`{{\mathit{catch}''}^\ast}`.
+
+               #. If :math:`{\mathit{catch}}_0` is some :math:`\mathsf{catch}~{\mathit{tagidx}}~{\mathit{labelidx}}`, then:
+
+                  1) Let :math:`(\mathsf{catch}~x~l)` be the destructuring of :math:`{\mathit{catch}}_0`.
+
+                  #) If :math:`x < {|z{.}\mathsf{tags}|}` and :math:`z{.}\mathsf{exns}{}[a]{.}\mathsf{tag} = z{.}\mathsf{tags}{}[x]`, then:
+
+                     a) Pop the :math:`\mathsf{handler}` H from the stack.
+
+                     #) Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
+
+                     #) Execute the instruction :math:`(\mathsf{br}~l)`.
+
+                  #) Else:
+
+                     a) Let :math:`{\mathit{catch}}~{{\mathit{catch}'}^\ast}` be :math:`{{\mathit{catch}''}^\ast}`.
+
+                     #) Pop the :math:`\mathsf{handler}` H from the stack.
+
+                     #) Let H be the :math:`\mathsf{handler}` whose arity is :math:`n` and whose catch handler is :math:`{{\mathit{catch}'}^\ast}`.
+
+                     #) Push the :math:`\mathsf{handler}` H.
+
+                     #) Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
+
+                     #) Execute the instruction :math:`\mathsf{throw\_ref}`.
+
+               #. Else if :math:`{\mathit{catch}}_0` is some :math:`\mathsf{catch\_ref}~{\mathit{tagidx}}~{\mathit{labelidx}}`, then:
+
+                  1) Let :math:`(\mathsf{catch\_ref}~x~l)` be the destructuring of :math:`{\mathit{catch}}_0`.
+
+                  #) If :math:`x \geq {|z{.}\mathsf{tags}|}` or :math:`z{.}\mathsf{exns}{}[a]{.}\mathsf{tag} \neq z{.}\mathsf{tags}{}[x]`, then:
+
+                     a) Let :math:`{\mathit{catch}}~{{\mathit{catch}'}^\ast}` be :math:`{{\mathit{catch}''}^\ast}`.
+
+                     #) Pop the :math:`\mathsf{handler}` H from the stack.
+
+                     #) Let H be the :math:`\mathsf{handler}` whose arity is :math:`n` and whose catch handler is :math:`{{\mathit{catch}'}^\ast}`.
+
+                     #) Push the :math:`\mathsf{handler}` H.
+
+                     #) Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
+
+                     #) Execute the instruction :math:`\mathsf{throw\_ref}`.
+
+                  #) Else:
+
+                     a) Pop the :math:`\mathsf{handler}` H from the stack.
+
+                     #) Push the values :math:`{{\mathit{val}}^\ast}` to the stack.
+
+                     #) Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
+
+                     #) Execute the instruction :math:`(\mathsf{br}~l)`.
+
+               #. Else:
+
+                  1) If :math:`{\mathit{catch}}_0` is some :math:`\mathsf{catch\_all}~{\mathit{labelidx}}`, then:
+
+                     a) Let :math:`(\mathsf{catch\_all}~l)` be the destructuring of :math:`{\mathit{catch}}_0`.
+
+                     #) Pop the :math:`\mathsf{handler}` H from the stack.
+
+                     #) Execute the instruction :math:`(\mathsf{br}~l)`.
+
+                  #) Else if :math:`{\mathit{catch}}_0` is not some :math:`\mathsf{catch\_all\_ref}~{\mathit{labelidx}}`, then:
+
+                     a) Let :math:`{\mathit{catch}}~{{\mathit{catch}'}^\ast}` be :math:`{{\mathit{catch}''}^\ast}`.
+
+                     #) Pop the :math:`\mathsf{handler}` H from the stack.
+
+                     #) Let H be the :math:`\mathsf{handler}` whose arity is :math:`n` and whose catch handler is :math:`{{\mathit{catch}'}^\ast}`.
+
+                     #) Push the :math:`\mathsf{handler}` H.
+
+                     #) Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
+
+                     #) Execute the instruction :math:`\mathsf{throw\_ref}`.
+
+                  #) Else:
+
+                     a) Let :math:`(\mathsf{catch\_all\_ref}~l)` be the destructuring of :math:`{\mathit{catch}}_0`.
+
+                     #) Pop the :math:`\mathsf{handler}` H from the stack.
+
+                     #) Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
+
+                     #) Execute the instruction :math:`(\mathsf{br}~l)`.
+
 #. Else:
 
    a. Assert: Due to validation, not the first non-value entry of the stack is a :math:`\mathsf{label}`.
 
    #. Assert: Due to validation, not the first non-value entry of the stack is a :math:`\mathsf{frame}`.
+
+   #. Assert: Due to validation, not the first non-value entry of the stack is a :math:`\mathsf{prompt}`.
 
    #. Assert: Due to validation, not the first non-value entry of the stack is a :math:`\mathsf{handler}`.
 
@@ -19006,6 +19231,33 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 #. Let L be the :math:`\mathsf{label}` whose arity is :math:`n` and whose continuation is the end of the block.
 
 #. Enter the block :math:`{{\mathit{val}}^{m}}~{{\mathit{instr}}^\ast}` with the :math:`\mathsf{label}` L.
+
+
+:math:`\mathsf{suspend}~x`
+..........................
+
+
+1. Let :math:`z` be the current state.
+
+#. Assert: Due to validation, :math:`x < {|z{.}\mathsf{tags}|}`.
+
+#. Let :math:`{\mathit{tagaddr}}` be the tag address :math:`z{.}\mathsf{tags}{}[x]`.
+
+#. Assert: Due to validation, :math:`{\mathit{tagaddr}} < {|z{.}\mathsf{tags}|}`.
+
+#. Assert: Due to validation, the :ref:`expansion <aux-expand-deftype>` of :math:`z{.}\mathsf{tags}{}[{\mathit{tagaddr}}]{.}\mathsf{type}` is some :math:`\mathsf{func}~{\mathit{resulttype}} \rightarrow {\mathit{resulttype}}`.
+
+#. Let :math:`(\mathsf{func}~{t_1^{n}}~\rightarrow~{t_2^\ast})` be the destructuring of the :ref:`expansion <aux-expand-deftype>` of :math:`z{.}\mathsf{tags}{}[{\mathit{tagaddr}}]{.}\mathsf{type}`.
+
+#. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
+
+#. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
+
+#. Let :math:`{{\mathit{instr}'}^\ast}` be the remaining instruction sequence.
+
+#. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
+
+#. Execute the instruction :math:`(\mathsf{suspending}~{\mathit{tagaddr}}~(\mathsf{suspend}~{{\mathit{val}}^{n}})~(\mathsf{vals}~{{\mathit{val}'}^\ast}~\mathsf{hole}~{{\mathit{instr}'}^\ast}))`.
 
 
 :math:`\mathsf{local{.}get}~x`
@@ -19123,11 +19375,7 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Pop the value :math:`({\mathit{at}}_1{.}\mathsf{const}~i_1)` from the stack.
 
-#. If :math:`i_1 + n > {|z{.}\mathsf{tables}{}[x_1]{.}\mathsf{refs}|}`, then:
-
-   a. Trap.
-
-#. If :math:`i_2 + n > {|z{.}\mathsf{tables}{}[x_2]{.}\mathsf{refs}|}`, then:
+#. If :math:`i_1 + n > {|z{.}\mathsf{tables}{}[x_1]{.}\mathsf{refs}|}` or :math:`i_2 + n > {|z{.}\mathsf{tables}{}[x_2]{.}\mathsf{refs}|}`, then:
 
    a. Trap.
 
@@ -19188,11 +19436,7 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Pop the value :math:`({\mathit{at}}{.}\mathsf{const}~i)` from the stack.
 
-#. If :math:`i + n > {|z{.}\mathsf{tables}{}[x]{.}\mathsf{refs}|}`, then:
-
-   a. Trap.
-
-#. If :math:`j + n > {|z{.}\mathsf{elems}{}[y]{.}\mathsf{refs}|}`, then:
+#. If :math:`i + n > {|z{.}\mathsf{tables}{}[x]{.}\mathsf{refs}|}` or :math:`j + n > {|z{.}\mathsf{elems}{}[y]{.}\mathsf{refs}|}`, then:
 
    a. Trap.
 
@@ -19432,11 +19676,7 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Pop the value :math:`({\mathit{at}}_1{.}\mathsf{const}~i_1)` from the stack.
 
-#. If :math:`i_1 + n > {|z{.}\mathsf{mems}{}[x_1]{.}\mathsf{bytes}|}`, then:
-
-   a. Trap.
-
-#. If :math:`i_2 + n > {|z{.}\mathsf{mems}{}[x_2]{.}\mathsf{bytes}|}`, then:
+#. If :math:`i_1 + n > {|z{.}\mathsf{mems}{}[x_1]{.}\mathsf{bytes}|}` or :math:`i_2 + n > {|z{.}\mathsf{mems}{}[x_2]{.}\mathsf{bytes}|}`, then:
 
    a. Trap.
 
@@ -19497,11 +19737,7 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Pop the value :math:`({\mathit{at}}{.}\mathsf{const}~i)` from the stack.
 
-#. If :math:`i + n > {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|}`, then:
-
-   a. Trap.
-
-#. If :math:`j + n > {|z{.}\mathsf{datas}{}[y]{.}\mathsf{bytes}|}`, then:
+#. If :math:`i + n > {|z{.}\mathsf{mems}{}[x]{.}\mathsf{bytes}|}` or :math:`j + n > {|z{.}\mathsf{datas}{}[y]{.}\mathsf{bytes}|}`, then:
 
    a. Trap.
 
@@ -20132,6 +20368,520 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 #. Push the value :math:`(\mathsf{ref{.}exn}~a)` to the stack.
 
 #. Execute the instruction :math:`\mathsf{throw\_ref}`.
+
+
+:math:`\mathsf{cont{.}new}~x`
+.............................
+
+
+1. Let :math:`z` be the current state.
+
+#. Assert: Due to validation, a value is on the top of the stack.
+
+#. Pop the value :math:`{\mathit{val}}` from the stack.
+
+#. If :math:`{\mathit{val}}` is some :math:`\mathsf{ref{.}null}~{\mathit{heaptype}}`, then:
+
+   a. Trap.
+
+#. Assert: Due to validation, :math:`{\mathit{val}}` is some :math:`\mathsf{ref{.}func}~{\mathit{funcaddr}}`.
+
+#. Let :math:`(\mathsf{ref{.}func}~a)` be the destructuring of :math:`{\mathit{val}}`.
+
+#. Let :math:`{\mathit{ca}}` be the length of :math:`z{.}\mathsf{conts}`.
+
+#. Assert: Due to validation, the :ref:`expansion <aux-expand-deftype>` of :math:`z{.}\mathsf{types}{}[x]` is some :math:`\mathsf{cont}~{\mathit{typeuse}}`.
+
+#. Let :math:`(\mathsf{cont}~{\mathit{dt}})` be the destructuring of the :ref:`expansion <aux-expand-deftype>` of :math:`z{.}\mathsf{types}{}[x]`.
+
+#. Assert: Due to validation, the :ref:`expansion <aux-expand-deftype>` of :math:`{\mathit{dt}}` is some :math:`\mathsf{func}~{\mathit{resulttype}} \rightarrow {\mathit{resulttype}}`.
+
+#. Let :math:`{{\mathit{instr}}^\ast}` be :math:`(\mathsf{ref{.}func}~a)~(\mathsf{call\_ref}~{\mathit{dt}})`.
+
+#. Push the value :math:`(\mathsf{ref{.}cont}~{\mathit{ca}})` to the stack.
+
+#. Append :math:`(\mathsf{vals}~\mathsf{hole}~{{\mathit{instr}}^\ast})` to :math:`z{.}\mathsf{conts}`.
+
+
+:math:`\mathsf{cont{.}bind}~x~y`
+................................
+
+
+1. Let :math:`z` be the current state.
+
+#. Assert: Due to validation, a value is on the top of the stack.
+
+#. Pop the value :math:`{\mathit{val}'}` from the stack.
+
+#. If :math:`{\mathit{val}'}` is some :math:`\mathsf{ref{.}null}~{\mathit{heaptype}}`, then:
+
+   a. Trap.
+
+#. Assert: Due to validation, :math:`{\mathit{val}'}` is some :math:`\mathsf{ref{.}cont}~{\mathit{contaddr}}`.
+
+#. Let :math:`(\mathsf{ref{.}cont}~a)` be the destructuring of :math:`{\mathit{val}'}`.
+
+#. Assert: Due to validation, :math:`a < {|z{.}\mathsf{conts}|}`.
+
+#. If :math:`z{.}\mathsf{conts}{}[a]` is not defined, then:
+
+   a. Trap.
+
+#. Assert: Due to validation, the :ref:`expansion <aux-expand-deftype>` of :math:`z{.}\mathsf{types}{}[x]` is some :math:`\mathsf{cont}~{\mathit{typeuse}}`.
+
+#. Let :math:`(\mathsf{cont}~{\mathit{dt}})` be the destructuring of the :ref:`expansion <aux-expand-deftype>` of :math:`z{.}\mathsf{types}{}[x]`.
+
+#. Assert: Due to validation, the :ref:`expansion <aux-expand-deftype>` of :math:`z{.}\mathsf{types}{}[y]` is some :math:`\mathsf{cont}~{\mathit{typeuse}}`.
+
+#. Let :math:`(\mathsf{cont}~{\mathit{dt}'})` be the destructuring of the :ref:`expansion <aux-expand-deftype>` of :math:`z{.}\mathsf{types}{}[y]`.
+
+#. Let :math:`{\mathit{ca}}` be the length of :math:`z{.}\mathsf{conts}`.
+
+#. Assert: Due to validation, :math:`z{.}\mathsf{conts}{}[a]` is defined.
+
+#. Let :math:`{\mathit{cont}}` be :math:`z{.}\mathsf{conts}{}[a]`.
+
+#. Assert: Due to validation, the :ref:`expansion <aux-expand-deftype>` of :math:`{\mathit{dt}'}` is some :math:`\mathsf{func}~{\mathit{resulttype}} \rightarrow {\mathit{resulttype}}`.
+
+#. Let :math:`(\mathsf{func}~{{t'}_1^\ast}~\rightarrow~{{t'}_2^\ast})` be the destructuring of the :ref:`expansion <aux-expand-deftype>` of :math:`{\mathit{dt}'}`.
+
+#. Assert: Due to validation, the :ref:`expansion <aux-expand-deftype>` of :math:`{\mathit{dt}}` is some :math:`\mathsf{func}~{\mathit{resulttype}} \rightarrow {\mathit{resulttype}}`.
+
+#. Let :math:`(\mathsf{func}~{t_1^\ast}~\rightarrow~{t_2^\ast})` be the destructuring of the :ref:`expansion <aux-expand-deftype>` of :math:`{\mathit{dt}}`.
+
+#. Let :math:`n` be :math:`{|{t_1^\ast}|} - {|{{t'}_1^\ast}|}`.
+
+#. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
+
+#. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
+
+#. Let :math:`{z'}` be the state :math:`z{}[{.}\mathsf{conts} \mathrel{{=}{\oplus}} {\mathrm{contfill}}({\mathit{cont}}, {{\mathit{val}}^{n}}, \epsilon)]`.
+
+#. Push the value :math:`(\mathsf{ref{.}cont}~{\mathit{ca}})` to the stack.
+
+#. Replace :math:`{z'}{.}\mathsf{conts}{}[a]` with :math:`\epsilon`.
+
+
+:math:`\mathsf{resume}~{\mathit{kx}}~{{\mathit{hdl}}^\ast}`
+...........................................................
+
+
+1. Let :math:`z` be the current state.
+
+#. Assert: Due to validation, a value is on the top of the stack.
+
+#. Pop the value :math:`{\mathit{val}'}` from the stack.
+
+#. If :math:`{\mathit{val}'}` is some :math:`\mathsf{ref{.}null}~{\mathit{heaptype}}`, then:
+
+   a. Trap.
+
+#. Assert: Due to validation, :math:`{\mathit{val}'}` is some :math:`\mathsf{ref{.}cont}~{\mathit{contaddr}}`.
+
+#. Let :math:`(\mathsf{ref{.}cont}~a)` be the destructuring of :math:`{\mathit{val}'}`.
+
+#. Assert: Due to validation, :math:`a < {|z{.}\mathsf{conts}|}`.
+
+#. If :math:`z{.}\mathsf{conts}{}[a]` is not defined, then:
+
+   a. Trap.
+
+#. Assert: Due to validation, the :ref:`expansion <aux-expand-deftype>` of :math:`z{.}\mathsf{types}{}[{\mathit{kx}}]` is some :math:`\mathsf{cont}~{\mathit{typeuse}}`.
+
+#. Let :math:`(\mathsf{cont}~{\mathit{dt}})` be the destructuring of the :ref:`expansion <aux-expand-deftype>` of :math:`z{.}\mathsf{types}{}[{\mathit{kx}}]`.
+
+#. Let :math:`{{\mathit{addrhdl}}^\ast}` be :math:`{{\mathrm{hdlinst}}(z, {\mathit{hdl}})^\ast}`.
+
+#. Assert: Due to validation, :math:`z{.}\mathsf{conts}{}[a]` is defined.
+
+#. Let :math:`{\mathit{cont}}` be :math:`z{.}\mathsf{conts}{}[a]`.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{addrhdl}}^\ast}|} = {|{{\mathit{hdl}}^\ast}|}`.
+
+#. Assert: Due to validation, the :ref:`expansion <aux-expand-deftype>` of :math:`{\mathit{dt}}` is some :math:`\mathsf{func}~{\mathit{resulttype}} \rightarrow {\mathit{resulttype}}`.
+
+#. Let :math:`(\mathsf{func}~{t_1^{n}}~\rightarrow~{t_2^\ast})` be the destructuring of the :ref:`expansion <aux-expand-deftype>` of :math:`{\mathit{dt}}`.
+
+#. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
+
+#. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
+
+#. Let :math:`{\mathit{cont}'}` be the continuation instance :math:`{\mathrm{contfill}}({\mathit{cont}}, {{\mathit{val}}^{n}}, \epsilon)`.
+
+#. Replace :math:`z{.}\mathsf{conts}{}[a]` with :math:`\epsilon`.
+
+#. Let P be the :math:`\mathsf{prompt}` whose effect handler is :math:`{{\mathit{addrhdl}}^\ast}`.
+
+#. Enter the block :math:`(\mathsf{resuming}~{\mathit{cont}'})~\mathsf{prompt}` with the :math:`\mathsf{prompt}` P.
+
+
+:math:`\mathsf{resume\_throw}~{\mathit{kx}}~{\mathit{ax}}~{{\mathit{hdl}}^\ast}`
+................................................................................
+
+
+1. Let :math:`z` be the current state.
+
+#. Assert: Due to validation, a value is on the top of the stack.
+
+#. Pop the value :math:`{\mathit{val}'}` from the stack.
+
+#. If :math:`{\mathit{val}'}` is some :math:`\mathsf{ref{.}null}~{\mathit{heaptype}}`, then:
+
+   a. Trap.
+
+#. Assert: Due to validation, :math:`{\mathit{val}'}` is some :math:`\mathsf{ref{.}cont}~{\mathit{contaddr}}`.
+
+#. Let :math:`(\mathsf{ref{.}cont}~a)` be the destructuring of :math:`{\mathit{val}'}`.
+
+#. Assert: Due to validation, :math:`a < {|z{.}\mathsf{conts}|}`.
+
+#. If :math:`z{.}\mathsf{conts}{}[a]` is not defined, then:
+
+   a. Trap.
+
+#. Assert: Due to validation, :math:`{\mathit{ax}} < {|z{.}\mathsf{tags}|}`.
+
+#. Assert: Due to validation, the :ref:`expansion <aux-expand-deftype>` of :math:`z{.}\mathsf{tags}{}[{\mathit{ax}}]{.}\mathsf{type}` is some :math:`\mathsf{func}~{\mathit{resulttype}} \rightarrow {\mathit{resulttype}}`.
+
+#. Let :math:`(\mathsf{func}~{t^{m}}~\rightarrow~{\mathit{resulttype}}_0)` be the destructuring of the :ref:`expansion <aux-expand-deftype>` of :math:`z{.}\mathsf{tags}{}[{\mathit{ax}}]{.}\mathsf{type}`.
+
+#. Assert: Due to validation, :math:`{\mathit{resulttype}}_0 = \epsilon`.
+
+#. Let :math:`{{\mathit{addrhdl}}^\ast}` be :math:`{{\mathrm{hdlinst}}(z, {\mathit{hdl}})^\ast}`.
+
+#. Let :math:`{a'}` be the length of :math:`z{.}\mathsf{exns}`.
+
+#. Assert: Due to validation, :math:`z{.}\mathsf{conts}{}[a]` is defined.
+
+#. Let :math:`{\mathit{cont}}` be :math:`z{.}\mathsf{conts}{}[a]`.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{addrhdl}}^\ast}|} = {|{{\mathit{hdl}}^\ast}|}`.
+
+#. Let :math:`{\mathit{cont}'}` be the continuation instance :math:`{\mathrm{contfill}}({\mathit{cont}}, (\mathsf{ref{.}exn}~{a'}), \mathsf{throw\_ref})`.
+
+#. Assert: Due to validation, there are at least :math:`m` values on the top of the stack.
+
+#. Pop the values :math:`{{\mathit{val}}^{m}}` from the stack.
+
+#. Let :math:`{\mathit{exn}}` be the exception instance :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{tag}~z{.}\mathsf{tags}{}[{\mathit{ax}}],\; \mathsf{fields}~{{\mathit{val}}^{m}} \}\end{array}`.
+
+#. Let :math:`{z'}` be the state :math:`z{}[{.}\mathsf{exns} \mathrel{{=}{\oplus}} {\mathit{exn}}]`.
+
+#. Replace :math:`{z'}{.}\mathsf{conts}{}[a]` with :math:`\epsilon`.
+
+#. Let P be the :math:`\mathsf{prompt}` whose effect handler is :math:`{{\mathit{addrhdl}}^\ast}`.
+
+#. Enter the block :math:`(\mathsf{resuming}~{\mathit{cont}'})~\mathsf{prompt}` with the :math:`\mathsf{prompt}` P.
+
+
+:math:`\mathsf{switch}~x~{\mathit{xe}}`
+.......................................
+
+
+1. Let :math:`z` be the current state.
+
+#. Assert: Due to validation, a value is on the top of the stack.
+
+#. Pop the value :math:`{\mathit{val}''}` from the stack.
+
+#. If :math:`{\mathit{val}''}` is some :math:`\mathsf{ref{.}null}~{\mathit{heaptype}}`, then:
+
+   a. Trap.
+
+#. Assert: Due to validation, :math:`{\mathit{val}''}` is some :math:`\mathsf{ref{.}cont}~{\mathit{contaddr}}`.
+
+#. Let :math:`(\mathsf{ref{.}cont}~a)` be the destructuring of :math:`{\mathit{val}''}`.
+
+#. Assert: Due to validation, :math:`a < {|z{.}\mathsf{conts}|}`.
+
+#. If :math:`z{.}\mathsf{conts}{}[a]` is not defined, then:
+
+   a. Trap.
+
+#. Assert: Due to validation, :math:`{\mathit{xe}} < {|z{.}\mathsf{tags}|}`.
+
+#. Assert: Due to validation, the :ref:`expansion <aux-expand-deftype>` of :math:`z{.}\mathsf{types}{}[x]` is some :math:`\mathsf{cont}~{\mathit{typeuse}}`.
+
+#. Let :math:`(\mathsf{cont}~{\mathit{dt}})` be the destructuring of the :ref:`expansion <aux-expand-deftype>` of :math:`z{.}\mathsf{types}{}[x]`.
+
+#. Assert: Due to validation, :math:`z{.}\mathsf{conts}{}[a]` is defined.
+
+#. Let :math:`{\mathit{cont}}` be :math:`z{.}\mathsf{conts}{}[a]`.
+
+#. Let :math:`{\mathit{tagaddr}}` be the tag address :math:`z{.}\mathsf{tags}{}[{\mathit{xe}}]`.
+
+#. Assert: Due to validation, the :ref:`expansion <aux-expand-deftype>` of :math:`{\mathit{dt}}` is some :math:`\mathsf{func}~{\mathit{resulttype}} \rightarrow {\mathit{resulttype}}`.
+
+#. Let :math:`(\mathsf{func}~{\mathit{resulttype}}_0~\rightarrow~{{\mathit{te}}_1^\ast})` be the destructuring of the :ref:`expansion <aux-expand-deftype>` of :math:`{\mathit{dt}}`.
+
+#. Assert: Due to validation, :math:`{|{\mathit{resulttype}}_0|} \geq 1`.
+
+#. Let :math:`{t_1^\ast}~{\mathit{valtype}}_1` be :math:`{\mathit{resulttype}}_0`.
+
+#. Assert: Due to validation, :math:`{\mathit{valtype}}_1` is some :math:`\mathsf{ref}~{\mathsf{null}^?}~{\mathit{heaptype}}`.
+
+#. Let :math:`(\mathsf{ref}~{\mathsf{null}^?}~{\mathit{dt}}_1)` be the destructuring of :math:`{\mathit{valtype}}_1`.
+
+#. Assert: Due to validation, the :ref:`expansion <aux-expand-deftype>` of :math:`{\mathit{dt}}_1` is some :math:`\mathsf{cont}~{\mathit{typeuse}}`.
+
+#. Let :math:`(\mathsf{cont}~{\mathit{dt}'}_1)` be the destructuring of the :ref:`expansion <aux-expand-deftype>` of :math:`{\mathit{dt}}_1`.
+
+#. Let :math:`n` be the length of :math:`{t_1^\ast}`.
+
+#. Assert: Due to validation, the :ref:`expansion <aux-expand-deftype>` of :math:`{\mathit{dt}'}_1` is some :math:`\mathsf{func}~{\mathit{resulttype}} \rightarrow {\mathit{resulttype}}`.
+
+#. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
+
+#. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
+
+#. Let :math:`{\mathit{cont}'}` be the continuation instance :math:`{\mathrm{contfill}}({\mathit{cont}}, {{\mathit{val}}^{n}}, \epsilon)`.
+
+#. Let :math:`{{\mathit{instr}'}^\ast}` be the remaining instruction sequence.
+
+#. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
+
+#. Replace :math:`z{.}\mathsf{conts}{}[a]` with :math:`\epsilon`.
+
+#. Execute the instruction :math:`(\mathsf{suspending}~{\mathit{tagaddr}}~(\mathsf{switch}~{\mathit{cont}'})~(\mathsf{vals}~{{\mathit{val}'}^\ast}~\mathsf{hole}~{{\mathit{instr}'}^\ast}))`.
+
+
+:math:`\mathsf{suspending}~{\mathit{tagaddr}}~{\mathit{resumption}}~{\mathit{cont}}`
+....................................................................................
+
+
+1. Let :math:`z` be the current state.
+
+#. If the first non-value entry of the stack is a :math:`\mathsf{label}`, then:
+
+   a. Let L be the topmost :math:`\mathsf{label}`.
+
+   #. Let :math:`n` be the arity of L
+
+   #. Pop the :math:`\mathsf{label}` L from the stack.
+
+   #. Let :math:`{{\mathit{instr}'}^\ast}` be the remaining instruction sequence.
+
+   #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
+
+   #. Let :math:`{\mathit{cont}'}` be the continuation instance :math:`(\mathsf{frame}~{{\mathit{val}'}^\ast}~({\mathsf{label}}_{n}\,\{~{{\mathit{instr}}^\ast}~\})~{\mathit{cont}}~{{\mathit{instr}'}^\ast})`.
+
+   #. Execute the instruction :math:`(\mathsf{suspending}~{\mathit{tagaddr}}~{\mathit{resumption}}~{\mathit{cont}'})`.
+
+#. Else if the first non-value entry of the stack is a :math:`\mathsf{frame}`, then:
+
+   a. Let frame be the topmost :math:`\mathsf{frame}`.
+
+   #. Let :math:`n` be the arity of frame
+
+   #. Pop the :math:`\mathsf{frame}` F from the stack.
+
+   #. Let :math:`{{\mathit{instr}'}^\ast}` be the remaining instruction sequence.
+
+   #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
+
+   #. Let :math:`{\mathit{cont}'}` be the continuation instance :math:`(\mathsf{frame}~{{\mathit{val}'}^\ast}~({\mathsf{frame}}_{n}\,\{~{\mathit{frame}}~\})~{\mathit{cont}}~{{\mathit{instr}'}^\ast})`.
+
+   #. Execute the instruction :math:`(\mathsf{suspending}~{\mathit{tagaddr}}~{\mathit{resumption}}~{\mathit{cont}'})`.
+
+#. Else:
+
+   a. If the first non-value entry of the stack is a :math:`\mathsf{handler}`, then:
+
+      1) Let H be the topmost :math:`\mathsf{handler}`.
+
+      #) Let :math:`n` be the arity of H
+
+      #) Let :math:`{{\mathit{catch}}^\ast}` be the catch handler of H
+
+      #) Pop the :math:`\mathsf{handler}` H from the stack.
+
+      #) Let :math:`{{\mathit{instr}'}^\ast}` be the remaining instruction sequence.
+
+      #) Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
+
+      #) Let :math:`{\mathit{cont}'}` be the continuation instance :math:`(\mathsf{frame}~{{\mathit{val}'}^\ast}~({\mathsf{handler}}_{n}\,\{~{{\mathit{catch}}^\ast}~\})~{\mathit{cont}}~{{\mathit{instr}'}^\ast})`.
+
+      #) Execute the instruction :math:`(\mathsf{suspending}~{\mathit{tagaddr}}~{\mathit{resumption}}~{\mathit{cont}'})`.
+
+   #. Else:
+
+      1) Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{prompt}`.
+
+      #) Let P be the topmost :math:`\mathsf{prompt}`.
+
+      #) Let :math:`{{\mathit{addrhdl}}^\ast}` be the effect handler of P
+
+      #) If :math:`{\mathit{tagaddr}} < {|z{.}\mathsf{tags}|}`, then:
+
+         a) If :math:`{\mathit{resumption}}` is some :math:`\mathsf{suspend}~{{\mathit{val}}^\ast}`, then:
+
+            1. Let :math:`(\mathsf{suspend}~{{\mathit{val}}^{n}})` be the destructuring of :math:`{\mathit{resumption}}`.
+
+            #. Let :math:`a` be the length of :math:`z{.}\mathsf{conts}`.
+
+            #. If :math:`{\mathrm{gethandlersuspend}}({{\mathit{addrhdl}}^\ast}, {\mathit{tagaddr}})` is not defined, then:
+
+               a. Let :math:`(\mathsf{suspend}~{{\mathit{val}}^\ast})` be the destructuring of :math:`{\mathit{resumption}}`.
+
+               #. Pop the :math:`\mathsf{prompt}` P from the stack.
+
+               #. Let :math:`{{\mathit{instr}'}^\ast}` be the remaining instruction sequence.
+
+               #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
+
+               #. Let :math:`{\mathit{cont}'}` be the continuation instance :math:`(\mathsf{frame}~{{\mathit{val}'}^\ast}~(\mathsf{prompt}~\{~{{\mathit{addrhdl}}^\ast}~\})~{\mathit{cont}}~{{\mathit{instr}'}^\ast})`.
+
+               #. Execute the instruction :math:`(\mathsf{suspending}~{\mathit{tagaddr}}~(\mathsf{suspend}~{{\mathit{val}}^\ast})~{\mathit{cont}'})`.
+
+            #. Else:
+
+               a. Let :math:`l` be :math:`{\mathrm{gethandlersuspend}}({{\mathit{addrhdl}}^\ast}, {\mathit{tagaddr}})`.
+
+               #. Assert: Due to validation, the :ref:`expansion <aux-expand-deftype>` of :math:`z{.}\mathsf{tags}{}[{\mathit{tagaddr}}]{.}\mathsf{type}` is some :math:`\mathsf{func}~{\mathit{resulttype}} \rightarrow {\mathit{resulttype}}`.
+
+               #. Let :math:`(\mathsf{func}~{t_1^{n}}~\rightarrow~{t_2^\ast})` be the destructuring of the :ref:`expansion <aux-expand-deftype>` of :math:`z{.}\mathsf{tags}{}[{\mathit{tagaddr}}]{.}\mathsf{type}`.
+
+               #. Pop the :math:`\mathsf{prompt}` P from the stack.
+
+               #. Append :math:`{\mathit{cont}}` to :math:`z{.}\mathsf{conts}`.
+
+               #. Push the values :math:`{{\mathit{val}}^{n}}` to the stack.
+
+               #. Push the value :math:`(\mathsf{ref{.}cont}~a)` to the stack.
+
+               #. Execute the instruction :math:`(\mathsf{br}~l)`.
+
+         #) Else:
+
+            1. If :math:`{\mathrm{gethandlerswitch}}({{\mathit{addrhdl}}^\ast}, {\mathit{tagaddr}})`, then:
+
+               a. If :math:`{\mathit{resumption}}` is some :math:`\mathsf{switch}~{\mathit{continst}}`, then:
+
+                  1) Let :math:`(\mathsf{switch}~{\mathit{continst}})` be the destructuring of :math:`{\mathit{resumption}}`.
+
+                  #) Let :math:`a` be the length of :math:`z{.}\mathsf{conts}`.
+
+                  #) Let :math:`{\mathit{cont}'}` be the continuation instance :math:`{\mathrm{contfill}}({\mathit{continst}}, (\mathsf{ref{.}cont}~a), \epsilon)`.
+
+                  #) Pop the :math:`\mathsf{prompt}` P from the stack.
+
+                  #) Append :math:`{\mathit{cont}}` to :math:`z{.}\mathsf{conts}`.
+
+                  #) Let P be the :math:`\mathsf{prompt}` whose effect handler is :math:`{{\mathit{addrhdl}}^\ast}`.
+
+                  #) Enter the block :math:`(\mathsf{resuming}~{\mathit{cont}'})~\mathsf{prompt}` with the :math:`\mathsf{prompt}` P.
+
+            #. Else if :math:`{\mathit{resumption}}` is some :math:`\mathsf{switch}~{\mathit{continst}}`, then:
+
+               a. Let :math:`(\mathsf{switch}~{\mathit{continst}})` be the destructuring of :math:`{\mathit{resumption}}`.
+
+               #. Pop the :math:`\mathsf{prompt}` P from the stack.
+
+               #. Let :math:`{{\mathit{instr}'}^\ast}` be the remaining instruction sequence.
+
+               #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
+
+               #. Let :math:`{\mathit{cont}'}` be the continuation instance :math:`(\mathsf{frame}~{{\mathit{val}'}^\ast}~(\mathsf{prompt}~\{~{{\mathit{addrhdl}}^\ast}~\})~{\mathit{cont}}~{{\mathit{instr}'}^\ast})`.
+
+               #. Execute the instruction :math:`(\mathsf{suspending}~{\mathit{tagaddr}}~(\mathsf{switch}~{\mathit{continst}})~{\mathit{cont}'})`.
+
+            #. Do nothing.
+
+            #. If :math:`{\mathrm{gethandlersuspend}}({{\mathit{addrhdl}}^\ast}, {\mathit{tagaddr}})` is not defined, then:
+
+               a. Do nothing.
+
+            #. Else:
+
+               a. Do nothing.
+
+            #. Do nothing.
+
+      #) Else if :math:`{\mathrm{gethandlersuspend}}({{\mathit{addrhdl}}^\ast}, {\mathit{tagaddr}})` is not defined, then:
+
+         a) If :math:`{\mathit{resumption}}` is some :math:`\mathsf{suspend}~{{\mathit{val}}^\ast}`, then:
+
+            1. Let :math:`(\mathsf{suspend}~{{\mathit{val}}^\ast})` be the destructuring of :math:`{\mathit{resumption}}`.
+
+            #. Pop the :math:`\mathsf{prompt}` P from the stack.
+
+            #. Let :math:`{{\mathit{instr}'}^\ast}` be the remaining instruction sequence.
+
+            #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
+
+            #. Let :math:`{\mathit{cont}'}` be the continuation instance :math:`(\mathsf{frame}~{{\mathit{val}'}^\ast}~(\mathsf{prompt}~\{~{{\mathit{addrhdl}}^\ast}~\})~{\mathit{cont}}~{{\mathit{instr}'}^\ast})`.
+
+            #. Execute the instruction :math:`(\mathsf{suspending}~{\mathit{tagaddr}}~(\mathsf{suspend}~{{\mathit{val}}^\ast})~{\mathit{cont}'})`.
+
+         #) Else if :math:`{\mathrm{gethandlerswitch}}({{\mathit{addrhdl}}^\ast}, {\mathit{tagaddr}})`, then:
+
+            1. Assert: Due to validation, :math:`{\mathit{resumption}}` is some :math:`\mathsf{switch}~{\mathit{continst}}`.
+
+            #. Let :math:`(\mathsf{switch}~{\mathit{continst}})` be the destructuring of :math:`{\mathit{resumption}}`.
+
+            #. Let :math:`a` be the length of :math:`z{.}\mathsf{conts}`.
+
+            #. Let :math:`{\mathit{cont}'}` be the continuation instance :math:`{\mathrm{contfill}}({\mathit{continst}}, (\mathsf{ref{.}cont}~a), \epsilon)`.
+
+            #. Pop the :math:`\mathsf{prompt}` P from the stack.
+
+            #. Append :math:`{\mathit{cont}}` to :math:`z{.}\mathsf{conts}`.
+
+            #. Let P be the :math:`\mathsf{prompt}` whose effect handler is :math:`{{\mathit{addrhdl}}^\ast}`.
+
+            #. Enter the block :math:`(\mathsf{resuming}~{\mathit{cont}'})~\mathsf{prompt}` with the :math:`\mathsf{prompt}` P.
+
+         #) Else:
+
+            1. Assert: Due to validation, :math:`{\mathit{resumption}}` is some :math:`\mathsf{switch}~{\mathit{continst}}`.
+
+            #. Let :math:`(\mathsf{switch}~{\mathit{continst}})` be the destructuring of :math:`{\mathit{resumption}}`.
+
+            #. Pop the :math:`\mathsf{prompt}` P from the stack.
+
+            #. Let :math:`{{\mathit{instr}'}^\ast}` be the remaining instruction sequence.
+
+            #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
+
+            #. Let :math:`{\mathit{cont}'}` be the continuation instance :math:`(\mathsf{frame}~{{\mathit{val}'}^\ast}~(\mathsf{prompt}~\{~{{\mathit{addrhdl}}^\ast}~\})~{\mathit{cont}}~{{\mathit{instr}'}^\ast})`.
+
+            #. Execute the instruction :math:`(\mathsf{suspending}~{\mathit{tagaddr}}~(\mathsf{switch}~{\mathit{continst}})~{\mathit{cont}'})`.
+
+      #) Else:
+
+         a) If :math:`{\mathrm{gethandlerswitch}}({{\mathit{addrhdl}}^\ast}, {\mathit{tagaddr}})`, then:
+
+            1. Assert: Due to validation, :math:`{\mathit{resumption}}` is some :math:`\mathsf{switch}~{\mathit{continst}}`.
+
+            #. Let :math:`(\mathsf{switch}~{\mathit{continst}})` be the destructuring of :math:`{\mathit{resumption}}`.
+
+            #. Let :math:`a` be the length of :math:`z{.}\mathsf{conts}`.
+
+            #. Let :math:`{\mathit{cont}'}` be the continuation instance :math:`{\mathrm{contfill}}({\mathit{continst}}, (\mathsf{ref{.}cont}~a), \epsilon)`.
+
+            #. Pop the :math:`\mathsf{prompt}` P from the stack.
+
+            #. Append :math:`{\mathit{cont}}` to :math:`z{.}\mathsf{conts}`.
+
+            #. Let P be the :math:`\mathsf{prompt}` whose effect handler is :math:`{{\mathit{addrhdl}}^\ast}`.
+
+            #. Enter the block :math:`(\mathsf{resuming}~{\mathit{cont}'})~\mathsf{prompt}` with the :math:`\mathsf{prompt}` P.
+
+         #) Else:
+
+            1. Assert: Due to validation, :math:`{\mathit{resumption}}` is some :math:`\mathsf{switch}~{\mathit{continst}}`.
+
+            #. Let :math:`(\mathsf{switch}~{\mathit{continst}})` be the destructuring of :math:`{\mathit{resumption}}`.
+
+            #. Pop the :math:`\mathsf{prompt}` P from the stack.
+
+            #. Let :math:`{{\mathit{instr}'}^\ast}` be the remaining instruction sequence.
+
+            #. Pop all values :math:`{{\mathit{val}'}^\ast}` from the top of the stack.
+
+            #. Let :math:`{\mathit{cont}'}` be the continuation instance :math:`(\mathsf{frame}~{{\mathit{val}'}^\ast}~(\mathsf{prompt}~\{~{{\mathit{addrhdl}}^\ast}~\})~{\mathit{cont}}~{{\mathit{instr}'}^\ast})`.
+
+            #. Execute the instruction :math:`(\mathsf{suspending}~{\mathit{tagaddr}}~(\mathsf{switch}~{\mathit{continst}})~{\mathit{cont}'})`.
 
 
 :math:`\mathsf{local{.}set}~x`
@@ -20988,6 +21738,13 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 1. Return :math:`(\mathsf{ref}~\mathsf{null}~\mathsf{exn})`.
 
 
+:math:`\mathsf{contref}`
+........................
+
+
+1. Return :math:`(\mathsf{ref}~\mathsf{null}~\mathsf{cont})`.
+
+
 :math:`\mathsf{externref}`
 ..........................
 
@@ -21014,6 +21771,13 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 
 1. Return :math:`(\mathsf{ref}~\mathsf{null}~\mathsf{noexn})`.
+
+
+:math:`\mathsf{nullcontref}`
+............................
+
+
+1. Return :math:`(\mathsf{ref}~\mathsf{null}~\mathsf{nocont})`.
 
 
 :math:`\mathsf{nullexternref}`
@@ -21655,11 +22419,17 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    #. Return :math:`(\mathsf{array}~{{\mathit{ft}}}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]})`.
 
-#. Assert: Due to validation, :math:`{\mathit{comptype}}` is some :math:`\mathsf{func}~{\mathit{resulttype}} \rightarrow {\mathit{resulttype}}`.
+#. If :math:`{\mathit{comptype}}` is some :math:`\mathsf{func}~{\mathit{resulttype}} \rightarrow {\mathit{resulttype}}`, then:
 
-#. Let :math:`(\mathsf{func}~{t_1^\ast}~\rightarrow~{t_2^\ast})` be the destructuring of :math:`{\mathit{comptype}}`.
+   a. Let :math:`(\mathsf{func}~{t_1^\ast}~\rightarrow~{t_2^\ast})` be the destructuring of :math:`{\mathit{comptype}}`.
 
-#. Return :math:`(\mathsf{func}~{{t_1}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]}^\ast}~\rightarrow~{{t_2}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]}^\ast})`.
+   #. Return :math:`(\mathsf{func}~{{t_1}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]}^\ast}~\rightarrow~{{t_2}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]}^\ast})`.
+
+#. Assert: Due to validation, :math:`{\mathit{comptype}}` is some :math:`\mathsf{cont}~{\mathit{typeuse}}`.
+
+#. Let :math:`(\mathsf{cont}~{\mathit{tv}'})` be the destructuring of :math:`{\mathit{comptype}}`.
+
+#. Return :math:`(\mathsf{cont}~{{\mathit{tv}'}}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]})`.
 
 
 :math:`{\mathsf{sub}~{\mathsf{final}^?}~{{\mathit{tu}'}^\ast}~{\mathit{ct}}}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]}`
@@ -22056,11 +22826,17 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    #. Return :math:`{\mathrm{free}}_{\mathit{fieldtype}}({\mathit{fieldtype}})`.
 
-#. Assert: Due to validation, :math:`{\mathit{comptype}}` is some :math:`\mathsf{func}~{\mathit{resulttype}} \rightarrow {\mathit{resulttype}}`.
+#. If :math:`{\mathit{comptype}}` is some :math:`\mathsf{func}~{\mathit{resulttype}} \rightarrow {\mathit{resulttype}}`, then:
 
-#. Let :math:`(\mathsf{func}~{\mathit{resulttype}}_1~\rightarrow~{\mathit{resulttype}}_2)` be the destructuring of :math:`{\mathit{comptype}}`.
+   a. Let :math:`(\mathsf{func}~{\mathit{resulttype}}_1~\rightarrow~{\mathit{resulttype}}_2)` be the destructuring of :math:`{\mathit{comptype}}`.
 
-#. Return `$free_resulttype(resulttype_1) ++ $free_resulttype(resulttype_2)`.
+   #. Return `$free_resulttype(resulttype_1) ++ $free_resulttype(resulttype_2)`.
+
+#. Assert: Due to validation, :math:`{\mathit{comptype}}` is some :math:`\mathsf{cont}~{\mathit{typeuse}}`.
+
+#. Let :math:`(\mathsf{cont}~{\mathit{typeuse}})` be the destructuring of :math:`{\mathit{comptype}}`.
+
+#. Return :math:`{\mathrm{free}}_{\mathit{typeuse}}({\mathit{typeuse}})`.
 
 
 :math:`{\mathrm{free}}_{\mathit{subtype}}(\mathsf{sub}~{\mathsf{final}^?}~{{\mathit{typeuse}}^\ast}~{\mathit{comptype}})`
@@ -23898,7 +24674,7 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    #. Return :math:`{\mathit{zero}}`.
 
-#. Assert: Due to validation, :math:`{\mathit{vcvtop}} = `.
+#. Assert: Due to validation, :math:`{\mathit{vcvtop}} = {\mathsf{promote}}{\mathsf{\_}}{\mathsf{low}}~\mathsf{low}`.
 
 #. Return :math:`\epsilon`.
 
@@ -23939,7 +24715,7 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    a. Return :math:`\epsilon`.
 
-#. Assert: Due to validation, :math:`{\mathit{vcvtop}} = `.
+#. Assert: Due to validation, :math:`{\mathit{vcvtop}} = {\mathsf{promote}}{\mathsf{\_}}{\mathsf{low}}~\mathsf{low}`.
 
 #. Return :math:`\mathsf{low}`.
 
@@ -24335,15 +25111,15 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
       #) Return :math:`{{\mathrm{ivbinopsx}}}_{{{\mathit{lanetype}}}{\mathsf{x}}{M}}({\mathrm{imax}}, {\mathit{sx}}, v_1, v_2)`.
 
-   #. If :math:`{\mathit{vbinop}} = `, then:
+   #. If :math:`{\mathit{vbinop}} = {\mathsf{avgr}}{\mathsf{\_}}{\mathsf{u}}`, then:
 
       1) Return :math:`{{\mathrm{ivbinopsx}}}_{{{\mathit{lanetype}}}{\mathsf{x}}{M}}({\mathrm{iavgr}}, \mathsf{u}, v_1, v_2)`.
 
-   #. If :math:`{\mathit{vbinop}} = `, then:
+   #. If :math:`{\mathit{vbinop}} = {\mathsf{q{\scriptstyle 15}mulr\_sat}}{\mathsf{\_}}{\mathsf{s}}`, then:
 
       1) Return :math:`{{\mathrm{ivbinopsx}}}_{{{\mathit{lanetype}}}{\mathsf{x}}{M}}({\mathrm{iq{\kern-0.1em\scriptstyle 15\kern-0.1em}mulr}}_{{\mathit{sat}}}, \mathsf{s}, v_1, v_2)`.
 
-   #. If :math:`{\mathit{vbinop}} = `, then:
+   #. If :math:`{\mathit{vbinop}} = {\mathsf{relaxed\_q{\scriptstyle 15}mulr}}{\mathsf{\_}}{\mathsf{s}}`, then:
 
       1) Return :math:`{{\mathrm{ivbinopsxnd}}}_{{{\mathit{lanetype}}}{\mathsf{x}}{M}}({\mathrm{irelaxed}}_{{\mathit{q{\kern-0.1em\scriptstyle 15\kern-0.1em}mulr}}}, \mathsf{s}, v_1, v_2)`.
 
@@ -24531,7 +25307,7 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    #. Return :math:`{c^\ast}`.
 
-#. Assert: Due to validation, :math:`{\mathit{vcvtop}} = `.
+#. Assert: Due to validation, :math:`{\mathit{vcvtop}} = {\mathsf{promote}}{\mathsf{\_}}{\mathsf{low}}~\mathsf{low}`.
 
 #. Let :math:`{c^\ast}` be :math:`{{\mathrm{promote}}}_{N_1, N_2}(c_1)`.
 
@@ -24715,24 +25491,24 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    #. Return :math:`{{\mathrm{ivextbinop}}}_{{{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M_1}, {{{\mathsf{i}}{N}}_2}{\mathsf{x}}{M_2}}({\mathrm{ivmul}}, {\mathit{sx}}, {\mathit{sx}}, {\mathrm{half}}({\mathit{half}}, 0, M_2), M_2, v_1, v_2)`.
 
-#. If :math:`{\mathit{vextbinop}} = `, then:
+#. If :math:`{\mathit{vextbinop}} = {\mathsf{dot}}{\mathsf{\_}}{\mathsf{s}}`, then:
 
    a. Return :math:`{{\mathrm{ivextbinop}}}_{{{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M_1}, {{{\mathsf{i}}{N}}_2}{\mathsf{x}}{M_2}}({\mathrm{ivdot}}, \mathsf{s}, \mathsf{s}, 0, M_1, v_1, v_2)`.
 
-#. Assert: Due to validation, :math:`{\mathit{vextbinop}} = `.
+#. Assert: Due to validation, :math:`{\mathit{vextbinop}} = {\mathsf{relaxed\_dot}}{\mathsf{\_}}{\mathsf{s}}`.
 
 #. Return :math:`{{\mathrm{ivextbinop}}}_{{{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M_1}, {{{\mathsf{i}}{N}}_2}{\mathsf{x}}{M_2}}({\mathrm{ivdot}}_{{\mathit{sat}}}, \mathsf{s}, {{\mathrm{relaxed}}({\mathrm{R}}_{\mathit{idot}})}{{}[ \mathsf{s}, \mathsf{u} ]}, 0, M_1, v_1, v_2)`.
 
 
-:math:`{}{{}_{{{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M_1}, {{{\mathsf{i}}{N}}_2}{\mathsf{x}}{M_2}}(c_1, c_2, c_3)}`
-..............................................................................................................
+:math:`{{\mathsf{relaxed\_dot\_add}}{\mathsf{\_}}{\mathsf{s}}}{{}_{{{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M_1}, {{{\mathsf{i}}{N}}_2}{\mathsf{x}}{M_2}}(c_1, c_2, c_3)}`
+...................................................................................................................................................................
 
 
 1. Let :math:`M` be :math:`2 \, M_2`.
 
 #. Let :math:`{\mathsf{i}}{N}` be the result for which :math:`N` :math:`=` :math:`2 \cdot N_1`.
 
-#. Let :math:`{c'}` be :math:`{}{{}_{{{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M_1}, {{\mathsf{i}}{N}}{\mathsf{x}}{M}}(c_1, c_2)}`.
+#. Let :math:`{c'}` be :math:`{{\mathsf{relaxed\_dot}}{\mathsf{\_}}{\mathsf{s}}}{{}_{{{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M_1}, {{\mathsf{i}}{N}}{\mathsf{x}}{M}}(c_1, c_2)}`.
 
 #. Let :math:`{c''}` be :math:`{{\mathsf{extadd\_pairwise}}{\mathsf{\_}}{\mathsf{s}}}{{}_{{{\mathsf{i}}{N}}{\mathsf{x}}{M}, {{{\mathsf{i}}{N}}_2}{\mathsf{x}}{M_2}}({c'})}`.
 
@@ -24991,6 +25767,13 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 1. Return :math:`s{.}\mathsf{exns}`.
 
 
+:math:`(s, f){.}\mathsf{conts}`
+...............................
+
+
+1. Return :math:`s{.}\mathsf{conts}`.
+
+
 :math:`(s, f){.}\mathsf{types}{}[x]`
 ....................................
 
@@ -25124,6 +25907,13 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 1. Replace :math:`s{.}\mathsf{arrays}{}[a]{.}\mathsf{fields}{}[i]` with :math:`{\mathit{fv}}`.
 
 
+:math:`{\mathrm{with}}_{\mathit{cont}}((s, f), a, {c^?})`
+.........................................................
+
+
+1. Replace :math:`s{.}\mathsf{conts}{}[a]` with :math:`{c^?}`.
+
+
 :math:`(s, f){}[{.}\mathsf{structs} \mathrel{{=}{\oplus}} {{\mathit{si}}^\ast}]`
 ................................................................................
 
@@ -25143,6 +25933,13 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 
 1. Append :math:`{{\mathit{exn}}^\ast}` to :math:`s{.}\mathsf{exns}`.
+
+
+:math:`(s, f){}[{.}\mathsf{conts} \mathrel{{=}{\oplus}} {{\mathit{cont}}^\ast}]`
+................................................................................
+
+
+1. Append :math:`{{\mathit{cont}}^\ast}` to :math:`s{.}\mathsf{conts}`.
 
 
 :math:`{\mathrm{growtable}}({\mathit{tableinst}}, n, r)`
@@ -25177,6 +25974,94 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 #. Let :math:`{\mathit{meminst}'}` be the memory instance :math:`\{ \begin{array}[t]{@{}l@{}}\mathsf{type}~({\mathit{at}}~{}[ {i'} .. j ]~\mathsf{page}),\; \mathsf{bytes}~{b^\ast}~{\mathtt{0x00}^{n \cdot 64 \, {\mathrm{Ki}}}} \}\end{array}`.
 
 #. Return :math:`{\mathit{meminst}'}`.
+
+
+:math:`{\mathrm{contfill}}({\mathit{continst}'}, {{\mathit{val}'}^\ast}, {{\mathit{instr}'}^\ast})`
+...................................................................................................
+
+
+1. If :math:`{\mathit{continst}'}` is some :math:`\mathsf{vals}~{{\mathit{val}}^\ast}~\mathsf{hole}~{{\mathit{instr}}^\ast}`, then:
+
+   a. Let :math:`(\mathsf{vals}~{{\mathit{val}}^\ast}~\mathsf{hole}~{{\mathit{instr}}^\ast})` be the destructuring of :math:`{\mathit{continst}'}`.
+
+   #. Return :math:`(\mathsf{vals}~{{\mathit{val}}^\ast}~{{\mathit{val}'}^\ast}~\mathsf{hole}~{{\mathit{instr}'}^\ast}~{{\mathit{instr}}^\ast})`.
+
+#. Assert: Due to validation, :math:`{\mathit{continst}'}` is some :math:`\mathsf{frame}~{{\mathit{val}}^\ast}~{\mathit{generalframe}}~{\mathit{continst}}~{{\mathit{instr}}^\ast}`.
+
+#. Let :math:`(\mathsf{frame}~{{\mathit{val}}^\ast}~{\mathit{generalframe}}~{\mathit{continst}}~{{\mathit{instr}}^\ast})` be the destructuring of :math:`{\mathit{continst}'}`.
+
+#. Return :math:`(\mathsf{frame}~{{\mathit{val}}^\ast}~{\mathit{generalframe}}~{\mathrm{contfill}}({\mathit{continst}}, {{\mathit{val}'}^\ast}, {{\mathit{instr}'}^\ast})~{{\mathit{instr}}^\ast})`.
+
+
+:math:`{\mathrm{gethandlersuspend}}({{\mathit{addrhdl}'}^\ast}, {\mathit{ea}})`
+...............................................................................
+
+
+1. If :math:`{{\mathit{addrhdl}'}^\ast} = \epsilon`, then:
+
+   a. Return :math:`\epsilon`.
+
+#. Let :math:`{\mathit{addrhdl}}_0~{{\mathit{addrhdl}}^\ast}` be :math:`{{\mathit{addrhdl}'}^\ast}`.
+
+#. If :math:`{\mathit{addrhdl}}_0` is some :math:`\mathsf{on}~{\mathit{tagaddr}}~\mathsf{switch}`, then:
+
+   a. Return :math:`{\mathrm{gethandlersuspend}}({{\mathit{addrhdl}}^\ast}, {\mathit{ea}})`.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{addrhdl}'}^\ast}|} \geq 1`.
+
+#. Assert: Due to validation, :math:`{\mathit{addrhdl}}_0` is some :math:`\mathsf{on}~{\mathit{tagaddr}}~{\mathit{labelidx}}`.
+
+#. Let :math:`(\mathsf{on}~{\mathit{ea}'}~l)` be the destructuring of :math:`{\mathit{addrhdl}}_0`.
+
+#. If :math:`{\mathit{ea}} = {\mathit{ea}'}`, then:
+
+   a. Return :math:`l`.
+
+#. Return :math:`{\mathrm{gethandlersuspend}}({{\mathit{addrhdl}}^\ast}, {\mathit{ea}})`.
+
+
+:math:`{\mathrm{gethandlerswitch}}({{\mathit{addrhdl}'}^\ast}, {\mathit{ea}})`
+..............................................................................
+
+
+1. If :math:`{{\mathit{addrhdl}'}^\ast} = \epsilon`, then:
+
+   a. Return false.
+
+#. Let :math:`{\mathit{addrhdl}}_0~{{\mathit{addrhdl}}^\ast}` be :math:`{{\mathit{addrhdl}'}^\ast}`.
+
+#. If :math:`{\mathit{addrhdl}}_0` is some :math:`\mathsf{on}~{\mathit{tagaddr}}~{\mathit{labelidx}}`, then:
+
+   a. Return :math:`{\mathrm{gethandlerswitch}}({{\mathit{addrhdl}}^\ast}, {\mathit{ea}})`.
+
+#. Assert: Due to validation, :math:`{|{{\mathit{addrhdl}'}^\ast}|} \geq 1`.
+
+#. Assert: Due to validation, :math:`{\mathit{addrhdl}}_0` is some :math:`\mathsf{on}~{\mathit{tagaddr}}~\mathsf{switch}`.
+
+#. Let :math:`(\mathsf{on}~{\mathit{ea}'}~\mathsf{switch})` be the destructuring of :math:`{\mathit{addrhdl}}_0`.
+
+#. If :math:`{\mathit{ea}} = {\mathit{ea}'}`, then:
+
+   a. Return true.
+
+#. Return :math:`{\mathrm{gethandlerswitch}}({{\mathit{addrhdl}}^\ast}, {\mathit{ea}})`.
+
+
+:math:`{\mathrm{hdlinst}}(z, {\mathit{hdl}})`
+.............................................
+
+
+1. If :math:`{\mathit{hdl}}` is some :math:`\mathsf{on}~{\mathit{tagidx}}~{\mathit{labelidx}}`, then:
+
+   a. Let :math:`(\mathsf{on}~x~l)` be the destructuring of :math:`{\mathit{hdl}}`.
+
+   #. Return :math:`(\mathsf{on}~z{.}\mathsf{tags}{}[x]~l)`.
+
+#. Assert: Due to validation, :math:`{\mathit{hdl}}` is some :math:`\mathsf{on}~{\mathit{tagidx}}~\mathsf{switch}`.
+
+#. Let :math:`(\mathsf{on}~x~\mathsf{switch})` be the destructuring of :math:`{\mathit{hdl}}`.
+
+#. Return :math:`(\mathsf{on}~z{.}\mathsf{tags}{}[x]~\mathsf{switch})`.
 
 
 :math:`{{\mathrm{inst}}}_{{\mathit{moduleinst}}}(t)`
@@ -26214,6 +27099,10 @@ Comptype_ok
     - comptype is (FUNC t_1* -> t_2*).
     - the result type t_1* is valid.
     - the result type t_2* is valid.
+  - Or:
+    - comptype is (CONT typeuse).
+    - the heap type typeuse is valid.
+    - The :ref:`expansion <aux-expand-typeuse>` of the context C is the composite type (FUNC t_1* -> t_2*).
 
 Comptype_ok/struct
 - the composite type (STRUCT fieldtype*) is valid if:
@@ -26228,6 +27117,11 @@ Comptype_ok/func
 - the composite type (FUNC t_1* -> t_2*) is valid if:
   - the result type t_1* is valid.
   - the result type t_2* is valid.
+
+Comptype_ok/cont
+- the composite type (CONT typeuse) is valid if:
+  - the heap type typeuse is valid.
+  - The :ref:`expansion <aux-expand-typeuse>` of the context C is the composite type (FUNC t_1* -> t_2*).
 
 Subtype_ok
 - the sub type (SUB FINAL? (_IDX x)* comptype) is valid for the type index (OK x_0) if:
@@ -26308,6 +27202,10 @@ Comptype_sub
     - comptype_2 is (FUNC t_21* -> t_22*).
     - the result type t_21* matches the result type t_11*.
     - the result type t_12* matches the result type t_22*.
+  - Or:
+    - comptype_1 is (CONT tu_1).
+    - comptype_2 is (CONT tu_2).
+    - the heap type tu_1 matches the heap type tu_2.
 
 Comptype_sub/struct
 - the composite type (STRUCT ft_1* :: ft'_1*) matches the composite type (STRUCT ft_2*) if:
@@ -26322,6 +27220,10 @@ Comptype_sub/func
 - the composite type (FUNC t_11* -> t_12*) matches the composite type (FUNC t_21* -> t_22*) if:
   - the result type t_21* matches the result type t_11*.
   - the result type t_12* matches the result type t_22*.
+
+Comptype_sub/cont
+- the composite type (CONT tu_1) matches the composite type (CONT tu_2) if:
+  - the heap type tu_1 matches the heap type tu_2.
 
 Deftype_sub
 - the defined type deftype_1 matches the defined type deftype_2 if:
@@ -26375,6 +27277,10 @@ Heaptype_sub
     - heaptype_2 is FUNC.
     - The :ref:`expansion <aux-expand-deftype>` of deftype is the composite type (FUNC t_1* -> t_2*).
   - Or:
+    - heaptype_1 is deftype.
+    - heaptype_2 is CONT.
+    - The :ref:`expansion <aux-expand-deftype>` of deftype is the composite type (CONT typeuse).
+  - Or:
     - heaptype_1 is deftype_1.
     - heaptype_2 is deftype_2.
     - the defined type deftype_1 matches the defined type deftype_2.
@@ -26404,6 +27310,9 @@ Heaptype_sub
   - Or:
     - heaptype_1 is NOEXTERN.
     - heaptype_2 matches the heap type EXTERN.
+  - Or:
+    - heaptype_1 is NOCONT.
+    - heaptype_2 matches the heap type CONT.
   - Or:
     - heaptype_1 is BOT.
 
@@ -26440,6 +27349,10 @@ Heaptype_sub/func
 - the heap type deftype matches the heap type FUNC if:
   - The :ref:`expansion <aux-expand-deftype>` of deftype is the composite type (FUNC t_1* -> t_2*).
 
+Heaptype_sub/cont
+- the heap type deftype matches the heap type CONT if:
+  - The :ref:`expansion <aux-expand-deftype>` of deftype is the composite type (CONT typeuse).
+
 Heaptype_sub/def
 - the heap type deftype_1 matches the heap type deftype_2 if:
   - deftype_1 matches deftype_2.
@@ -26475,6 +27388,10 @@ Heaptype_sub/noexn
 Heaptype_sub/noextern
 - the heap type NOEXTERN matches the heap type heaptype if:
   - heaptype matches the heap type EXTERN.
+
+Heaptype_sub/nocont
+- the heap type NOCONT matches the heap type heaptype if:
+  - heaptype matches the heap type CONT.
 
 Heaptype_sub/bot
 - the heap type BOT matches heaptype.
@@ -26805,6 +27722,40 @@ Catch_ok/catch_all_ref
 Defaultable
 - the value type t is defaultable if:
   - the value $default_(t) is not ?().
+
+Hdl_ok
+- the effect handler hdl is valid with the result type t* if:
+  - the tag C.TAGS[x] exists.
+  - Either:
+    - hdl is (_LABELON x l).
+    - The :ref:`expansion <aux-expand-deftype>` of the defined type $as_deftype(C.TAGS[x]) is the composite type (FUNC t_1* -> t_2*).
+    - the label C.LABELS[l] exists.
+    - C.LABELS[l] is t'_1* :: [(REF nul (_IDX x'))].
+    - the result type t_1* matches the result type t'_1*.
+    - the type C.TYPES[x'] exists.
+    - The :ref:`expansion <aux-expand-deftype>` of C.TYPES[x'] is the composite type (CONT tu).
+    - The :ref:`expansion <aux-expand-typeuse>` of the context C is the composite type (FUNC t'_2* -> t'*).
+    - the composite type (FUNC t_2* -> t*) matches (FUNC t'_2* -> t'*).
+  - Or:
+    - hdl is (_SWITCHON x SWITCH).
+    - The :ref:`expansion <aux-expand-deftype>` of $as_deftype(C.TAGS[x]) is the composite type (FUNC [] -> t*).
+
+Hdl_ok/label
+- the effect handler (_LABELON x l) is valid with the result type t* if:
+  - the tag C.TAGS[x] exists.
+  - The :ref:`expansion <aux-expand-deftype>` of the defined type $as_deftype(C.TAGS[x]) is the composite type (FUNC t_1* -> t_2*).
+  - the label C.LABELS[l] exists.
+  - C.LABELS[l] is t'_1* :: [(REF nul (_IDX x'))].
+  - the result type t_1* matches the result type t'_1*.
+  - the type C.TYPES[x'] exists.
+  - The :ref:`expansion <aux-expand-deftype>` of C.TYPES[x'] is the composite type (CONT tu).
+  - The :ref:`expansion <aux-expand-typeuse>` of the context C is the composite type (FUNC t'_2* -> t'*).
+  - the composite type (FUNC t_2* -> t*) matches (FUNC t'_2* -> t'*).
+
+Hdl_ok/switch
+- the effect handler (_SWITCHON x SWITCH) is valid with the result type t* if:
+  - the tag C.TAGS[x] exists.
+  - The :ref:`expansion <aux-expand-deftype>` of the defined type $as_deftype(C.TAGS[x]) is the composite type (FUNC [] -> t*).
 
 Instr_ok/nop
 - the instruction NOP is valid with the instruction type [] -> [].
@@ -27381,6 +28332,57 @@ Instr_ok/vnarrow
 Instr_ok/vcvtop
 - the instruction (VCVTOP sh_1 sh_2 vcvtop) is valid with [V128] -> [V128].
 
+Instr_ok/cont.new
+- the instruction (CONT.NEW x) is valid with the instruction type [(REF ?(NULL) tu)] -> [(REF ?() (_IDX x))] if:
+  - the type C.TYPES[x] exists.
+  - The :ref:`expansion <aux-expand-deftype>` of C.TYPES[x] is the composite type (CONT tu).
+  - The :ref:`expansion <aux-expand-typeuse>` of the context C is the composite type (FUNC t_1* -> t_2*).
+
+Instr_ok/cont.bind
+- the instruction (CONT.BIND x x') is valid with the instruction type t_3* :: [(REF ?(NULL) (_IDX x))] -> [(REF ?() (_IDX x'))] if:
+  - the type C.TYPES[x] exists.
+  - The :ref:`expansion <aux-expand-deftype>` of C.TYPES[x] is the composite type (CONT tu).
+  - The :ref:`expansion <aux-expand-typeuse>` of the context C is the composite type (FUNC t_3* :: t_1* -> t_2*).
+  - the type C.TYPES[x'] exists.
+  - The :ref:`expansion <aux-expand-deftype>` of C.TYPES[x'] is the composite type (CONT tu').
+  - The :ref:`expansion <aux-expand-typeuse>` of C is the composite type (FUNC t'_1* -> t'_2*).
+  - the composite type (FUNC t_1* -> t_2*) matches (FUNC t'_1* -> t'_2*).
+
+Instr_ok/resume
+- the instruction (RESUME x hdl*) is valid with the instruction type t_1* :: [(REF ?(NULL) (_IDX x))] -> t_2* if:
+  - the type C.TYPES[x] exists.
+  - The :ref:`expansion <aux-expand-deftype>` of C.TYPES[x] is the composite type (CONT tu).
+  - The :ref:`expansion <aux-expand-typeuse>` of the context C is the composite type (FUNC t_1* -> t_2*).
+  - For all hdl in hdl*:
+    - the effect handler hdl is valid with the result type t_2*.
+
+Instr_ok/resume_throw
+- the instruction (RESUME_THROW x xe hdl*) is valid with the instruction type te* :: [(REF ?(NULL) (_IDX x))] -> t_2* if:
+  - the type C.TYPES[x] exists.
+  - The :ref:`expansion <aux-expand-deftype>` of C.TYPES[x] is the composite type (CONT tu).
+  - The :ref:`expansion <aux-expand-typeuse>` of the context C is the composite type (FUNC t_1* -> t_2*).
+  - the tag C.TAGS[xe] exists.
+  - The :ref:`expansion <aux-expand-deftype>` of the defined type $as_deftype(C.TAGS[xe]) is the composite type (FUNC te* -> []).
+  - the effect handler hdl is valid with the result type t_2*.
+
+Instr_ok/suspend
+- the instruction (SUSPEND x) is valid with the instruction type t_1* -> t_2* if:
+  - the tag C.TAGS[x] exists.
+  - The :ref:`expansion <aux-expand-deftype>` of the defined type $as_deftype(C.TAGS[x]) is the composite type (FUNC t_1* -> t_2*).
+
+Instr_ok/switch
+- the instruction (SWITCH x xe) is valid with the instruction type t_1* :: [(REF ?(NULL) (_IDX x))] -> t_2* if:
+  - the tag C.TAGS[xe] exists.
+  - The :ref:`expansion <aux-expand-deftype>` of the defined type $as_deftype(C.TAGS[xe]) is the composite type (FUNC [] -> t*).
+  - the type C.TYPES[x] exists.
+  - The :ref:`expansion <aux-expand-deftype>` of C.TYPES[x] is the composite type (CONT tu_1).
+  - The :ref:`expansion <aux-expand-typeuse>` of the context C is the composite type (FUNC t_1* :: [(REF nul (_IDX y))] -> te_1*).
+  - the result type te_1* matches the result type t*.
+  - the type C.TYPES[y] exists.
+  - The :ref:`expansion <aux-expand-deftype>` of C.TYPES[y] is the composite type (CONT tu_2).
+  - The :ref:`expansion <aux-expand-typeuse>` of C is the composite type (FUNC t_2* -> te_2*).
+  - t* matches the result type te_2*.
+
 Instr_ok/select-expl
 - the instruction (SELECT ?([t])) is valid with the instruction type [t, t, I32] -> [t] if:
   - the value type t is valid.
@@ -27881,6 +28883,11 @@ Ref_ok
     - rt is (REF ?() EXN).
     - the exception instance s.EXNS[a] exists.
   - Or:
+    - ref is (REF.CONT_ADDR a).
+    - rt is (REF ?() dt).
+    - the continuation instance s.CONTS[a] exists.
+    - s.CONTS[a] is ?() or s.CONTS[a] is ?(continst).
+  - Or:
     - ref is (REF.HOST_ADDR a).
     - rt is (REF ?() ANY).
   - Or:
@@ -27916,6 +28923,11 @@ Ref_ok/func
 Ref_ok/exn
 - the reference value (REF.EXN_ADDR a) is valid with the reference type (REF ?() EXN) if:
   - the exception instance s.EXNS[a] exists.
+
+Ref_ok/cont
+- the reference value (REF.CONT_ADDR a) is valid with the reference type (REF ?() dt) if:
+  - the continuation instance s.CONTS[a] exists.
+  - s.CONTS[a] is ?() or s.CONTS[a] is ?(continst).
 
 Ref_ok/host
 - the reference value (REF.HOST_ADDR a) is valid with the reference type (REF ?() ANY).
@@ -28071,15 +29083,17 @@ Step_pure/br-label-* l
 3. If (l = 0), then:
   a. Assert: Due to validation, there are at least n values on the top of the stack.
   b. Pop the values val^n from the stack.
-  c. Pop all values val'* from the top of the stack.
-  d. Pop the label (LABEL_ _ { _ }) from the stack.
-  e. Push the values val^n to the stack.
-  f. Execute the sequence instr'*.
+  c. Let instr* be the remaining instruction sequence.
+  d. Pop all values val'* from the top of the stack.
+  e. Pop the label (LABEL_ _ { _ }) from the stack.
+  f. Push the values val^n to the stack.
+  g. Execute the sequence instr'*.
 4. Else:
-  a. Pop all values val* from the top of the stack.
-  b. Pop the label (LABEL_ _ { _ }) from the stack.
-  c. Push the values val* to the stack.
-  d. Execute the instruction (BR (l - 1)).
+  a. Let instr* be the remaining instruction sequence.
+  b. Pop all values val* from the top of the stack.
+  c. Pop the label (LABEL_ _ { _ }) from the stack.
+  d. Push the values val* to the stack.
+  e. Execute the instruction (BR (l - 1)).
 
 Step_read/return_call_ref-frame-* yy
 1. Let z be the current state.
@@ -28095,19 +29109,12 @@ Step_read/return_call_ref-frame-* yy
 10. Let (FUNC t_1^n -> t_2^m) be $Expand($funcinst(z)[a].TYPE).
 11. Assert: Due to validation, there are at least n values on the top of the stack.
 12. Pop the values val^n from the stack.
-13. Pop all values val'* from the top of the stack.
-14. Pop the frame (FRAME_ _ { _ }) from the stack.
-15. Push the values val^n to the stack.
-16. Push the value (REF.FUNC_ADDR a) to the stack.
-17. Execute the instruction (CALL_REF yy).
-
-Step_read/throw_ref-instrs-*
-1. Assert: Due to validation, a value is on the top of the stack.
-2. Pop the value (REF.EXN_ADDR a) from the stack.
-3. Pop all values val* from the top of the stack.
-4. Assert: Due to validation, (val* =/= []).
-5. Push the value (REF.EXN_ADDR a) to the stack.
-6. Execute the instruction THROW_REF.
+13. Let instr* be the remaining instruction sequence.
+14. Pop all values val'* from the top of the stack.
+15. Pop the frame (FRAME_ _ { _ }) from the stack.
+16. Push the values val^n to the stack.
+17. Push the value (REF.FUNC_ADDR a) to the stack.
+18. Execute the instruction (CALL_REF yy).
 
 Step_read/throw_ref-handler-*
 1. Let z be the current state.
@@ -28180,32 +29187,6 @@ Step_read/throw_ref-handler-*
     3) Push the value (REF.EXN_ADDR a) to the stack.
     4) Execute the instruction (BR l).
 
-Step_read/table.copy-oob-* x_1 x_2
-1. Let z be the current state.
-2. Assert: Due to validation, a value of value type num is on the top of the stack.
-3. Pop the value (at.CONST n) from the stack.
-4. Assert: Due to validation, a value of value type num is on the top of the stack.
-5. Pop the value (at_2.CONST i_2) from the stack.
-6. Assert: Due to validation, a value of value type num is on the top of the stack.
-7. Pop the value (at_1.CONST i_1) from the stack.
-8. If ((i_1 + n) > |$table(z, x_1).REFS|), then:
-  a. Trap.
-9. If ((i_2 + n) > |$table(z, x_2).REFS|), then:
-  a. Trap.
-
-Step_read/table.init-oob-* x y
-1. Let z be the current state.
-2. Assert: Due to validation, a value of value type I32 is on the top of the stack.
-3. Pop the value (I32.CONST n) from the stack.
-4. Assert: Due to validation, a value of value type I32 is on the top of the stack.
-5. Pop the value (I32.CONST j) from the stack.
-6. Assert: Due to validation, a value of value type num is on the top of the stack.
-7. Pop the value (at.CONST i) from the stack.
-8. If ((i + n) > |$table(z, x).REFS|), then:
-  a. Trap.
-9. If ((j + n) > |$elem(z, y).REFS|), then:
-  a. Trap.
-
 Step_read/load-num-* nt ?() x ao
 1. Let z be the current state.
 2. Assert: Due to validation, a value of value type num is on the top of the stack.
@@ -28257,31 +29238,61 @@ Step_read/vload-zero-* V128 ?((ZERO N)) x ao
 6. Let c be $extend__(N, 128, U, j).
 7. Push the value (V128.CONST c) to the stack.
 
-Step_read/memory.copy-oob-* x_1 x_2
-1. Let z be the current state.
-2. Assert: Due to validation, a value of value type num is on the top of the stack.
-3. Pop the value (at.CONST n) from the stack.
-4. Assert: Due to validation, a value of value type num is on the top of the stack.
-5. Pop the value (at_2.CONST i_2) from the stack.
-6. Assert: Due to validation, a value of value type num is on the top of the stack.
-7. Pop the value (at_1.CONST i_1) from the stack.
-8. If ((i_1 + n) > |$mem(z, x_1).BYTES|), then:
-  a. Trap.
-9. If ((i_2 + n) > |$mem(z, x_2).BYTES|), then:
-  a. Trap.
+Step/suspending-prompt-suspend-* tagaddr (SUSPEND val*) cont
+1. Assert: Due to validation, the first non-value entry of the stack is a PROMPT.
+2. Let (PROMPT{ addrhdl* }) be the topmost PROMPT.
+3. Assert: Due to validation, $gethandlersuspend(addrhdl*, tagaddr) is not defined.
+4. Pop the promp (PROMPT _ { _ }) from the stack.
+5. Let instr'* be the remaining instruction sequence.
+6. Pop all values val'* from the top of the stack.
+7. Let cont' be (FRAME val'* (PROMPT{ addrhdl* }) cont instr'*).
+8. Execute the instruction (SUSPENDING tagaddr (SUSPEND val*) cont').
 
-Step_read/memory.init-oob-* x y
+Step/suspending-prompt-* tagaddr resumption cont
 1. Let z be the current state.
-2. Assert: Due to validation, a value of value type I32 is on the top of the stack.
-3. Pop the value (I32.CONST n) from the stack.
-4. Assert: Due to validation, a value of value type I32 is on the top of the stack.
-5. Pop the value (I32.CONST j) from the stack.
-6. Assert: Due to validation, a value of value type num is on the top of the stack.
-7. Pop the value (at.CONST i) from the stack.
-8. If ((i + n) > |$mem(z, x).BYTES|), then:
-  a. Trap.
-9. If ((j + n) > |$data(z, y).BYTES|), then:
-  a. Trap.
+2. Assert: Due to validation, the first non-value entry of the stack is a PROMPT.
+3. Let (PROMPT{ addrhdl* }) be the topmost PROMPT.
+4. If (tagaddr < |$taginst(z)|), then:
+  a. If resumption is some SUSPEND, then:
+    1) Let (SUSPEND val^n) be resumption.
+    2) Let a be |$continst(z)|.
+    3) Assert: Due to validation, $gethandlersuspend(addrhdl*, tagaddr) is defined.
+    4) Let ?(l) be $gethandlersuspend(addrhdl*, tagaddr).
+    5) Assert: Due to validation, $Expand($as_deftype($taginst(z)[tagaddr].TYPE)) is some FUNC.
+    6) Let (FUNC t_1^n -> t_2*) be $Expand($as_deftype($taginst(z)[tagaddr].TYPE)).
+    7) Pop the promp (PROMPT _ { _ }) from the stack.
+    8) Perform $add_continst(z, [cont]).
+    9) Push the values val^n to the stack.
+    10) Push the value (REF.CONT_ADDR a) to the stack.
+    11) Execute the instruction (BR l).
+  b. Else:
+    1) Assert: Due to validation, $gethandlerswitch(addrhdl*, tagaddr).
+    2) Assert: Due to validation, resumption is some SWITCH.
+    3) Let (SWITCH continst) be resumption.
+    4) Let a be |$continst(z)|.
+    5) Let cont' be $contfill(continst, [(REF.CONT_ADDR a)], []).
+    6) Pop the promp (PROMPT _ { _ }) from the stack.
+    7) Perform $add_continst(z, [cont]).
+    8) Enter [(RESUMING cont')] :: [PROMPT] with label (PROMPT{ addrhdl* }).
+5. Else:
+  a. Assert: Due to validation, $gethandlerswitch(addrhdl*, tagaddr).
+  b. Assert: Due to validation, resumption is some SWITCH.
+  c. Let (SWITCH continst) be resumption.
+  d. Let a be |$continst(z)|.
+  e. Let cont' be $contfill(continst, [(REF.CONT_ADDR a)], []).
+  f. Pop the promp (PROMPT _ { _ }) from the stack.
+  g. Perform $add_continst(z, [cont]).
+  h. Enter [(RESUMING cont')] :: [PROMPT] with label (PROMPT{ addrhdl* }).
+
+Step/suspending-prompt-switch-* tagaddr (SWITCH continst) cont
+1. Assert: Due to validation, the first non-value entry of the stack is a PROMPT.
+2. Let (PROMPT{ addrhdl* }) be the topmost PROMPT.
+3. Assert: Due to validation, not $gethandlerswitch(addrhdl*, tagaddr).
+4. Pop the promp (PROMPT _ { _ }) from the stack.
+5. Let instr'* be the remaining instruction sequence.
+6. Pop all values val'* from the top of the stack.
+7. Let cont' be (FRAME val'* (PROMPT{ addrhdl* }) cont instr'*).
+8. Execute the instruction (SUSPENDING tagaddr (SWITCH continst) cont').
 
 Step/store-num-* nt ?() x ao
 1. Let z be the current state.
@@ -28347,21 +29358,30 @@ Step_pure/br l
   b. If (l = 0), then:
     1) Assert: Due to validation, there are at least n values on the top of the stack.
     2) Pop the values val^n from the stack.
-    3) Pop all values val'* from the top of the stack.
-    4) Pop the label (LABEL_ _ { _ }) from the stack.
-    5) Push the values val^n to the stack.
-    6) Execute the sequence instr'*.
+    3) Let instr* be the remaining instruction sequence.
+    4) Pop all values val'* from the top of the stack.
+    5) Pop the label (LABEL_ _ { _ }) from the stack.
+    6) Push the values val^n to the stack.
+    7) Execute the sequence instr'*.
   c. Else:
-    1) Pop all values val* from the top of the stack.
-    2) Pop the label (LABEL_ _ { _ }) from the stack.
-    3) Push the values val* to the stack.
-    4) Execute the instruction (BR (l - 1)).
-2. Else:
-  a. Assert: Due to validation, the first non-value entry of the stack is a HANDLER_.
+    1) Let instr* be the remaining instruction sequence.
+    2) Pop all values val* from the top of the stack.
+    3) Pop the label (LABEL_ _ { _ }) from the stack.
+    4) Push the values val* to the stack.
+    5) Execute the instruction (BR (l - 1)).
+2. Else if the first non-value entry of the stack is a HANDLER_, then:
+  a. Let instr* be the remaining instruction sequence.
   b. Pop all values val* from the top of the stack.
   c. Pop the handler (HANDLER_ _ { _ }) from the stack.
   d. Push the values val* to the stack.
   e. Execute the instruction (BR l).
+3. Else:
+  a. Assert: Due to validation, the first non-value entry of the stack is a PROMPT.
+  b. Let instr* be the remaining instruction sequence.
+  c. Pop all values val* from the top of the stack.
+  d. Pop the promp (PROMPT _ { _ }) from the stack.
+  e. Push the values val* to the stack.
+  f. Execute the instruction (BR l).
 
 Step_pure/br_if l
 1. Assert: Due to validation, a value of value type I32 is on the top of the stack.
@@ -28420,25 +29440,68 @@ Step_pure/return
   a. Let (FRAME_ n { f }) be the topmost FRAME_.
   b. Assert: Due to validation, there are at least n values on the top of the stack.
   c. Pop the values val^n from the stack.
-  d. Pop all values val'* from the top of the stack.
-  e. Pop the frame (FRAME_ _ { _ }) from the stack.
-  f. Push the values val^n to the stack.
+  d. Let instr* be the remaining instruction sequence.
+  e. Pop all values val'* from the top of the stack.
+  f. Pop the frame (FRAME_ _ { _ }) from the stack.
+  g. Push the values val^n to the stack.
 2. Else if the first non-value entry of the stack is a LABEL_, then:
-  a. Pop all values val* from the top of the stack.
-  b. Pop the label (LABEL_ _ { _ }) from the stack.
-  c. Push the values val* to the stack.
-  d. Execute the instruction RETURN.
-3. Else:
-  a. Assert: Due to validation, the first non-value entry of the stack is a HANDLER_.
+  a. Let instr* be the remaining instruction sequence.
+  b. Pop all values val* from the top of the stack.
+  c. Pop the label (LABEL_ _ { _ }) from the stack.
+  d. Push the values val* to the stack.
+  e. Execute the instruction RETURN.
+3. Else if the first non-value entry of the stack is a HANDLER_, then:
+  a. Let instr* be the remaining instruction sequence.
   b. Pop all values val* from the top of the stack.
   c. Pop the handler (HANDLER_ _ { _ }) from the stack.
   d. Push the values val* to the stack.
   e. Execute the instruction RETURN.
+4. Else:
+  a. Assert: Due to validation, the first non-value entry of the stack is a PROMPT.
+  b. Let instr* be the remaining instruction sequence.
+  c. Pop all values val* from the top of the stack.
+  d. Pop the promp (PROMPT _ { _ }) from the stack.
+  e. Push the values val* to the stack.
+  f. Execute the instruction RETURN.
 
 Step_pure/handler
 1. Pop all values val* from the top of the stack.
 2. Assert: Due to validation, the first non-value entry of the stack is a HANDLER_.
 3. Pop the handler (HANDLER_ _ { _ }) from the stack.
+4. Push the values val* to the stack.
+
+Step_pure/resuming continst
+1. If continst is some VALS, then:
+  a. Let (VALS val* HOLE instr*) be continst.
+  b. Push the values val* to the stack.
+  c. Execute the sequence instr*.
+2. If continst is some FRAME, then:
+  a. Let (FRAME val'* generalframe_0 cont instr'*) be continst.
+  b. If generalframe_0 is some LABEL_, then:
+    1) Let (LABEL_ n { instr* }) be generalframe_0.
+    2) Push the values val'* to the stack.
+    3) Prepend instr'* to the remaining instruction sequence.
+    4) Enter [(RESUMING cont)] with label (LABEL_ n { instr* }).
+  c. If generalframe_0 is some FRAME_, then:
+    1) Let (FRAME_ n { frame }) be generalframe_0.
+    2) Push the values val'* to the stack.
+    3) Prepend instr'* to the remaining instruction sequence.
+    4) Enter [(RESUMING cont)] :: [FRAME_] with label (FRAME_ n { frame }).
+  d. If generalframe_0 is some HANDLER_, then:
+    1) Let (HANDLER_ n { catch* }) be generalframe_0.
+    2) Push the values val'* to the stack.
+    3) Prepend instr'* to the remaining instruction sequence.
+    4) Enter [(RESUMING cont)] :: [HANDLER_] with label (HANDLER_ n { catch* }).
+  e. If generalframe_0 is some PROMPT, then:
+    1) Let (PROMPT{ addrhdl* }) be generalframe_0.
+    2) Push the values val'* to the stack.
+    3) Prepend instr'* to the remaining instruction sequence.
+    4) Enter [(RESUMING cont)] :: [PROMPT] with label (PROMPT{ addrhdl* }).
+
+Step_pure/prompt
+1. Pop all values val* from the top of the stack.
+2. Assert: Due to validation, the first non-value entry of the stack is a PROMPT.
+3. Pop the promp (PROMPT _ { _ }) from the stack.
 4. Push the values val* to the stack.
 
 Step_pure/local.tee x
@@ -28808,15 +29871,17 @@ Step_read/return_call x
 Step_read/return_call_ref yy
 1. Let z be the current state.
 2. If the first non-value entry of the stack is a LABEL_, then:
-  a. Pop all values val* from the top of the stack.
-  b. Pop the label (LABEL_ _ { _ }) from the stack.
-  c. Push the values val* to the stack.
-  d. Execute the instruction (RETURN_CALL_REF yy).
+  a. Let instr* be the remaining instruction sequence.
+  b. Pop all values val* from the top of the stack.
+  c. Pop the label (LABEL_ _ { _ }) from the stack.
+  d. Push the values val* to the stack.
+  e. Execute the instruction (RETURN_CALL_REF yy).
 3. Else if the first non-value entry of the stack is a HANDLER_, then:
-  a. Pop all values val* from the top of the stack.
-  b. Pop the handler (HANDLER_ _ { _ }) from the stack.
-  c. Push the values val* to the stack.
-  d. Execute the instruction (RETURN_CALL_REF yy).
+  a. Let instr* be the remaining instruction sequence.
+  b. Pop all values val* from the top of the stack.
+  c. Pop the handler (HANDLER_ _ { _ }) from the stack.
+  d. Push the values val* to the stack.
+  e. Execute the instruction (RETURN_CALL_REF yy).
 4. Else:
   a. Assert: Due to validation, the first non-value entry of the stack is a FRAME_.
   b. Assert: Due to validation, a value is on the top of the stack.
@@ -28830,11 +29895,12 @@ Step_read/return_call_ref yy
   i. Let (FUNC t_1^n -> t_2^m) be $Expand($funcinst(z)[a].TYPE).
   j. Assert: Due to validation, there are at least n values on the top of the stack.
   k. Pop the values val^n from the stack.
-  l. Pop all values val'* from the top of the stack.
-  m. Pop the frame (FRAME_ _ { _ }) from the stack.
-  n. Push the values val^n to the stack.
-  o. Push the value (REF.FUNC_ADDR a) to the stack.
-  p. Execute the instruction (CALL_REF yy).
+  l. Let instr* be the remaining instruction sequence.
+  m. Pop all values val'* from the top of the stack.
+  n. Pop the frame (FRAME_ _ { _ }) from the stack.
+  o. Push the values val^n to the stack.
+  p. Push the value (REF.FUNC_ADDR a) to the stack.
+  q. Execute the instruction (CALL_REF yy).
 
 Step_read/throw_ref
 1. Let z be the current state.
@@ -28844,21 +29910,26 @@ Step_read/throw_ref
   a. Trap.
 5. If val' is some REF.EXN_ADDR, then:
   a. Let (REF.EXN_ADDR a) be val'.
-  b. Pop all values val* from the top of the stack.
-  c. If (val* =/= []), then:
+  b. Let instr* be the remaining instruction sequence.
+  c. Pop all values val* from the top of the stack.
+  d. If ((val* =/= []) \/ (instr* =/= [])), then:
     1) Push the value (REF.EXN_ADDR a) to the stack.
     2) Execute the instruction THROW_REF.
-  d. Else if the first non-value entry of the stack is a LABEL_, then:
+  e. Else if the first non-value entry of the stack is a LABEL_, then:
     1) Pop the label (LABEL_ _ { _ }) from the stack.
     2) Push the value (REF.EXN_ADDR a) to the stack.
     3) Execute the instruction THROW_REF.
-  e. Else if the first non-value entry of the stack is a FRAME_, then:
+  f. Else if the first non-value entry of the stack is a FRAME_, then:
     1) Pop the frame (FRAME_ _ { _ }) from the stack.
     2) Push the value (REF.EXN_ADDR a) to the stack.
     3) Execute the instruction THROW_REF.
-  f. Else if not the first non-value entry of the stack is a HANDLER_, then:
+  g. Else if the first non-value entry of the stack is a PROMPT, then:
+    1) Pop the promp (PROMPT _ { _ }) from the stack.
+    2) Push the value (REF.EXN_ADDR a) to the stack.
+    3) Execute the instruction THROW_REF.
+  h. Else if not the first non-value entry of the stack is a HANDLER_, then:
     1) Throw the exception val' as a result.
-  g. Else:
+  i. Else:
     1) Let (HANDLER_ n { catch''* }) be the topmost HANDLER_.
     2) If (catch''* = []), then:
       a) Pop the handler (HANDLER_ _ { _ }) from the stack.
@@ -28927,8 +29998,9 @@ Step_read/throw_ref
 6. Else:
   a. Assert: Due to validation, not the first non-value entry of the stack is a LABEL_.
   b. Assert: Due to validation, not the first non-value entry of the stack is a FRAME_.
-  c. Assert: Due to validation, not the first non-value entry of the stack is a HANDLER_.
-  d. Throw the exception val' as a result.
+  c. Assert: Due to validation, not the first non-value entry of the stack is a PROMPT.
+  d. Assert: Due to validation, not the first non-value entry of the stack is a HANDLER_.
+  e. Throw the exception val' as a result.
 
 Step_read/try_table bt catch* instr*
 1. Let z be the current state.
@@ -28938,6 +30010,19 @@ Step_read/try_table bt catch* instr*
 5. Pop the values val^m from the stack.
 6. Push the handler (HANDLER_ n { catch* }) to the stack.
 7. Enter val^m :: instr* with label (LABEL_ n { [] }).
+
+Step_read/suspend x
+1. Let z be the current state.
+2. Assert: Due to validation, (x < |$tagaddr(z)|).
+3. Let tagaddr be $tagaddr(z)[x].
+4. Assert: Due to validation, (tagaddr < |$taginst(z)|).
+5. Assert: Due to validation, $Expand($as_deftype($taginst(z)[tagaddr].TYPE)) is some FUNC.
+6. Let (FUNC t_1^n -> t_2*) be $Expand($as_deftype($taginst(z)[tagaddr].TYPE)).
+7. Assert: Due to validation, there are at least n values on the top of the stack.
+8. Pop the values val^n from the stack.
+9. Let instr'* be the remaining instruction sequence.
+10. Pop all values val'* from the top of the stack.
+11. Execute the instruction (SUSPENDING tagaddr (SUSPEND val^n) (VALS val'* HOLE instr'*)).
 
 Step_read/local.get x
 1. Let z be the current state.
@@ -28993,13 +30078,11 @@ Step_read/table.copy x_1 x_2
 5. Pop the value (at_2.CONST i_2) from the stack.
 6. Assert: Due to validation, a value of value type num is on the top of the stack.
 7. Pop the value (at_1.CONST i_1) from the stack.
-8. If ((i_1 + n) > |$table(z, x_1).REFS|), then:
+8. If (((i_1 + n) > |$table(z, x_1).REFS|) \/ ((i_2 + n) > |$table(z, x_2).REFS|)), then:
   a. Trap.
-9. If ((i_2 + n) > |$table(z, x_2).REFS|), then:
-  a. Trap.
-10. If (n = 0), then:
+9. If (n = 0), then:
   a. Do nothing.
-11. Else:
+10. Else:
   a. If (i_1 <= i_2), then:
     1) Push the value (at_1.CONST i_1) to the stack.
     2) Push the value (at_2.CONST i_2) to the stack.
@@ -29025,13 +30108,11 @@ Step_read/table.init x y
 5. Pop the value (I32.CONST j) from the stack.
 6. Assert: Due to validation, a value of value type num is on the top of the stack.
 7. Pop the value (at.CONST i) from the stack.
-8. If ((i + n) > |$table(z, x).REFS|), then:
+8. If (((i + n) > |$table(z, x).REFS|) \/ ((j + n) > |$elem(z, y).REFS|)), then:
   a. Trap.
-9. If ((j + n) > |$elem(z, y).REFS|), then:
-  a. Trap.
-10. If (n = 0), then:
+9. If (n = 0), then:
   a. Do nothing.
-11. Else:
+10. Else:
   a. Assert: Due to validation, (j < |$elem(z, y).REFS|).
   b. Push the value (at.CONST i) to the stack.
   c. Push the value $elem(z, y).REFS[j] to the stack.
@@ -29144,13 +30225,11 @@ Step_read/memory.copy x_1 x_2
 5. Pop the value (at_2.CONST i_2) from the stack.
 6. Assert: Due to validation, a value of value type num is on the top of the stack.
 7. Pop the value (at_1.CONST i_1) from the stack.
-8. If ((i_1 + n) > |$mem(z, x_1).BYTES|), then:
+8. If (((i_1 + n) > |$mem(z, x_1).BYTES|) \/ ((i_2 + n) > |$mem(z, x_2).BYTES|)), then:
   a. Trap.
-9. If ((i_2 + n) > |$mem(z, x_2).BYTES|), then:
-  a. Trap.
-10. If (n = 0), then:
+9. If (n = 0), then:
   a. Do nothing.
-11. Else:
+10. Else:
   a. If (i_1 <= i_2), then:
     1) Push the value (at_1.CONST i_1) to the stack.
     2) Push the value (at_2.CONST i_2) to the stack.
@@ -29176,13 +30255,11 @@ Step_read/memory.init x y
 5. Pop the value (I32.CONST j) from the stack.
 6. Assert: Due to validation, a value of value type num is on the top of the stack.
 7. Pop the value (at.CONST i) from the stack.
-8. If ((i + n) > |$mem(z, x).BYTES|), then:
+8. If (((i + n) > |$mem(z, x).BYTES|) \/ ((j + n) > |$data(z, y).BYTES|)), then:
   a. Trap.
-9. If ((j + n) > |$data(z, y).BYTES|), then:
-  a. Trap.
-10. If (n = 0), then:
+9. If (n = 0), then:
   a. Do nothing.
-11. Else:
+10. Else:
   a. Assert: Due to validation, (j < |$data(z, y).BYTES|).
   b. Push the value (at.CONST i) to the stack.
   c. Push the value (I32.CONST $data(z, y).BYTES[j]) to the stack.
@@ -29486,6 +30563,248 @@ Step/throw x
 10. Perform $add_exninst(z, [exn]).
 11. Push the value (REF.EXN_ADDR a) to the stack.
 12. Execute the instruction THROW_REF.
+
+Step/cont.new x
+1. Let z be the current state.
+2. Assert: Due to validation, a value is on the top of the stack.
+3. Pop the value val from the stack.
+4. If val is some REF.NULL, then:
+  a. Trap.
+5. Assert: Due to validation, val is some REF.FUNC_ADDR.
+6. Let (REF.FUNC_ADDR a) be val.
+7. Let ca be |$continst(z)|.
+8. Assert: Due to validation, $Expand($type(z, x)) is some CONT.
+9. Let (CONT dt) be $Expand($type(z, x)).
+10. Assert: Due to validation, $Expand(dt) is some FUNC.
+11. Let instr* be [(REF.FUNC_ADDR a), (CALL_REF dt)].
+12. Push the value (REF.CONT_ADDR ca) to the stack.
+13. Perform $add_continst(z, [(VALS [] HOLE instr*)]).
+
+Step/cont.bind x y
+1. Let z be the current state.
+2. Assert: Due to validation, a value is on the top of the stack.
+3. Pop the value val' from the stack.
+4. If val' is some REF.NULL, then:
+  a. Trap.
+5. Assert: Due to validation, val' is some REF.CONT_ADDR.
+6. Let (REF.CONT_ADDR a) be val'.
+7. Assert: Due to validation, (a < |$continst(z)|).
+8. If $continst(z)[a] is not defined, then:
+  a. Trap.
+9. Assert: Due to validation, $Expand($type(z, x)) is some CONT.
+10. Let (CONT dt) be $Expand($type(z, x)).
+11. Assert: Due to validation, $Expand($type(z, y)) is some CONT.
+12. Let (CONT dt') be $Expand($type(z, y)).
+13. Let ca be |$continst(z)|.
+14. Assert: Due to validation, $continst(z)[a] is defined.
+15. Let ?(cont) be $continst(z)[a].
+16. Assert: Due to validation, $Expand(dt') is some FUNC.
+17. Let (FUNC t'_1* -> t'_2*) be $Expand(dt').
+18. Assert: Due to validation, $Expand(dt) is some FUNC.
+19. Let (FUNC t_1* -> t_2*) be $Expand(dt).
+20. Let n be (|t_1*| - |t'_1*|).
+21. Assert: Due to validation, there are at least n values on the top of the stack.
+22. Pop the values val^n from the stack.
+23. Let z' be $add_continst(z, [$contfill(cont, val^n, [])]).
+24. Push the value (REF.CONT_ADDR ca) to the stack.
+25. Perform $with_cont(z', a, ?()).
+
+Step/resume kx hdl*
+1. Let z be the current state.
+2. Assert: Due to validation, a value is on the top of the stack.
+3. Pop the value val' from the stack.
+4. If val' is some REF.NULL, then:
+  a. Trap.
+5. Assert: Due to validation, val' is some REF.CONT_ADDR.
+6. Let (REF.CONT_ADDR a) be val'.
+7. Assert: Due to validation, (a < |$continst(z)|).
+8. If $continst(z)[a] is not defined, then:
+  a. Trap.
+9. Assert: Due to validation, $Expand($type(z, kx)) is some CONT.
+10. Let (CONT dt) be $Expand($type(z, kx)).
+11. Let addrhdl* be $hdlinst(z, hdl)*.
+12. Assert: Due to validation, $continst(z)[a] is defined.
+13. Let ?(cont) be $continst(z)[a].
+14. Assert: Due to validation, (|addrhdl*| = |hdl*|).
+15. Assert: Due to validation, $Expand(dt) is some FUNC.
+16. Let (FUNC t_1^n -> t_2*) be $Expand(dt).
+17. Assert: Due to validation, there are at least n values on the top of the stack.
+18. Pop the values val^n from the stack.
+19. Let cont' be $contfill(cont, val^n, []).
+20. Perform $with_cont(z, a, ?()).
+21. Enter [(RESUMING cont')] :: [PROMPT] with label (PROMPT{ addrhdl* }).
+
+Step/resume_throw kx ax hdl*
+1. Let z be the current state.
+2. Assert: Due to validation, a value is on the top of the stack.
+3. Pop the value val' from the stack.
+4. If val' is some REF.NULL, then:
+  a. Trap.
+5. Assert: Due to validation, val' is some REF.CONT_ADDR.
+6. Let (REF.CONT_ADDR a) be val'.
+7. Assert: Due to validation, (a < |$continst(z)|).
+8. If $continst(z)[a] is not defined, then:
+  a. Trap.
+9. Assert: Due to validation, (ax < |$tagaddr(z)|).
+10. Assert: Due to validation, $Expand($as_deftype($tag(z, ax).TYPE)) is some FUNC.
+11. Let (FUNC t^m -> resulttype_0) be $Expand($as_deftype($tag(z, ax).TYPE)).
+12. Assert: Due to validation, (resulttype_0 = []).
+13. Let addrhdl* be $hdlinst(z, hdl)*.
+14. Let a' be |$exninst(z)|.
+15. Assert: Due to validation, $continst(z)[a] is defined.
+16. Let ?(cont) be $continst(z)[a].
+17. Assert: Due to validation, (|addrhdl*| = |hdl*|).
+18. Let cont' be $contfill(cont, [(REF.EXN_ADDR a')], [THROW_REF]).
+19. Assert: Due to validation, there are at least m values on the top of the stack.
+20. Pop the values val^m from the stack.
+21. Let exn be { TAG: $tagaddr(z)[ax]; FIELDS: val^m }.
+22. Let z' be $add_exninst(z, [exn]).
+23. Perform $with_cont(z', a, ?()).
+24. Enter [(RESUMING cont')] :: [PROMPT] with label (PROMPT{ addrhdl* }).
+
+Step/switch x xe
+1. Let z be the current state.
+2. Assert: Due to validation, a value is on the top of the stack.
+3. Pop the value val'' from the stack.
+4. If val'' is some REF.NULL, then:
+  a. Trap.
+5. Assert: Due to validation, val'' is some REF.CONT_ADDR.
+6. Let (REF.CONT_ADDR a) be val''.
+7. Assert: Due to validation, (a < |$continst(z)|).
+8. If $continst(z)[a] is not defined, then:
+  a. Trap.
+9. Assert: Due to validation, (xe < |$tagaddr(z)|).
+10. Assert: Due to validation, $Expand($type(z, x)) is some CONT.
+11. Let (CONT dt) be $Expand($type(z, x)).
+12. Assert: Due to validation, $continst(z)[a] is defined.
+13. Let ?(cont) be $continst(z)[a].
+14. Let tagaddr be $tagaddr(z)[xe].
+15. Assert: Due to validation, $Expand(dt) is some FUNC.
+16. Let (FUNC resulttype_0 -> te_1*) be $Expand(dt).
+17. Assert: Due to validation, (|resulttype_0| >= 1).
+18. Let t_1* :: [valtype_1] be resulttype_0.
+19. Assert: Due to validation, valtype_1 is some REF.
+20. Let (REF nul dt_1) be valtype_1.
+21. Assert: Due to validation, $Expand(dt_1) is some CONT.
+22. Let (CONT dt'_1) be $Expand(dt_1).
+23. Let n be |t_1*|.
+24. Assert: Due to validation, $Expand(dt'_1) is some FUNC.
+25. Assert: Due to validation, there are at least n values on the top of the stack.
+26. Pop the values val^n from the stack.
+27. Let cont' be $contfill(cont, val^n, []).
+28. Let instr'* be the remaining instruction sequence.
+29. Pop all values val'* from the top of the stack.
+30. Perform $with_cont(z, a, ?()).
+31. Execute the instruction (SUSPENDING tagaddr (SWITCH cont') (VALS val'* HOLE instr'*)).
+
+Step/suspending tagaddr resumption cont
+1. Let z be the current state.
+2. If the first non-value entry of the stack is a LABEL_, then:
+  a. Let (LABEL_ n { instr* }) be the topmost LABEL_.
+  b. Pop the label (LABEL_ _ { _ }) from the stack.
+  c. Let instr'* be the remaining instruction sequence.
+  d. Pop all values val'* from the top of the stack.
+  e. Let cont' be (FRAME val'* (LABEL_ n { instr* }) cont instr'*).
+  f. Execute the instruction (SUSPENDING tagaddr resumption cont').
+3. Else if the first non-value entry of the stack is a FRAME_, then:
+  a. Let (FRAME_ n { frame }) be the topmost FRAME_.
+  b. Pop the frame (FRAME_ _ { _ }) from the stack.
+  c. Let instr'* be the remaining instruction sequence.
+  d. Pop all values val'* from the top of the stack.
+  e. Let cont' be (FRAME val'* (FRAME_ n { frame }) cont instr'*).
+  f. Execute the instruction (SUSPENDING tagaddr resumption cont').
+4. Else if the first non-value entry of the stack is a HANDLER_, then:
+  a. Let (HANDLER_ n { catch* }) be the topmost HANDLER_.
+  b. Pop the handler (HANDLER_ _ { _ }) from the stack.
+  c. Let instr'* be the remaining instruction sequence.
+  d. Pop all values val'* from the top of the stack.
+  e. Let cont' be (FRAME val'* (HANDLER_ n { catch* }) cont instr'*).
+  f. Execute the instruction (SUSPENDING tagaddr resumption cont').
+5. Else:
+  a. Assert: Due to validation, the first non-value entry of the stack is a PROMPT.
+  b. Let (PROMPT{ addrhdl* }) be the topmost PROMPT.
+  c. If (tagaddr < |$taginst(z)|), then:
+    1) If resumption is some SUSPEND, then:
+      a) Let (SUSPEND val^n) be resumption.
+      b) Let a be |$continst(z)|.
+      c) If $gethandlersuspend(addrhdl*, tagaddr) is not defined, then:
+        1. Let (SUSPEND val*) be resumption.
+        2. Pop the promp (PROMPT _ { _ }) from the stack.
+        3. Let instr'* be the remaining instruction sequence.
+        4. Pop all values val'* from the top of the stack.
+        5. Let cont' be (FRAME val'* (PROMPT{ addrhdl* }) cont instr'*).
+        6. Execute the instruction (SUSPENDING tagaddr (SUSPEND val*) cont').
+      d) Else:
+        1. Let ?(l) be $gethandlersuspend(addrhdl*, tagaddr).
+        2. Assert: Due to validation, $Expand($as_deftype($taginst(z)[tagaddr].TYPE)) is some FUNC.
+        3. Let (FUNC t_1^n -> t_2*) be $Expand($as_deftype($taginst(z)[tagaddr].TYPE)).
+        4. Pop the promp (PROMPT _ { _ }) from the stack.
+        5. Perform $add_continst(z, [cont]).
+        6. Push the values val^n to the stack.
+        7. Push the value (REF.CONT_ADDR a) to the stack.
+        8. Execute the instruction (BR l).
+    2) Else:
+      a) If $gethandlerswitch(addrhdl*, tagaddr), then:
+        1. If resumption is some SWITCH, then:
+          a. Let (SWITCH continst) be resumption.
+          b. Let a be |$continst(z)|.
+          c. Let cont' be $contfill(continst, [(REF.CONT_ADDR a)], []).
+          d. Pop the promp (PROMPT _ { _ }) from the stack.
+          e. Perform $add_continst(z, [cont]).
+          f. Enter [(RESUMING cont')] :: [PROMPT] with label (PROMPT{ addrhdl* }).
+      b) Else if resumption is some SWITCH, then:
+        1. Let (SWITCH continst) be resumption.
+        2. Pop the promp (PROMPT _ { _ }) from the stack.
+        3. Let instr'* be the remaining instruction sequence.
+        4. Pop all values val'* from the top of the stack.
+        5. Let cont' be (FRAME val'* (PROMPT{ addrhdl* }) cont instr'*).
+        6. Execute the instruction (SUSPENDING tagaddr (SWITCH continst) cont').
+      c) Do nothing.
+      d) If $gethandlersuspend(addrhdl*, tagaddr) is not defined, then:
+        1. Do nothing.
+      e) Else:
+        1. Do nothing.
+      f) Do nothing.
+  d. Else if $gethandlersuspend(addrhdl*, tagaddr) is not defined, then:
+    1) If resumption is some SUSPEND, then:
+      a) Let (SUSPEND val*) be resumption.
+      b) Pop the promp (PROMPT _ { _ }) from the stack.
+      c) Let instr'* be the remaining instruction sequence.
+      d) Pop all values val'* from the top of the stack.
+      e) Let cont' be (FRAME val'* (PROMPT{ addrhdl* }) cont instr'*).
+      f) Execute the instruction (SUSPENDING tagaddr (SUSPEND val*) cont').
+    2) Else if $gethandlerswitch(addrhdl*, tagaddr), then:
+      a) Assert: Due to validation, resumption is some SWITCH.
+      b) Let (SWITCH continst) be resumption.
+      c) Let a be |$continst(z)|.
+      d) Let cont' be $contfill(continst, [(REF.CONT_ADDR a)], []).
+      e) Pop the promp (PROMPT _ { _ }) from the stack.
+      f) Perform $add_continst(z, [cont]).
+      g) Enter [(RESUMING cont')] :: [PROMPT] with label (PROMPT{ addrhdl* }).
+    3) Else:
+      a) Assert: Due to validation, resumption is some SWITCH.
+      b) Let (SWITCH continst) be resumption.
+      c) Pop the promp (PROMPT _ { _ }) from the stack.
+      d) Let instr'* be the remaining instruction sequence.
+      e) Pop all values val'* from the top of the stack.
+      f) Let cont' be (FRAME val'* (PROMPT{ addrhdl* }) cont instr'*).
+      g) Execute the instruction (SUSPENDING tagaddr (SWITCH continst) cont').
+  e. Else if $gethandlerswitch(addrhdl*, tagaddr), then:
+    1) Assert: Due to validation, resumption is some SWITCH.
+    2) Let (SWITCH continst) be resumption.
+    3) Let a be |$continst(z)|.
+    4) Let cont' be $contfill(continst, [(REF.CONT_ADDR a)], []).
+    5) Pop the promp (PROMPT _ { _ }) from the stack.
+    6) Perform $add_continst(z, [cont]).
+    7) Enter [(RESUMING cont')] :: [PROMPT] with label (PROMPT{ addrhdl* }).
+  f. Else:
+    1) Assert: Due to validation, resumption is some SWITCH.
+    2) Let (SWITCH continst) be resumption.
+    3) Pop the promp (PROMPT _ { _ }) from the stack.
+    4) Let instr'* be the remaining instruction sequence.
+    5) Pop all values val'* from the top of the stack.
+    6) Let cont' be (FRAME val'* (PROMPT{ addrhdl* }) cont instr'*).
+    7) Execute the instruction (SUSPENDING tagaddr (SWITCH continst) cont').
 
 Step/local.set x
 1. Let z be the current state.
@@ -29884,6 +31203,9 @@ FUNCREF
 EXNREF
 1. Return (REF ?(NULL) EXN).
 
+CONTREF
+1. Return (REF ?(NULL) CONT).
+
 EXTERNREF
 1. Return (REF ?(NULL) EXTERN).
 
@@ -29895,6 +31217,9 @@ NULLFUNCREF
 
 NULLEXNREF
 1. Return (REF ?(NULL) NOEXN).
+
+NULLCONTREF
+1. Return (REF ?(NULL) NOCONT).
 
 NULLEXTERNREF
 1. Return (REF ?(NULL) NOEXTERN).
@@ -30190,9 +31515,12 @@ subst_comptype comptype tv* tu*
 2. If comptype is some ARRAY, then:
   a. Let (ARRAY ft) be comptype.
   b. Return (ARRAY $subst_fieldtype(ft, tv*, tu*)).
-3. Assert: Due to validation, comptype is some FUNC.
-4. Let (FUNC t_1* -> t_2*) be comptype.
-5. Return (FUNC $subst_valtype(t_1, tv*, tu*)* -> $subst_valtype(t_2, tv*, tu*)*).
+3. If comptype is some FUNC, then:
+  a. Let (FUNC t_1* -> t_2*) be comptype.
+  b. Return (FUNC $subst_valtype(t_1, tv*, tu*)* -> $subst_valtype(t_2, tv*, tu*)*).
+4. Assert: Due to validation, comptype is some CONT.
+5. Let (CONT tv') be comptype.
+6. Return (CONT $subst_typeuse(tv', tv*, tu*)).
 
 subst_subtype (SUB fin tu'* ct) tv* tu*
 1. Return (SUB fin $subst_typeuse(tu', tv*, tu*)* $subst_comptype(ct, tv*, tu*)).
@@ -30370,9 +31698,12 @@ free_comptype comptype
 2. If comptype is some ARRAY, then:
   a. Let (ARRAY fieldtype) be comptype.
   b. Return $free_fieldtype(fieldtype).
-3. Assert: Due to validation, comptype is some FUNC.
-4. Let (FUNC resulttype_1 -> resulttype_2) be comptype.
-5. Return $free_resulttype(resulttype_1) ++ $free_resulttype(resulttype_2).
+3. If comptype is some FUNC, then:
+  a. Let (FUNC resulttype_1 -> resulttype_2) be comptype.
+  b. Return $free_resulttype(resulttype_1) ++ $free_resulttype(resulttype_2).
+4. Assert: Due to validation, comptype is some CONT.
+5. Let (CONT typeuse) be comptype.
+6. Return $free_typeuse(typeuse).
 
 free_subtype (SUB fin typeuse* comptype)
 1. Return $free_list($free_typeuse(typeuse)*) ++ $free_comptype(comptype).
@@ -31759,6 +33090,9 @@ arrayinst (s, f)
 exninst (s, f)
 1. Return s.EXNS.
 
+continst (s, f)
+1. Return s.CONTS.
+
 type (s, f) x
 1. Return f.MODULE.TYPES[x].
 
@@ -31816,6 +33150,9 @@ with_struct (s, f) a i fv
 with_array (s, f) a i fv
 1. Replace s.ARRAYS[a].FIELDS[i] with fv.
 
+with_cont (s, f) a c?
+1. Replace s.CONTS[a] with c?.
+
 add_structinst (s, f) si*
 1. Append si* to the s.STRUCTS.
 
@@ -31824,6 +33161,9 @@ add_arrayinst (s, f) ai*
 
 add_exninst (s, f) exn*
 1. Append exn* to the s.EXNS.
+
+add_continst (s, f) cont*
+1. Append ?(cont)* to the s.CONTS.
 
 growtable tableinst n r
 1. Let { TYPE: (at ([ i .. j ]) rt); REFS: r'* } be tableinst.
@@ -31840,6 +33180,48 @@ growmem meminst n
 3. Let i' be ((|b*| / (64 * $Ki())) + n).
 4. Let meminst' be { TYPE: at ([ i' .. j ]) PAGE; BYTES: b* :: 0^(n * (64 * $Ki())) }.
 5. Return meminst'.
+
+contfill continst' val'* instr'*
+1. If continst' is some VALS, then:
+  a. Let (VALS val* HOLE instr*) be continst'.
+  b. Return (VALS val* :: val'* HOLE instr'* :: instr*).
+2. Assert: Due to validation, continst' is some FRAME.
+3. Let (FRAME val* generalframe continst instr*) be continst'.
+4. Return (FRAME val* generalframe $contfill(continst, val'*, instr'*) instr*).
+
+gethandlersuspend addrhdl'* ea
+1. If (addrhdl'* = []), then:
+  a. Return ?().
+2. Let [addrhdl_0] :: addrhdl* be addrhdl'*.
+3. If addrhdl_0 is some _SWITCH, then:
+  a. Return $gethandlersuspend(addrhdl*, ea).
+4. Assert: Due to validation, (|addrhdl'*| >= 1).
+5. Assert: Due to validation, addrhdl_0 is some _LABEL.
+6. Let (_LABELON ea' l) be addrhdl_0.
+7. If (ea = ea'), then:
+  a. Return ?(l).
+8. Return $gethandlersuspend(addrhdl*, ea).
+
+gethandlerswitch addrhdl'* ea
+1. If (addrhdl'* = []), then:
+  a. Return false.
+2. Let [addrhdl_0] :: addrhdl* be addrhdl'*.
+3. If addrhdl_0 is some _LABEL, then:
+  a. Return $gethandlerswitch(addrhdl*, ea).
+4. Assert: Due to validation, (|addrhdl'*| >= 1).
+5. Assert: Due to validation, addrhdl_0 is some _SWITCH.
+6. Let (_SWITCHON ea' SWITCH) be addrhdl_0.
+7. If (ea = ea'), then:
+  a. Return true.
+8. Return $gethandlerswitch(addrhdl*, ea).
+
+hdlinst z hdl
+1. If hdl is some _LABEL, then:
+  a. Let (_LABELON x l) be hdl.
+  b. Return (_LABELON $tagaddr(z)[x] l).
+2. Assert: Due to validation, hdl is some _SWITCH.
+3. Let (_SWITCHON x SWITCH) be hdl.
+4. Return (_SWITCHON $tagaddr(z)[x] SWITCH).
 
 inst_valtype moduleinst t
 1. Let dt* be moduleinst.TYPES.
