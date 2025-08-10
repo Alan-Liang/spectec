@@ -1068,10 +1068,29 @@ let exit_context context_opt instrs =
 
 (* `reduction` -> `instr list` *)
 let translate_reduction ?(context_opt=None) reduction =
+  (* e.g. val* (FRAME_ n `{f} SOME_INSTR) instr* *)
+  let is_outer_pop prem =
+    (is_pop prem || is_capture prem) &&
+    Il.Free.Set.exists (String.starts_with ~prefix:"outer_") (Il.Free.free_prem prem).varid
+  in
+  (* actually extracts all premises after and including the first outer pop *)
+  (* make dependencies of the outer pops appear only after these pops *)
+  let rec extract_outer_pops = function
+  | [] -> [], []
+  | prem :: prems when is_outer_pop prem ->
+    prem :: prems , []
+  | prem :: prems ->
+    let outer_pops, other = extract_outer_pops prems in
+    outer_pops, prem :: other
+  in
+
   let _, _, rhs, prems = reduction in
+  let outer_pops, prems = extract_outer_pops prems in
 
   (* Translate rhs *)
   translate_rhs rhs
+  (* Make outer pops appear after context exit (the premises are inserted in reverse order) *)
+  |> translate_prems outer_pops
   (* Exit context *)
   |> exit_context context_opt
   |> Transpile.insert_nop
