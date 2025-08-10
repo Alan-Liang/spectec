@@ -84,6 +84,8 @@ let input_vars = [
   "input";
   "stack0";
   "instrstack0";
+  "outer_stack0";
+  "outer_instrstack0";
   "ctxt";
   "state";
   "unused";
@@ -91,7 +93,9 @@ let input_vars = [
 
 (* Encode stack *)
 
-let encode_inner_stack context_opt stack =
+(* split_stack: try to figure out which wasm instruction is in the stack
+   and generate premises for other parts of the stack *)
+let split_stack stack_prefix stack =
   let dropped, es = stack_to_list stack |> List.rev |> drop_until is_case in
 
   (* HARDCODE: try to match instr* at the end *)
@@ -99,11 +103,11 @@ let encode_inner_stack context_opt stack =
     | SubE (e, typ, _) -> real_typ typ e.it
     | _ -> typ
   in
-  let instr_prems = match dropped with
+  let instrs_prem = match dropped with
     | [] -> []
     | [{ it = IterE (instr, (List, _)); _ } as instrs] when real_typ instr.note instr.it |> Print.string_of_typ = "instr" ->
       let t = mk_varT "instrstackT" in
-      let rhs = CallE (mk_id "capture", [ arg (mk_varE "instrstack0" "instrstackT") ]) $$ no_region % t in
+      let rhs = CallE (mk_id "capture", [ arg (mk_varE (stack_prefix ^ "instrstack0") "instrstackT") ]) $$ no_region % t in
       let lhs = { instrs with note = t } in
       [IfPr (CmpE (`EqOp, `BoolT, lhs, rhs) $$ instrs.at % (BoolT $ no_region)) $ instrs.at]
     | _ ->
@@ -112,22 +116,11 @@ let encode_inner_stack context_opt stack =
   in
 
   match es with
-  | [] ->
-    (* ASSUMPTION: The target instruction was actually the outer context (i.e. LABEL_) *)
-    (
-      match context_opt with
-      | None -> assert false
-      | Some e ->
-        Some (LetPr (e, mk_varE "input" "inputT", free_ids e) $ e.at), instr_prems
-    )
-  | _ ->
-    (* ASSUMPTION: The top of the stack should be now the target instruction *)
-    let winstr, operands = Lib.List.split_hd es in
-
-    let prem = LetPr (winstr, mk_varE "input" "inputT", free_ids winstr) $ winstr.at in
+  | [] -> None, instrs_prem
+  | winstr :: operands ->
     let prems = List.mapi (fun i e ->
-      let s0 = ("stack" ^ string_of_int i) in
-      let s1 = ("stack" ^ string_of_int (i+1)) in
+      let s0 = (stack_prefix ^ "stack" ^ string_of_int i) in
+      let s1 = (stack_prefix ^ "stack" ^ string_of_int (i+1)) in
       let t = mk_varT "stackT" in
 
       let stack1 = mk_varE s1 "stackT" in
@@ -139,32 +132,42 @@ let encode_inner_stack context_opt stack =
 
       IfPr (CmpE (`EqOp, `BoolT, lhs, rhs) $$ e.at % (BoolT $ no_region)) $ e.at
     ) operands in
+    Some winstr, prems @ instrs_prem
 
-    None, prem :: prems @ instr_prems
+
+let prem_of_winstr winstr = LetPr (winstr, mk_varE "input" "inputT", free_ids winstr) $ winstr.at
 
 let encode_stack stack =
-  match stack.it with
-  | ListE [e] when is_context e ->
-    let mixop = case_of_case e in
-    let args  = args_of_case e in
+  let winstr_opt, outer_prems = split_stack "" stack in
+  match winstr_opt with
+  | None -> assert false
+  | Some ctx when is_context ctx ->
+    (* TODO(lyl): deduplicate code *)
+    let _, outer_prems = split_stack "outer_" stack in
+    let mixop = case_of_case ctx in
+    let args  = args_of_case ctx in
 
     (* ASSUMPTION: the inner stack of the ctxt instruction is always the last arg *)
     let args', inner_stack = Lib.List.split_last args in
     let mixop', _ = Lib.List.split_last mixop in
 
-    let e1 = { e with it = CaseE (mixop', TupE args' $$ no_region % (mk_varT "")) } in
+    let e1 = { ctx with it = CaseE (mixop', TupE args' $$ no_region % (mk_varT "")) } in
     let e2 = (mk_varE "ctxt" "contextT") in
 
     let pr = LetPr (e1, e2, free_ids e1) $ e2.at in
 
-    let pr_opt, prs = encode_inner_stack (Some e) inner_stack in
+    let prinfo_opt, inner_prems = split_stack "" inner_stack in
     (
-      match pr_opt with
-      | None -> pr
-      | Some pr -> pr
-    ) :: prs
-  | _ ->
-    encode_inner_stack None stack |> snd
+      match prinfo_opt with
+      | None ->
+        (* ASSUMPTION: The target instruction was actually the outer context (i.e. LABEL_) *)
+        (* e.g. (FRAME_ n `{f} val^n) *)
+        prem_of_winstr ctx :: outer_prems
+      | Some winstr ->
+        pr :: prem_of_winstr winstr :: inner_prems @ outer_prems
+    )
+  | Some winstr ->
+      prem_of_winstr winstr :: outer_prems
 
 (* Encode lhs *)
 let encode_lhs lhs =
