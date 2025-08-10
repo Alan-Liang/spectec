@@ -1346,6 +1346,7 @@
 .. |structaddr| mathdef:: \xref{exec/runtime}{syntax-structaddr}{\X{structaddr}}
 .. |arrayaddr| mathdef:: \xref{exec/runtime}{syntax-arrayaddr}{\X{arrayaddr}}
 .. |exnaddr| mathdef:: \xref{exec/runtime}{syntax-exnaddr}{\X{exnaddr}}
+.. |contaddr| mathdef:: \xref{exec/runtime}{syntax-contaddr}{\X{contaddr}}
 .. |hostaddr| mathdef:: \xref{exec/runtime}{syntax-hostaddr}{\X{hostaddr}}
 
 
@@ -1413,6 +1414,10 @@
 .. |EITAG| mathdef:: \xref{exec/runtime}{syntax-exninst}{\K{tag}}
 .. |EIFIELDS| mathdef:: \xref{exec/runtime}{syntax-exninst}{\K{fields}}
 
+.. |KIVALS| mathdef:: \xref{exec/runtime}{syntax-continst}{\K{vals}}
+.. |KIHOLE| mathdef:: \xref{exec/runtime}{syntax-continst}{\K{[\_]}}
+.. |KIFRAME| mathdef:: \xref{exec/runtime}{syntax-continst}{\K{frame}}
+
 .. |PACK| mathdef:: \xref{exec/runtime}{syntax-packval}{\K{pack}}
 .. |I8PACK| mathdef:: \xref{exec/runtime}{syntax-packval}{\K{i8.pack}}
 .. |I16PACK| mathdef:: \xref{exec/runtime}{syntax-packval}{\K{i16.pack}}
@@ -1431,6 +1436,7 @@
 .. |ZSTRUCTS| mathdef:: \xref{exec/runtime}{syntax-store}{\K{structs}}
 .. |ZARRAYS| mathdef:: \xref{exec/runtime}{syntax-store}{\K{arrays}}
 .. |ZEXNS| mathdef:: \xref{exec/runtime}{syntax-store}{\K{exns}}
+.. |ZCONTS| mathdef:: \xref{exec/runtime}{syntax-store}{\K{conts}}
 .. |ZLOCALS| mathdef:: \xref{exec/runtime}{syntax-store}{\K{locals}}
 
 .. |ZGGLOBALS| mathdef:: \ZGLOBALS
@@ -1469,6 +1475,13 @@
 .. |arrayinst| mathdef:: \xref{exec/runtime}{syntax-arrayinst}{\X{arrayinst}}
 .. |exportinst| mathdef:: \xref{exec/runtime}{syntax-exportinst}{\X{exportinst}}
 .. |exninst| mathdef:: \xref{exec/runtime}{syntax-exninst}{\X{exninst}}
+.. |continst| mathdef:: \xref{exec/runtime}{syntax-continst}{\X{continst}}
+
+.. |generalframe| mathdef:: \xref{exec/runtime}{syntax-generalframe}{\X{gframe}}
+.. |addrhdl| mathdef:: \xref{exec/runtime}{syntax-addrhdl}{\X{addrhdl}}
+.. |addrhdlON| mathdef:: \xref{exec/runtime}{syntax-addrhdl}{\K{on}}
+.. |addrhdlSWITCH| mathdef:: \xref{exec/runtime}{syntax-addrhdl}{\K{switch}}
+.. |resumption| mathdef:: \xref{exec/runtime}{syntax-resumption}{\X{resumption}}
 
 .. |hostfunc| mathdef:: \xref{exec/runtime}{syntax-hostfunc}{\X{hostfunc}}
 
@@ -1494,6 +1507,7 @@
 .. |SSTRUCTS| mathdef:: \xref{exec/runtime}{syntax-store}{\K{structs}}
 .. |SARRAYS| mathdef:: \xref{exec/runtime}{syntax-store}{\K{arrays}}
 .. |SEXNS| mathdef:: \xref{exec/runtime}{syntax-store}{\K{exns}}
+.. |SCONTS| mathdef:: \xref{exec/runtime}{syntax-store}{\K{conts}}
 
 .. Store, non-terminals
 
@@ -1506,6 +1520,7 @@
 .. |LABEL| mathdef:: \xref{exec/runtime}{syntax-label}{\K{label}}
 .. |FRAME| mathdef:: \xref{exec/runtime}{syntax-frame}{\K{frame}}
 .. |HANDLER| mathdef:: \xref{exec/runtime}{syntax-handler}{\K{handler}}
+.. |PROMPT| mathdef:: \xref{exec/runtime}{syntax-prompt}{\K{prompt}}
 
 .. |ALOCALS| mathdef:: \xref{exec/runtime}{syntax-frame}{\K{locals}}
 .. |AMODULE| mathdef:: \xref{exec/runtime}{syntax-frame}{\K{module}}
@@ -1516,6 +1531,7 @@
 .. |label| mathdef:: \xref{exec/runtime}{syntax-label}{\X{label}}
 .. |handler| mathdef:: \xref{exec/runtime}{syntax-handler}{\X{handler}}
 .. |frame| mathdef:: \xref{exec/runtime}{syntax-frame}{\X{frame}}
+.. |prompt| mathdef:: \xref{exec/runtime}{syntax-prompt}{\X{prompt}}
 .. |callframe| mathdef:: \xref{exec/runtime}{syntax-callframe}{\X{callframe}}
 
 
@@ -1531,8 +1547,11 @@
 .. |REFSTRUCTADDR| mathdef:: \xref{exec/runtime}{syntax-ref}{\K{ref{.}struct}}
 .. |REFARRAYADDR| mathdef:: \xref{exec/runtime}{syntax-ref}{\K{ref{.}array}}
 .. |REFEXNADDR| mathdef:: \xref{exec/runtime}{syntax-ref}{\K{ref{.}exn}}
+.. |REFCONTADDR| mathdef:: \xref{exec/runtime}{syntax-ref}{\K{ref{.}cont}}
 .. |REFHOSTADDR| mathdef:: \xref{exec/runtime}{syntax-ref}{\K{ref{.}host}}
 .. |REFEXTERN| mathdef:: \xref{exec/runtime}{syntax-ref}{\K{ref{.}extern}}
+.. |SUSPENDING| mathdef:: \xref{exec/runtime}{syntax-suspending}{\K{suspending}}
+.. |RESUMING| mathdef:: \xref{exec/runtime}{syntax-resuming}{\K{resuming}}
 .. |TRAP| mathdef:: \xref{exec/runtime}{syntax-trap}{\K{trap}}
 
 .. TODO remove these
@@ -1562,6 +1581,14 @@
 
 .. |packfield| mathdef:: \xref{exec/runtime}{aux-packfield}{\F{pack}}
 .. |unpackfield| mathdef:: \xref{exec/runtime}{aux-unpackfield}{\F{unpack}}
+
+
+.. Continuations, meta-functions
+
+.. |contfill| mathdef:: \xref{exec/runtime}{aux-contfill}{\F{contfill}}
+.. |gethandlersuspend| mathdef:: \xref{exec/runtime}{aux-gethandlersuspend}{\F{gethandlersuspend}}
+.. |gethandlerswitch| mathdef:: \xref{exec/runtime}{aux-gethandlerswitch}{\F{gethandlerswitch}}
+.. |hdlinst| mathdef:: \xref{exec/runtime}{aux-hdlinst}{\F{hdlinst}}
 
 
 .. Configurations, non-terminals
@@ -1761,6 +1788,7 @@
 .. |vdashstructinst| mathdef:: \xref{appendix/properties}{valid-structinst}{\vdash}
 .. |vdasharrayinst| mathdef:: \xref{appendix/properties}{valid-arrayinst}{\vdash}
 .. |vdashexninst| mathdef:: \xref{appendix/properties}{valid-exninst}{\vdash}
+.. |vdashcontinst| mathdef:: \xref{appendix/properties}{valid-continst}{\vdash}
 .. |vdashexportinst| mathdef:: \xref{appendix/properties}{valid-exportinst}{\vdash}
 .. |vdashmoduleinst| mathdef:: \xref{appendix/properties}{valid-moduleinst}{\vdash}
 
@@ -1769,6 +1797,7 @@
 .. |OKstructinst| mathdef:: \xref{appendix/properties}{valid-structinst}{\K{ok}}
 .. |OKarrayinst| mathdef:: \xref{appendix/properties}{valid-arrayinst}{\K{ok}}
 .. |OKexninst| mathdef:: \xref{appendix/properties}{valid-exninst}{\K{ok}}
+.. |OKcontinst| mathdef:: \xref{appendix/properties}{valid-continst}{\K{ok}}
 .. |OKexportinst| mathdef:: \xref{appendix/properties}{valid-exportinst}{\K{ok}}
 
 .. |vdashcontext| mathdef:: \xref{appendix/properties}{valid-context}{\vdash}
@@ -1789,6 +1818,7 @@
 .. |vdashstructinstextends| mathdef:: \xref{appendix/properties}{extend-structinst}{\vdash}
 .. |vdasharrayinstextends| mathdef:: \xref{appendix/properties}{extend-arrayinst}{\vdash}
 .. |vdashexninstextends| mathdef:: \xref{appendix/properties}{extend-exninst}{\vdash}
+.. |vdashcontinstextends| mathdef:: \xref{appendix/properties}{extend-continst}{\vdash}
 .. |vdashstoreextends| mathdef:: \xref{appendix/properties}{extend-store}{\vdash}
 
 
