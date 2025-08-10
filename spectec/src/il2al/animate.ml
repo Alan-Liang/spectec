@@ -121,10 +121,24 @@ let is_cond_assign prem =
 let is_pop env row =
   is_assign env row &&
   match (unwrap row).it with
-  | LetPr (_, {it = CallE (_, {it = ExpA n; _} :: _); note; _}, _) when List.mem (Il.Print.string_of_typ note) ["stackT"; "instrstackT"] ->
+  | LetPr (_, {it = CallE (_, {it = ExpA n; _} :: _); note; _}, _) when Il.Print.string_of_typ note = "stackT" ->
     (match n.it with
     | NumE (`Nat i) -> Z.equal i (Z.one)
     | _ -> false)
+  | _ -> false
+
+(* is this assign premise encoded premise for popping all values or instructions? *)
+let is_pop_all env row =
+  is_assign env row &&
+  match (unwrap row).it with
+  (* $pop(-1, stackN) *)
+  | LetPr (_, {it = CallE (_, {it = ExpA n; _} :: _); note; _}, _) when Il.Print.string_of_typ note = "stackT" ->
+    (match n.it with
+    | NumE (`Nat i) -> Z.equal i (Z.minus_one)
+    | _ -> false)
+  (* $capture(instrstackN) *)
+  | LetPr (_, {note; _}, _) when Il.Print.string_of_typ note = "instrstackT" ->
+    true
   | _ -> false
 
 (* iteratively select pop, condition and assignment premises,
@@ -161,8 +175,15 @@ and select_assign prems acc env fb =
   | _ ->
     let (pops, non_pops) = List.partition (is_pop env) prems in
     let (assigns, non_assigns) =
+      (* 1. Prioritise one-value pops *)
       if pops = [] then
-        List.partition (is_assign env) prems
+        (* 2. Initially ignore pop(-1) and capture *)
+        let assigns, non_assigns = List.partition (fun prem -> is_assign env prem && not (is_pop_all env prem)) prems in
+        (* 3. If that fails, count all assignments including pop_alls *)
+        if assigns = [] then
+          List.partition (is_assign env) prems
+        else
+          assigns, non_assigns
       else
         pops, non_pops
     in

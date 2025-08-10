@@ -1069,9 +1069,9 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 #. Else:
 
-   a. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+   a. Let :math:`l` be the label index :math:`{n'} - 1`.
 
-   #. Let :math:`l` be the label index :math:`{n'} - 1`.
+   #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
    #. Pop the :math:`\mathsf{label}` :math:`L` from the stack.
 
@@ -3573,8 +3573,8 @@ Step_pure/br n'
   e. Push the values val^n to the stack.
   f. Execute the sequence instr'*.
 4. Else:
-  a. Pop all values val* from the top of the stack.
-  b. Let l be (n' - 1).
+  a. Let l be (n' - 1).
+  b. Pop all values val* from the top of the stack.
   c. Pop the label (LABEL_ _ { _ }) from the stack.
   d. Push the values val* to the stack.
   e. Execute the instruction (BR l).
@@ -6181,9 +6181,9 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 #. Else:
 
-   a. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+   a. Let :math:`l` be the label index :math:`{n'} - 1`.
 
-   #. Let :math:`l` be the label index :math:`{n'} - 1`.
+   #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
    #. Pop the :math:`\mathsf{label}` :math:`L` from the stack.
 
@@ -11460,8 +11460,8 @@ Step_pure/br n'
   e. Push the values val^n to the stack.
   f. Execute the sequence instr'*.
 4. Else:
-  a. Pop all values val* from the top of the stack.
-  b. Let l be (n' - 1).
+  a. Let l be (n' - 1).
+  b. Pop all values val* from the top of the stack.
   c. Pop the label (LABEL_ _ { _ }) from the stack.
   d. Push the values val* to the stack.
   e. Execute the instruction (BR l).
