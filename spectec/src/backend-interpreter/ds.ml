@@ -205,8 +205,10 @@ module AlContext = struct
   type t = mode list
 
   let string_of_context = function
-    | Al (s, args, il, _, _) ->
-      Printf.sprintf "Al %s (%s):%s"
+    (* TODO(lyl) *)
+    | Al (s, args, il, _, n) ->
+      Printf.sprintf "Al[%d] %s (%s):%s"
+        n
         s
         (args |> List.map string_of_arg |> String.concat ", ")
         (string_of_instrs il)

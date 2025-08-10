@@ -210,6 +210,11 @@ let rec insert_otherwise else_body instrs =
 (* - If they share same prefix *)
 (* - If the latter block of instrs is a single Otherwise *)
 let merge instrs1 instrs2 =
+  (* TODO(lyl) *)
+  (* print_endline "A: ==============";
+  instrs1 |> Print.string_of_instrs |> print_endline;
+  print_endline "B: ==============";
+  instrs2 |> Print.string_of_instrs |> print_endline; *)
   let head, tail1, tail2 = unify_head instrs1 instrs2 in
   let unified_tail =
     match tail2 with

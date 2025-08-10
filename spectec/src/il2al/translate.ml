@@ -16,6 +16,20 @@ struct
   include Print
 end
 
+(* TODO(lyl) *)
+let string_of_rgroup (rgroup: rule_clause list) = rgroup |> List.map (fun (id, e1, e2, prem) ->
+    let e1 = Il.Print.string_of_exp e1 in
+    let e2 = Il.Print.string_of_exp e2 in
+    let prems = List.map Il.Print.string_of_prem prem |> String.concat "\n" in
+    Printf.sprintf "%s\n%s\n~>\n%s\n--\n%s\n" id.it e1 e2 prems
+  ) |> String.concat "\n"
+
+
+let _string_of_rule_def (rule: rule_def) =
+  let instr_name, _, rgroup = rule.it in
+
+  Printf.sprintf "-------------------------\ninstr: %s\n%s\n" instr_name (string_of_rgroup rgroup)
+
 (* Errors *)
 
 let error at msg = Error.error at "prose translation" msg
@@ -120,7 +134,14 @@ let rec insert_instrs target il =
   | Some ([], { it = OtherwiseI il'; _ }) -> [ otherwiseI (il' @ Transpile.insert_nop target) ]
   | Some (h, { it = IfI (cond, il', []); _ }) ->
     h @ [ ifI (cond, insert_instrs (Transpile.insert_nop target) il' , []) ]
-  | _ -> il @ target
+  | _ ->
+      (* TODO(lyl) *)
+      (* print_endline "[insert_instrs:il]";
+      il |> Print.structured_string_of_instrs |> print_endline;
+      print_endline "[insert_instrs:target]";
+      target |> Print.structured_string_of_instrs |> print_endline;
+      print_endline "[/insert_instrs]"; *)
+    il @ target
 
 (* Insert `target` at the last instruction *)
 let insert_to_last target il =
@@ -1101,13 +1122,21 @@ let translate_reduction ?(context_opt=None) reduction =
 
   (* Translate rhs *)
   translate_rhs rhs
+  (* TODO(lyl) *)
+  (* |> (fun x -> print_endline "[translate_reduction0]"; x |> Print.string_of_instrs |> print_endline; x) *)
   (* Make outer pops appear after context exit (the premises are inserted in reverse order) *)
   |> translate_prems outer_pops
+  (* TODO(lyl) *)
+  (* |> (fun x -> print_endline "[translate_reduction1]"; x |> Print.string_of_instrs |> print_endline; x) *)
   (* Exit context *)
   |> exit_context context_opt
+  (* TODO(lyl) *)
+  (* |> (fun x -> print_endline "[translate_reduction2]"; x |> Print.string_of_instrs |> print_endline; x) *)
   |> Transpile.insert_nop
   (* Translate premises *)
   |> translate_prems prems
+  (* TODO(lyl) *)
+  (* |> (fun x -> print_endline "[translate_reduction3]"; x |> Print.string_of_instrs |> print_endline; x) *)
 
 
 let translate_context_winstr winstr =
@@ -1148,6 +1177,9 @@ let translate_context ctx =
 
 let rec translate_rgroup' (rule: rule_def) =
   let instr_name, _, rgroup = rule.it in
+  (* TODO(lyl) *)
+  (* print_endline ("-------- translate_rgroup': " ^ instr_name);
+  rule |> _string_of_rule_def |> print_endline; *)
   let pops, rgroup' = extract_pops rgroup in
   let subgroups = group_by_context rgroup' in
 
@@ -1155,6 +1187,13 @@ let rec translate_rgroup' (rule: rule_def) =
   let frame_instr = to_frame_instr (List.hd rgroup') in
 
   let blocks = List.map (fun (k, (subgroup: rule_clause list)) ->
+    (* TODO(lyl) *)
+    (* print_endline "--- translate_rgroup'";
+    (match k with
+    | None -> print_endline "None"
+    | Some exp -> print_endline (Il.string_of_exp exp)
+    );
+    subgroup |> string_of_rgroup |> print_endline; *)
     match k with
     (* Normal case *)
     | None ->
@@ -1166,10 +1205,19 @@ let rec translate_rgroup' (rule: rule_def) =
         | [b1; b2] when not (has_branch b1 || has_branch b2) -> [ eitherI (b1, b2) ] (* Either case *)
         | _ -> Transpile.merge_blocks blocks
       in
+      (* TODO(lyl) *)
+      (* print_endline "[inner_pop_instrs]";
+      print_endline (Print.string_of_instrs inner_pop_instrs); *)
       k, inner_pop_instrs @ instrs
     (* Context case *)
     | Some _ ->
       let pops, u_group = extract_pops subgroup in
+      (* TODO(lyl) *)
+      (* print_endline "pops:";
+      pops |> List.map Il.string_of_prem |> String.concat "\n" |> print_endline;
+      print_endline "u_group:";
+      u_group |> string_of_rgroup |> print_endline;
+      print_endline "end"; print_newline (); *)
       let ctxt = extract_context (List.hd u_group) |> Option.get in
       let atom = case_of_case ctxt |> List.hd |> List.hd in
       let cond = ContextKindE atom $$ atom.at % boolT in
@@ -1235,6 +1283,10 @@ and translate_rgroup (rule: rule_def) =
   let winstr = extract_winstr (List.hd rgroup) rule.at in
   let instrs = translate_rgroup' rule in
 
+  (* TODO(lyl) *)
+  (* print_endline "[translate_rgroup]";
+  rule |> _string_of_rule_def |> print_endline;
+  winstr |> Il.string_of_exp |> print_endline; *)
   let name =
     match case_of_case winstr with
     | (atom :: _) :: _ -> atom
@@ -1260,11 +1312,18 @@ and translate_rgroup (rule: rule_def) =
   in
   let body =
     instrs
+    (* TODO(lyl) *)
+    (* |> (fun x -> print_endline "[translate_rgroup']"; x |> Print.string_of_instrs |> print_endline; x) *)
     |> Transpile.insert_nop
+    (* |> (fun x -> print_endline "[insert_nop]"; x |> Print.string_of_instrs |> print_endline; x) *)
     |> List.concat_map (walker.walk_instr walker)
+    (* |> (fun x -> print_endline "[walk]"; x |> Print.string_of_instrs |> print_endline; x) *)
     |> Transpile.enhance_readability
+    (* |> (fun x -> print_endline "[enhance_readability]"; x |> Print.string_of_instrs |> print_endline; x) *)
     |> Transpile.infer_assert
+    (* |> (fun x -> print_endline "[infer_assert]"; x |> Print.string_of_instrs |> print_endline; x) *)
     |> Transpile.flatten_if
+    (* |> (fun x -> print_endline "[flatten_if]"; x |> Print.string_of_instrs |> print_endline; x) *)
   in
 
   RuleA (name, anchor, al_params', body) $ rule.at
@@ -1273,6 +1332,8 @@ and translate_rgroup (rule: rule_def) =
 let translate il interp =
   Transpile.for_interp := interp;
   let rules, helpers = Preprocess.preprocess il in
+  (* TODO(lyl) *)
+  (* rules |> List.map _string_of_rule_def |> String.concat "\n\n[translate]\n" |> print_endline; *)
   let al =
     List.map translate_rgroup rules @ List.map translate_helper helpers
   in

@@ -164,6 +164,12 @@ let preprocess (il: script) : rule_def list * helper_def list =
   |> List.filter_map is_al_target
   |> List.map preprocess_def
   |> Encode.transform
+  (* TODO(lyl) *)
+  (* |> (fun x -> print_endline "@@encode"; x |> List.map Il.Print.string_of_def |> String.concat "\n\n" |> print_endline; x) *)
   |> Animate.transform
+  (* TODO(lyl) *)
+  (* |> (fun x -> print_endline "@@animate"; x |> List.map Il.Print.string_of_def |> String.concat "\n\n" |> print_endline; x) *)
   |> transform_rulepr
+  (* TODO(lyl) *)
+  (* |> (fun x -> print_endline "@@rulepr"; x |> List.map Il.Print.string_of_def |> String.concat "\n\n" |> print_endline; x) *)
   |> Unify.unify

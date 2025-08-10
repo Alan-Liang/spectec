@@ -585,7 +585,12 @@ and step_instr (fname: string) (ctx: AlContext.t) (env: value Env.t) (instr: ins
     if is_true (eval_expr env e) then
       ctx
     else
-      fail_expr e "assertion fail"
+      (* TODO(lyl) *)
+      (ctx
+      |> List.map AlContext.string_of_context
+      |> List.iter print_endline;
+      WasmContext.string_of_context_stack () |> print_endline;
+      fail_expr e "assertion fail")
   | PushI e ->
     (match eval_expr env e with
     | CaseV ("FRAME_", _) as v ->

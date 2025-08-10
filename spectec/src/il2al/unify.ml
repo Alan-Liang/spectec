@@ -423,6 +423,14 @@ let unify_rule_def (env: env) (rule: rule_def) : rule_def =
   let unified_clauses = unify_pop_and_winstr env clauses in
   let pops, clauses' = extract_pops unified_clauses in
   let subgroups = group_by_context clauses' in
+  (* TODO(lyl) *)
+  (* print_endline "[unify_rule_def]";
+  print_endline (Print.string_of_rule_def rule);
+  print_endline "[unify_rule_def:unified_clauses]";
+  unified_clauses |> List.map Print.string_of_rule_clause |> String.concat "\n" |> print_endline;
+  print_endline "[unify_rule_def:subgroups]";
+  List.iter (fun (x, y) -> (match x with | None -> print_endline "None" | Some x -> x |> Il.Print.string_of_exp |> print_endline); y |> List.map Print.string_of_rule_clause |> List.iter print_endline) subgroups;
+  print_endline "[/unify_rule_def]"; *)
   let new_clauses =
     List.concat_map
       (function

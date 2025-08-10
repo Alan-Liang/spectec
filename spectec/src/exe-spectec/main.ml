@@ -323,6 +323,8 @@ let () =
     log "Complete."
   with
   | Util.Error.Error (at, msg) as exn ->
+      (* TODO(lyl) *)
+    Printexc.print_backtrace stderr;
     let msg' =
       if !last_pass <> "" && String.starts_with ~prefix:"validation" msg then
         "(after pass " ^ !last_pass ^ ") " ^ msg

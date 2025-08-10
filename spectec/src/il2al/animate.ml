@@ -167,6 +167,14 @@ and select_tight prems acc env fb =
   | [] -> Some acc
   | _ ->
     let (tights, non_tights) = List.partition (is_tight env) prems in
+    (* TODO(lyl) *)
+    (* print_endline "[select_tight:vars]";
+    env.varid |> Set.elements |> String.concat " " |> print_endline;
+    print_endline "[select_tight:tights]";
+    tights |> List.map (fun (_, b, _) -> b) |> List.map Il.Print.string_of_prem |> String.concat "\n" |> print_endline;
+    print_endline "[select_tight:non_tights]";
+    non_tights |> List.map (fun (_, b, _) -> b) |> List.map Il.Print.string_of_prem |> String.concat "\n" |> print_endline;
+    print_endline "[/select_tight]"; *)
     select_assign non_tights (acc @ List.map unwrap tights) env fb
 
 and select_assign prems acc env fb =
@@ -187,6 +195,14 @@ and select_assign prems acc env fb =
       else
         pops, non_pops
     in
+    (* TODO(lyl) *)
+    (* print_endline "[select_assign:vars]";
+    env.varid |> Set.elements |> String.concat " " |> print_endline;
+    print_endline "[select_assign:assigns]";
+    assigns |> List.map (fun (_, b, _) -> b) |> List.map Il.Print.string_of_prem |> String.concat "\n" |> print_endline;
+    print_endline "[select_assign:non_assigns]";
+    non_assigns |> List.map (fun (_, b, _) -> b) |> List.map Il.Print.string_of_prem |> String.concat "\n" |> print_endline;
+    print_endline "[/select_assign]"; *)
     match assigns with
     | [] ->
       let len = List.length acc in
@@ -340,6 +356,9 @@ let build_matrix prems known_vars =
 (* Animate the list of premises *)
 
 let animate_prems known_vars prems =
+  (* TODO(lyl) *)
+  (* print_endline "======== animate_prems";
+  prems |> List.map Il.Print.string_of_prem |> String.concat "\n" |> print_endline; *)
   (* Set --otherwise prem to be the first prem (if any) *)
   let is_other = function {it = ElsePr; _} -> true | _ -> false in
   let (other, non_other) = List.partition is_other prems in
