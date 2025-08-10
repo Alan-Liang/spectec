@@ -328,7 +328,7 @@ let insert_assert exp =
   | Il.CaseE ([{it = Atom.Atom "CONST"; _}]::_, { it = Il.TupE (ty' :: _); _ }) ->
     assertI (topValueE (Some (translate_exp ty')) ~note:boolT) ~at:at
   | _ ->
-    assertI (topValueE None ~note:boolT) ~at:at
+    error at ("insert_assert: don't know what assertions to insert for " ^ (Il.string_of_exp exp))
 
 let cond_of_pop_value e =
   let at = e.at in
@@ -436,14 +436,25 @@ let rec translate_rhs exp =
     let is2 = translate_rhs stack in
     (
       match Lib.List.last_opt is2 with
-      | Some { it = ExecuteI _; _ } ->
+      | Some { it = ExecuteI _; _ }
+      | Some { it = EnterI _; _ } ->
         is1 @ is2
-      | _ -> (* HARDCODE: TABLE.GROW *)
+      | _ -> (* HARDCODE: TABLE.GROW, SUSPENDING *)
         is2 @ is1
     )
   (* Recursive case *)
   | Il.LiftE inner_exp -> translate_rhs inner_exp
   | Il.SubE (inner_exp, _, _) -> translate_rhs inner_exp
+  | Il.CatE ({ it = Il.ListE [ { it = Il.CaseE _; _ } as e1 ]; _ }, ({ it = Il.IterE _; _ } as e2))
+    when is_context e1 ->
+    (* HARDCODE: RESUMING: change ExecuteSeq into Restore *)
+    let walk_instr walker (instr: instr): instr list =
+      match instr.it with
+      | ExecuteSeqI e -> [ restoreI e ]
+      | _ -> Walk.base_walker.walk_instr walker instr
+    in
+    let walker = { Walk.base_walker with walk_instr } in
+    List.concat_map (walker.walk_instr walker) (translate_rhs e2) @ translate_rhs e1
   | Il.CatE (e1, e2) -> translate_rhs e1 @ translate_rhs e2
   | Il.ListE es -> List.concat_map translate_rhs es
   | Il.IterE (inner_exp, (Opt, _itl)) ->
@@ -1107,7 +1118,7 @@ let translate_context_winstr winstr =
   let kind = case |> List.hd |> List.hd in
   let args = args_of_case winstr in
   let args, vals = Lib.List.split_last args in
-  (* The last element of case is for instr*, which should not be present in the context record *)
+  (* ASSUMPTION: The last element of case is for instr*, which should not be present in the frame record *)
   let case, _ = Lib.List.split_last case in
 
   let destruct = caseE (case, List.map translate_exp args) ~note:gframeT ~at in
@@ -1129,7 +1140,9 @@ let translate_context ctx =
       letI (destruct, getCurContextE atom ~note:gframeT) ~at:at;
     ],
     exitI atom ~at:at
-  | _ -> [ yetI "TODO: translate_context" ~at ], yetI "TODO: translate_context"
+  | _ ->
+    let yet = yetI ("TODO: translate_context: " ^ Il.string_of_exp ctx) ~at in
+    [ yet ], yet
 
 
 
