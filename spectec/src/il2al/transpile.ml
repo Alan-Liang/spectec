@@ -508,6 +508,12 @@ let remove_dead_assignment il =
             acc, bounds
           else
             (instr :: acc), (IdSet.diff bounds bindings) @ free_expr e2
+        | CaptureI e ->
+          let bindings = free_expr e in
+          if IdSet.(is_empty (inter bindings bounds)) then
+            acc, bounds
+          else
+            (instr :: acc), (IdSet.diff bounds bindings)
         | AppendI ({it = (VarE _ | IterE _); _} as e1, e2) ->
           let bindings = free_expr e1 in
           if IdSet.(is_empty (inter bindings bounds)) then

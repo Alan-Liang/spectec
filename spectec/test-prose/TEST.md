@@ -1057,8 +1057,6 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 #. Let :math:`n` be the arity of :math:`L`
 
-#. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
-
 #. If :math:`{n'} = 0`, then:
 
    a. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
@@ -1075,9 +1073,7 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 #. Else:
 
-   a. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
-
-   #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+   a. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
    #. Let :math:`l` be the label index :math:`{n'} - 1`.
 
@@ -1153,8 +1149,6 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
    #. Let :math:`n` be the arity of :math:`f`
 
-   #. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
-
    #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
    #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
@@ -1168,8 +1162,6 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 #. Else:
 
    a. Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{label}`.
-
-   #. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
 
    #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
@@ -3567,21 +3559,19 @@ Step_pure/label
 Step_pure/br n'
 1. Assert: Due to validation, the first non-value entry of the stack is a LABEL_.
 2. Let (LABEL_ n { instr'* }) be the topmost LABEL_.
-3. Let instr* be the remaining instruction sequence.
-4. If (n' = 0), then:
+3. If (n' = 0), then:
   a. Assert: Due to validation, there are at least n values on the top of the stack.
   b. Pop the values val^n from the stack.
   c. Pop all values val'* from the top of the stack.
   d. Pop the label (LABEL_ _ { _ }) from the stack.
   e. Push the values val^n to the stack.
   f. Execute the sequence instr'*.
-5. Else:
-  a. Let instr* be the remaining instruction sequence.
-  b. Pop all values val* from the top of the stack.
-  c. Let l be (n' - 1).
-  d. Pop the label (LABEL_ _ { _ }) from the stack.
-  e. Push the values val* to the stack.
-  f. Execute the instruction (BR l).
+4. Else:
+  a. Pop all values val* from the top of the stack.
+  b. Let l be (n' - 1).
+  c. Pop the label (LABEL_ _ { _ }) from the stack.
+  d. Push the values val* to the stack.
+  e. Execute the instruction (BR l).
 
 Step_pure/br_if l
 1. Assert: Due to validation, a value of value type I32 is on the top of the stack.
@@ -3611,19 +3601,17 @@ Step_pure/frame
 Step_pure/return
 1. If the first non-value entry of the stack is a FRAME_, then:
   a. Let (FRAME_ n { f }) be the topmost FRAME_.
-  b. Let instr* be the remaining instruction sequence.
-  c. Assert: Due to validation, there are at least n values on the top of the stack.
-  d. Pop the values val^n from the stack.
-  e. Pop all values val'* from the top of the stack.
-  f. Pop the frame (FRAME_ _ { _ }) from the stack.
-  g. Push the values val^n to the stack.
+  b. Assert: Due to validation, there are at least n values on the top of the stack.
+  c. Pop the values val^n from the stack.
+  d. Pop all values val'* from the top of the stack.
+  e. Pop the frame (FRAME_ _ { _ }) from the stack.
+  f. Push the values val^n to the stack.
 2. Else:
   a. Assert: Due to validation, the first non-value entry of the stack is a LABEL_.
-  b. Let instr* be the remaining instruction sequence.
-  c. Pop all values val* from the top of the stack.
-  d. Pop the label (LABEL_ _ { _ }) from the stack.
-  e. Push the values val* to the stack.
-  f. Execute the instruction RETURN.
+  b. Pop all values val* from the top of the stack.
+  c. Pop the label (LABEL_ _ { _ }) from the stack.
+  d. Push the values val* to the stack.
+  e. Execute the instruction RETURN.
 
 Step_pure/unop t unop
 1. Assert: Due to validation, a value of value type t is on the top of the stack.
@@ -6175,8 +6163,6 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 #. Let :math:`n` be the arity of :math:`L`
 
-#. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
-
 #. If :math:`{n'} = 0`, then:
 
    a. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
@@ -6193,9 +6179,7 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
 #. Else:
 
-   a. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
-
-   #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+   a. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
    #. Let :math:`l` be the label index :math:`{n'} - 1`.
 
@@ -6271,8 +6255,6 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 
    #. Let :math:`n` be the arity of :math:`f`
 
-   #. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
-
    #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
    #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
@@ -6286,8 +6268,6 @@ The module :math:`(\mathsf{module}~{{\mathit{type}}^\ast}~{{\mathit{import}}^\as
 #. Else:
 
    a. Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{label}`.
-
-   #. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
 
    #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
@@ -11468,21 +11448,19 @@ Step_pure/label
 Step_pure/br n'
 1. Assert: Due to validation, the first non-value entry of the stack is a LABEL_.
 2. Let (LABEL_ n { instr'* }) be the topmost LABEL_.
-3. Let instr* be the remaining instruction sequence.
-4. If (n' = 0), then:
+3. If (n' = 0), then:
   a. Assert: Due to validation, there are at least n values on the top of the stack.
   b. Pop the values val^n from the stack.
   c. Pop all values val'* from the top of the stack.
   d. Pop the label (LABEL_ _ { _ }) from the stack.
   e. Push the values val^n to the stack.
   f. Execute the sequence instr'*.
-5. Else:
-  a. Let instr* be the remaining instruction sequence.
-  b. Pop all values val* from the top of the stack.
-  c. Let l be (n' - 1).
-  d. Pop the label (LABEL_ _ { _ }) from the stack.
-  e. Push the values val* to the stack.
-  f. Execute the instruction (BR l).
+4. Else:
+  a. Pop all values val* from the top of the stack.
+  b. Let l be (n' - 1).
+  c. Pop the label (LABEL_ _ { _ }) from the stack.
+  d. Push the values val* to the stack.
+  e. Execute the instruction (BR l).
 
 Step_pure/br_if l
 1. Assert: Due to validation, a value of value type I32 is on the top of the stack.
@@ -11512,19 +11490,17 @@ Step_pure/frame
 Step_pure/return
 1. If the first non-value entry of the stack is a FRAME_, then:
   a. Let (FRAME_ n { f }) be the topmost FRAME_.
-  b. Let instr* be the remaining instruction sequence.
-  c. Assert: Due to validation, there are at least n values on the top of the stack.
-  d. Pop the values val^n from the stack.
-  e. Pop all values val'* from the top of the stack.
-  f. Pop the frame (FRAME_ _ { _ }) from the stack.
-  g. Push the values val^n to the stack.
+  b. Assert: Due to validation, there are at least n values on the top of the stack.
+  c. Pop the values val^n from the stack.
+  d. Pop all values val'* from the top of the stack.
+  e. Pop the frame (FRAME_ _ { _ }) from the stack.
+  f. Push the values val^n to the stack.
 2. Else:
   a. Assert: Due to validation, the first non-value entry of the stack is a LABEL_.
-  b. Let instr* be the remaining instruction sequence.
-  c. Pop all values val* from the top of the stack.
-  d. Pop the label (LABEL_ _ { _ }) from the stack.
-  e. Push the values val* to the stack.
-  f. Execute the instruction RETURN.
+  b. Pop all values val* from the top of the stack.
+  c. Pop the label (LABEL_ _ { _ }) from the stack.
+  d. Push the values val* to the stack.
+  e. Execute the instruction RETURN.
 
 Step_pure/unop nt unop
 1. Assert: Due to validation, a value of value type nt is on the top of the stack.
@@ -17420,8 +17396,6 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Let :math:`n` be the arity of :math:`L`
 
-#. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
-
 #. If :math:`l = 0`, then:
 
    a. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
@@ -17438,9 +17412,7 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Else:
 
-   a. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
-
-   #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+   a. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
    #. Pop the :math:`\mathsf{label}` from the stack.
 
@@ -17468,8 +17440,6 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 #. Assert: Due to validation, :math:`{\mathit{val}''}` is some :math:`\mathsf{ref{.}func}~{\mathit{funcaddr}}`.
 
 #. Let :math:`(\mathsf{ref{.}func}~a)` be the destructuring of :math:`{\mathit{val}''}`.
-
-#. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
 
 #. Assert: Due to validation, :math:`a < {|z{.}\mathsf{funcs}|}`.
 
@@ -17890,8 +17860,6 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    #. Let :math:`n` be the arity of :math:`L`
 
-   #. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
-
    #. If :math:`l = 0`, then:
 
       1) Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
@@ -17908,9 +17876,7 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    #. Else:
 
-      1) Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
-
-      #) Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+      1) Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
       #) Pop the :math:`\mathsf{label}` from the stack.
 
@@ -17921,8 +17887,6 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 #. Else:
 
    a. Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{handler}`.
-
-   #. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
 
    #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
@@ -18056,8 +18020,6 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
    #. Let :math:`n` be the arity of :math:`f`
 
-   #. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
-
    #. Assert: Due to validation, there are at least :math:`n` values on the top of the stack.
 
    #. Pop the values :math:`{{\mathit{val}}^{n}}` from the stack.
@@ -18070,9 +18032,7 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Else if the first non-value entry of the stack is a :math:`\mathsf{label}`, then:
 
-   a. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
-
-   #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+   a. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
    #. Pop the :math:`\mathsf{label}` from the stack.
 
@@ -18083,8 +18043,6 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 #. Else:
 
    a. Assert: Due to validation, the first non-value entry of the stack is a :math:`\mathsf{handler}`.
-
-   #. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
 
    #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
@@ -18900,9 +18858,7 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. If the first non-value entry of the stack is a :math:`\mathsf{label}`, then:
 
-   a. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
-
-   #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+   a. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
    #. Pop the :math:`\mathsf{label}` from the stack.
 
@@ -18912,9 +18868,7 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. Else if the first non-value entry of the stack is a :math:`\mathsf{handler}`, then:
 
-   a. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
-
-   #. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
+   a. Pop all values :math:`{{\mathit{val}}^\ast}` from the top of the stack.
 
    #. Pop the :math:`\mathsf{handler}` from the stack.
 
@@ -18937,8 +18891,6 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
    #. Assert: Due to validation, :math:`{\mathit{val}''}` is some :math:`\mathsf{ref{.}func}~{\mathit{funcaddr}}`.
 
    #. Let :math:`(\mathsf{ref{.}func}~a)` be the destructuring of :math:`{\mathit{val}''}`.
-
-   #. Let :math:`{{\mathit{instr}}^\ast}` be the remaining instruction sequence.
 
    #. Assert: Due to validation, :math:`a < {|z{.}\mathsf{funcs}|}`.
 
@@ -28419,20 +28371,18 @@ NotationTypingInstrScheme/block
 Step_pure/br-label-* l
 1. Assert: Due to validation, the first non-value entry of the stack is a LABEL_.
 2. Let (LABEL_ n { instr'* }) be the topmost LABEL_.
-3. Let instr* be the remaining instruction sequence.
-4. If (l = 0), then:
+3. If (l = 0), then:
   a. Assert: Due to validation, there are at least n values on the top of the stack.
   b. Pop the values val^n from the stack.
   c. Pop all values val'* from the top of the stack.
   d. Pop the label (LABEL_ _ { _ }) from the stack.
   e. Push the values val^n to the stack.
   f. Execute the sequence instr'*.
-5. Else:
-  a. Let instr* be the remaining instruction sequence.
-  b. Pop all values val* from the top of the stack.
-  c. Pop the label (LABEL_ _ { _ }) from the stack.
-  d. Push the values val* to the stack.
-  e. Execute the instruction (BR (l - 1)).
+4. Else:
+  a. Pop all values val* from the top of the stack.
+  b. Pop the label (LABEL_ _ { _ }) from the stack.
+  c. Push the values val* to the stack.
+  d. Execute the instruction (BR (l - 1)).
 
 Step_read/return_call_ref-frame-* yy
 1. Let z be the current state.
@@ -28443,17 +28393,16 @@ Step_read/return_call_ref-frame-* yy
   a. Trap.
 6. Assert: Due to validation, val'' is some REF.FUNC_ADDR.
 7. Let (REF.FUNC_ADDR a) be val''.
-8. Let instr* be the remaining instruction sequence.
-9. Assert: Due to validation, (a < |$funcinst(z)|).
-10. Assert: Due to validation, $Expand($funcinst(z)[a].TYPE) is some FUNC.
-11. Let (FUNC t_1^n -> t_2^m) be $Expand($funcinst(z)[a].TYPE).
-12. Assert: Due to validation, there are at least n values on the top of the stack.
-13. Pop the values val^n from the stack.
-14. Pop all values val'* from the top of the stack.
-15. Pop the frame (FRAME_ _ { _ }) from the stack.
-16. Push the values val^n to the stack.
-17. Push the value (REF.FUNC_ADDR a) to the stack.
-18. Execute the instruction (CALL_REF yy).
+8. Assert: Due to validation, (a < |$funcinst(z)|).
+9. Assert: Due to validation, $Expand($funcinst(z)[a].TYPE) is some FUNC.
+10. Let (FUNC t_1^n -> t_2^m) be $Expand($funcinst(z)[a].TYPE).
+11. Assert: Due to validation, there are at least n values on the top of the stack.
+12. Pop the values val^n from the stack.
+13. Pop all values val'* from the top of the stack.
+14. Pop the frame (FRAME_ _ { _ }) from the stack.
+15. Push the values val^n to the stack.
+16. Push the value (REF.FUNC_ADDR a) to the stack.
+17. Execute the instruction (CALL_REF yy).
 
 Step_read/throw_ref-handler-*
 1. Let z be the current state.
@@ -28638,27 +28587,24 @@ Step_pure/label
 Step_pure/br l
 1. If the first non-value entry of the stack is a LABEL_, then:
   a. Let (LABEL_ n { instr'* }) be the topmost LABEL_.
-  b. Let instr* be the remaining instruction sequence.
-  c. If (l = 0), then:
+  b. If (l = 0), then:
     1) Assert: Due to validation, there are at least n values on the top of the stack.
     2) Pop the values val^n from the stack.
     3) Pop all values val'* from the top of the stack.
     4) Pop the label (LABEL_ _ { _ }) from the stack.
     5) Push the values val^n to the stack.
     6) Execute the sequence instr'*.
-  d. Else:
-    1) Let instr* be the remaining instruction sequence.
-    2) Pop all values val* from the top of the stack.
-    3) Pop the label (LABEL_ _ { _ }) from the stack.
-    4) Push the values val* to the stack.
-    5) Execute the instruction (BR (l - 1)).
+  c. Else:
+    1) Pop all values val* from the top of the stack.
+    2) Pop the label (LABEL_ _ { _ }) from the stack.
+    3) Push the values val* to the stack.
+    4) Execute the instruction (BR (l - 1)).
 2. Else:
   a. Assert: Due to validation, the first non-value entry of the stack is a HANDLER_.
-  b. Let instr* be the remaining instruction sequence.
-  c. Pop all values val* from the top of the stack.
-  d. Pop the handler (HANDLER_ _ { _ }) from the stack.
-  e. Push the values val* to the stack.
-  f. Execute the instruction (BR l).
+  b. Pop all values val* from the top of the stack.
+  c. Pop the handler (HANDLER_ _ { _ }) from the stack.
+  d. Push the values val* to the stack.
+  e. Execute the instruction (BR l).
 
 Step_pure/br_if l
 1. Assert: Due to validation, a value of value type I32 is on the top of the stack.
@@ -28715,25 +28661,22 @@ Step_pure/frame
 Step_pure/return
 1. If the first non-value entry of the stack is a FRAME_, then:
   a. Let (FRAME_ n { f }) be the topmost FRAME_.
-  b. Let instr* be the remaining instruction sequence.
-  c. Assert: Due to validation, there are at least n values on the top of the stack.
-  d. Pop the values val^n from the stack.
-  e. Pop all values val'* from the top of the stack.
-  f. Pop the frame (FRAME_ _ { _ }) from the stack.
-  g. Push the values val^n to the stack.
+  b. Assert: Due to validation, there are at least n values on the top of the stack.
+  c. Pop the values val^n from the stack.
+  d. Pop all values val'* from the top of the stack.
+  e. Pop the frame (FRAME_ _ { _ }) from the stack.
+  f. Push the values val^n to the stack.
 2. Else if the first non-value entry of the stack is a LABEL_, then:
-  a. Let instr* be the remaining instruction sequence.
-  b. Pop all values val* from the top of the stack.
-  c. Pop the label (LABEL_ _ { _ }) from the stack.
-  d. Push the values val* to the stack.
-  e. Execute the instruction RETURN.
+  a. Pop all values val* from the top of the stack.
+  b. Pop the label (LABEL_ _ { _ }) from the stack.
+  c. Push the values val* to the stack.
+  d. Execute the instruction RETURN.
 3. Else:
   a. Assert: Due to validation, the first non-value entry of the stack is a HANDLER_.
-  b. Let instr* be the remaining instruction sequence.
-  c. Pop all values val* from the top of the stack.
-  d. Pop the handler (HANDLER_ _ { _ }) from the stack.
-  e. Push the values val* to the stack.
-  f. Execute the instruction RETURN.
+  b. Pop all values val* from the top of the stack.
+  c. Pop the handler (HANDLER_ _ { _ }) from the stack.
+  d. Push the values val* to the stack.
+  e. Execute the instruction RETURN.
 
 Step_pure/handler
 1. Pop all values val* from the top of the stack.
@@ -29111,17 +29054,15 @@ Step_read/return_call x
 Step_read/return_call_ref yy
 1. Let z be the current state.
 2. If the first non-value entry of the stack is a LABEL_, then:
-  a. Let instr* be the remaining instruction sequence.
-  b. Pop all values val* from the top of the stack.
-  c. Pop the label (LABEL_ _ { _ }) from the stack.
-  d. Push the values val* to the stack.
-  e. Execute the instruction (RETURN_CALL_REF yy).
+  a. Pop all values val* from the top of the stack.
+  b. Pop the label (LABEL_ _ { _ }) from the stack.
+  c. Push the values val* to the stack.
+  d. Execute the instruction (RETURN_CALL_REF yy).
 3. Else if the first non-value entry of the stack is a HANDLER_, then:
-  a. Let instr* be the remaining instruction sequence.
-  b. Pop all values val* from the top of the stack.
-  c. Pop the handler (HANDLER_ _ { _ }) from the stack.
-  d. Push the values val* to the stack.
-  e. Execute the instruction (RETURN_CALL_REF yy).
+  a. Pop all values val* from the top of the stack.
+  b. Pop the handler (HANDLER_ _ { _ }) from the stack.
+  c. Push the values val* to the stack.
+  d. Execute the instruction (RETURN_CALL_REF yy).
 4. Else:
   a. Assert: Due to validation, the first non-value entry of the stack is a FRAME_.
   b. Assert: Due to validation, a value is on the top of the stack.
@@ -29130,17 +29071,16 @@ Step_read/return_call_ref yy
     1) Trap.
   e. Assert: Due to validation, val'' is some REF.FUNC_ADDR.
   f. Let (REF.FUNC_ADDR a) be val''.
-  g. Let instr* be the remaining instruction sequence.
-  h. Assert: Due to validation, (a < |$funcinst(z)|).
-  i. Assert: Due to validation, $Expand($funcinst(z)[a].TYPE) is some FUNC.
-  j. Let (FUNC t_1^n -> t_2^m) be $Expand($funcinst(z)[a].TYPE).
-  k. Assert: Due to validation, there are at least n values on the top of the stack.
-  l. Pop the values val^n from the stack.
-  m. Pop all values val'* from the top of the stack.
-  n. Pop the frame (FRAME_ _ { _ }) from the stack.
-  o. Push the values val^n to the stack.
-  p. Push the value (REF.FUNC_ADDR a) to the stack.
-  q. Execute the instruction (CALL_REF yy).
+  g. Assert: Due to validation, (a < |$funcinst(z)|).
+  h. Assert: Due to validation, $Expand($funcinst(z)[a].TYPE) is some FUNC.
+  i. Let (FUNC t_1^n -> t_2^m) be $Expand($funcinst(z)[a].TYPE).
+  j. Assert: Due to validation, there are at least n values on the top of the stack.
+  k. Pop the values val^n from the stack.
+  l. Pop all values val'* from the top of the stack.
+  m. Pop the frame (FRAME_ _ { _ }) from the stack.
+  n. Push the values val^n to the stack.
+  o. Push the value (REF.FUNC_ADDR a) to the stack.
+  p. Execute the instruction (CALL_REF yy).
 
 Step_read/throw_ref
 1. Let z be the current state.

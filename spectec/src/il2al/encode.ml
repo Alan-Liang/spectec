@@ -105,7 +105,7 @@ let encode_inner_stack context_opt stack =
       let t = mk_varT "instrstackT" in
       let rhs = CallE (mk_id "capture", [ arg (mk_varE "instrstack0" "instrstackT") ]) $$ no_region % t in
       let lhs = { instrs with note = t } in
-      [IfPr (CmpE (`EqOp, `BoolT, lhs, rhs) $$ instrs.at % (BoolT $ no_region)) $ instrs.at]
+      [LetPr (lhs, rhs, free_ids lhs) $ instrs.at]
     | _ ->
       let unused = TupE dropped $$ no_region % (mk_varT "unusedT") in
       [LetPr (unused, mk_varE "unused" "unusedT", free_ids unused) $ no_region]
