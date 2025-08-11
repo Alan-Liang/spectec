@@ -1,7 +1,7 @@
 # Preview
 
 ```sh
-$ (../src/exe-spectec/main.exe ../../../../specification/wasm-3.0/*.spectec -l --splice-latex -p spec-latex.in.tex -w)
+$ (../src/exe-spectec/main.exe ../../../../specification/wasm-3.0/*.spectec -l --splice-latex -p spec-latex-wasm-3.0.in.tex -w)
 == Parsing...
 == Elaboration...
 == IL Validation...
@@ -2246,10 +2246,8 @@ warning: rule prose `Step_read/load-pack-*` was never spliced
 warning: rule prose `Step_read/local.get` was never spliced
 warning: rule prose `Step_read/loop` was never spliced
 warning: rule prose `Step_read/memory.copy` was never spliced
-warning: rule prose `Step_read/memory.copy-oob-*` was never spliced
 warning: rule prose `Step_read/memory.fill` was never spliced
 warning: rule prose `Step_read/memory.init` was never spliced
-warning: rule prose `Step_read/memory.init-oob-*` was never spliced
 warning: rule prose `Step_read/memory.size` was never spliced
 warning: rule prose `Step_read/ref.cast` was never spliced
 warning: rule prose `Step_read/ref.func` was never spliced
@@ -2261,15 +2259,12 @@ warning: rule prose `Step_read/return_call_ref-frame-*` was never spliced
 warning: rule prose `Step_read/struct.get` was never spliced
 warning: rule prose `Step_read/struct.new_default` was never spliced
 warning: rule prose `Step_read/table.copy` was never spliced
-warning: rule prose `Step_read/table.copy-oob-*` was never spliced
 warning: rule prose `Step_read/table.fill` was never spliced
 warning: rule prose `Step_read/table.get` was never spliced
 warning: rule prose `Step_read/table.init` was never spliced
-warning: rule prose `Step_read/table.init-oob-*` was never spliced
 warning: rule prose `Step_read/table.size` was never spliced
 warning: rule prose `Step_read/throw_ref` was never spliced
 warning: rule prose `Step_read/throw_ref-handler-*` was never spliced
-warning: rule prose `Step_read/throw_ref-instrs-*` was never spliced
 warning: rule prose `Step_read/try_table` was never spliced
 warning: rule prose `Step_read/vload` was never spliced
 warning: rule prose `Step_read/vload-pack-*` was never spliced
