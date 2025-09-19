@@ -14,6 +14,16 @@ It contains the prototype implementation of [SpecTec](spectec/README.md) and a v
 Original `README` from upstream repository follows...
 
 
+[![CI for specs](https://github.com/WebAssembly/stack-switching/actions/workflows/ci-spec.yml/badge.svg)](https://github.com/WebAssembly/stack-switching/actions/workflows/ci-spec.yml)
+[![CI for interpreter & tests](https://github.com/WebAssembly/stack-switching/actions/workflows/ci-interpreter.yml/badge.svg)](https://github.com/WebAssembly/stack-switching/actions/workflows/ci-interpreter.yml)
+
+# Stack-Switching Proposal for WebAssembly
+
+This repository is a clone of [`WebAssembly/spec`](https://github.com/WebAssembly/spec/). It is meant for discussion, prototype specification, and implementation of a proposal to add
+support for stack-switching.
+
+See the [explainer](proposals/stack-switching/Explainer.md) for a high-level summary of the proposal.
+
 # spec
 
 This repository holds the sources for the WebAssembly specification,
