@@ -1,9 +1,13 @@
-![Spectec Status](https://github.com/WebAssembly/spec/actions/workflows/ci-spectec.yml/badge.svg)
-![Interpreter Status](https://github.com/WebAssembly/spec/actions/workflows/ci-interpreter.yml/badge.svg)
-![Spec doc Status](https://github.com/WebAssembly/spec/actions/workflows/ci-spec.yml/badge.svg)
+[![CI for specs](https://github.com/WebAssembly/stack-switching/actions/workflows/ci-spec.yml/badge.svg)](https://github.com/WebAssembly/stack-switching/actions/workflows/ci-spec.yml)
+[![CI for spectec](https://github.com/WebAssembly/stack-switching/actions/workflows/ci-spectec.yml/badge.svg)](https://github.com/WebAssembly/stack-switching/actions/workflows/ci-spectec.yml)
+[![CI for interpreter & tests](https://github.com/WebAssembly/stack-switching/actions/workflows/ci-interpreter.yml/badge.svg)](https://github.com/WebAssembly/stack-switching/actions/workflows/ci-interpreter.yml)
 
-[![CI for specs](https://github.com/WebAssembly/spec/actions/workflows/ci-spec.yml/badge.svg)](https://github.com/WebAssembly/spec/actions/workflows/ci-spec.yml)
-[![CI for interpreter & tests](https://github.com/WebAssembly/spec/actions/workflows/ci-interpreter.yml/badge.svg)](https://github.com/WebAssembly/spec/actions/workflows/ci-interpreter.yml)
+# Stack-Switching Proposal for WebAssembly
+
+This repository is a clone of [`WebAssembly/spec`](https://github.com/WebAssembly/spec/). It is meant for discussion, prototype specification, and implementation of a proposal to add
+support for stack-switching.
+
+See the [explainer](proposals/stack-switching/Explainer.md) for a high-level summary of the proposal.
 
 
 # spec

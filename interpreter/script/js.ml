@@ -140,6 +140,14 @@ function assert_exception(action) {
   throw new Error("exception expected");
 }
 
+function assert_suspension(action) {
+  try { action() } catch (e) {
+    /* TODO: Not clear how to observe form JS */
+    return;
+  }
+  throw new Error("Wasm exception expected");
+}
+
 let StackOverflow;
 try { (function f() { 1 + f() })() } catch (e) { StackOverflow = e.constructor }
 
@@ -810,6 +818,8 @@ let of_assertion env ass =
     of_assertion' env act loc "assert_exhaustion" [] None
   | AssertException act ->
     of_assertion' env act loc "assert_exception" [] None
+  | AssertSuspension (act, _) ->
+    of_assertion' env act loc "assert_suspension" [] None
 
 let of_command env cmd =
   let loc = of_loc cmd.at in
