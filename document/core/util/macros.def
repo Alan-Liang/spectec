@@ -1414,9 +1414,12 @@
 .. |EITAG| mathdef:: \xref{exec/runtime}{syntax-exninst}{\K{tag}}
 .. |EIFIELDS| mathdef:: \xref{exec/runtime}{syntax-exninst}{\K{fields}}
 
-.. |KIVALS| mathdef:: \xref{exec/runtime}{syntax-continst}{\K{vals}}
-.. |KIHOLE| mathdef:: \xref{exec/runtime}{syntax-continst}{\K{[\_]}}
-.. |KIFRAME| mathdef:: \xref{exec/runtime}{syntax-continst}{\K{frame}}
+.. |KVALS| mathdef:: \xref{exec/runtime}{syntax-cont}{\K{vals}}
+.. |KHOLE| mathdef:: \xref{exec/runtime}{syntax-cont}{\K{[\_]}}
+.. |KFRAME| mathdef:: \xref{exec/runtime}{syntax-cont}{\K{frame}}
+
+.. |KICONT| mathdef:: \xref{exec/runtime}{syntax-continst}{\K{cont}}
+.. |KIARITY| mathdef:: \xref{exec/runtime}{syntax-continst}{\K{arity}}
 
 .. |PACK| mathdef:: \xref{exec/runtime}{syntax-packval}{\K{pack}}
 .. |I8PACK| mathdef:: \xref{exec/runtime}{syntax-packval}{\K{i8.pack}}
@@ -1479,6 +1482,7 @@
 .. |continst| mathdef:: \xref{exec/runtime}{syntax-continst}{\X{continst}}
 
 .. |generalframe| mathdef:: \xref{exec/runtime}{syntax-generalframe}{\X{gframe}}
+.. |cont| mathdef:: \xref{exec/runtime}{syntax-cont}{\X{cont}}
 .. |addrhdl| mathdef:: \xref{exec/runtime}{syntax-addrhdl}{\X{addrhdl}}
 .. |addrhdlON| mathdef:: \xref{exec/runtime}{syntax-addrhdl}{\K{on}}
 .. |addrhdlSWITCH| mathdef:: \xref{exec/runtime}{syntax-addrhdl}{\K{switch}}

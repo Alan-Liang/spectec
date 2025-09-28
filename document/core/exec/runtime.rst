@@ -475,6 +475,7 @@ $${syntax: exninst}
    pair: abstract syntax; continuation instance
    pair: continuation; instance
 .. _syntax-generalframe:
+.. _syntax-cont:
 .. _syntax-continst:
 
 Continuation Instances
@@ -482,7 +483,7 @@ Continuation Instances
 
 A *continuation instance* is the runtime representation of a :ref:`continuation <continuation>` produced by a ${:SUSPEND} or ${:SWITCH} instrucion.
 
-$${syntax: generalframe continst}
+$${syntax: generalframe cont continst}
 
 
 .. _aux-contfill:
@@ -515,6 +516,7 @@ Conventions
 .. _syntax-callframe:
 .. _syntax-label:
 .. _syntax-handler:
+.. _syntax-addrhdl:
 .. _syntax-prompt:
 .. _frame:
 .. _label:
@@ -630,7 +632,6 @@ Conventions
 .. index:: ! administrative instructions, function, function instance, function address, label, frame, instruction, trap, call, memory, memory instance, table, table instance, element, data, segment, tag, tag instance, tag address, exception, reftype, handler, caught, caught exception
    pair:: abstract syntax; administrative instruction
 .. _syntax-trap:
-.. _syntax-addrhdl:
 .. _syntax-resumption:
 .. _syntax-instr-admin:
 .. _syntax-suspending:

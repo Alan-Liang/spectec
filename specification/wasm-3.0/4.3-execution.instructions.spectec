@@ -299,9 +299,9 @@ rule Step/cont.new-null:
   z; (REF.NULL ht) (CONT.NEW x)  ~>  z; TRAP
 
 rule Step/cont.new-func:
-  z; (REF.FUNC_ADDR a) (CONT.NEW y)  ~>  $add_continst(z, VALS eps HOLE instr*); (REF.CONT_ADDR ca)
+  z; (REF.FUNC_ADDR a) (CONT.NEW y)  ~>  $add_continst(z, { CONT (VALS eps HOLE instr*), ARITY n }); (REF.CONT_ADDR ca)
   -- Expand: $type(z, y) ~~ CONT dt
-  -- Expand: dt ~~ FUNC t_1* -> t_2*
+  -- Expand: dt ~~ FUNC t_1^n -> t_2*
   -- if instr* = (REF.FUNC_ADDR a) (CALL_REF dt)
   -- if ca = |$continst(z)|
 
@@ -314,14 +314,15 @@ rule Step/cont.bind-consumed:
 
 rule Step/cont.bind-cont:
   z; val^n (REF.CONT_ADDR a) (CONT.BIND x y)  ~>  $with_cont(z', a, eps); (REF.CONT_ADDR ca)
-  -- Expand: $type(z, x) ~~ CONT dt
-  -- Expand: dt ~~ FUNC t_1* -> t_2*
+  ;; TODO(lyl): watch https://github.com/WebAssembly/stack-switching/pull/109/files#r2383951343
+  ;; -- Expand: $type(z, x) ~~ CONT dt
+  ;; -- Expand: dt ~~ FUNC t_1* -> t_2*
   -- Expand: $type(z, y) ~~ CONT dt'
   -- Expand: dt' ~~ FUNC t'_1* -> t'_2*
-  -- if n = $(|t_1*| - |t'_1*|)
+  -- if n = $(n' - |t'_1*|)
   -- if ca = |$continst(z)|
-  -- if $continst(z)[a] = cont
-  -- if z' = $add_continst(z, $contfill(cont, val^n, eps))
+  -- if $continst(z)[a] = { CONT cont, ARITY n' }
+  -- if z' = $add_continst(z, { CONT $contfill(cont, val^n, eps), ARITY (|t'_1*|) })
 
 rule Step/resume-null:
   z; (REF.NULL ht) (RESUME kx hdl*)  ~>  z; TRAP
@@ -332,9 +333,10 @@ rule Step/resume-consumed:
 
 rule Step/resume-cont:
   z; val^n (REF.CONT_ADDR a) (RESUME kx hdl*)  ~>  $with_cont(z, a, eps); (PROMPT `{addrhdl*} (RESUMING cont'))
-  -- Expand: $type(z, kx) ~~ CONT dt
-  -- Expand: dt ~~ FUNC t_1^n -> t_2*
-  -- if cont = $continst(z)[a]
+  ;; TODO(lyl):
+  ;; -- Expand: $type(z, kx) ~~ CONT dt
+  ;; -- Expand: dt ~~ FUNC t_1^n -> t_2*
+  -- if $continst(z)[a] = { CONT cont, ARITY n }
   -- if cont' = $contfill(cont, val^n, eps)
   -- if (addrhdl = $hdlinst(z, hdl))*
 
@@ -347,7 +349,7 @@ rule Step/resume_throw-consumed:
 
 rule Step/resume_throw-cont:
   z; val^m (REF.CONT_ADDR a) (RESUME_THROW kx ax hdl*)  ~>  $with_cont(z', a, eps); (PROMPT `{addrhdl*} (RESUMING cont'))
-  -- if $continst(z)[a] = cont
+  -- if $continst(z)[a] = { CONT cont, ARITY n }
   ;; create exception
   -- Expand: $as_deftype($tag(z, ax).TYPE) ~~ FUNC t^m -> eps
   -- if a' = |$exninst(z)|
@@ -379,9 +381,9 @@ rule Step_pure/prompt-vals:
   (PROMPT `{addrhdl*} val*)  ~>  val*
 
 rule Step_read/suspend:
-  z; val'* val^n (SUSPEND x) instr'*  ~>  (SUSPENDING tagaddr (SUSPEND val^n) (VALS val'* HOLE instr'*))
+  z; val'* val^n (SUSPEND x) instr'*  ~>  (SUSPENDING tagaddr (SUSPEND val^n) { CONT (VALS val'* HOLE instr'*), ARITY m })
   -- if tagaddr = $tagaddr(z)[x]
-  -- Expand: $as_deftype($taginst(z)[tagaddr].TYPE) ~~ FUNC t_1^n -> t_2*
+  -- Expand: $as_deftype($taginst(z)[tagaddr].TYPE) ~~ FUNC t_1^n -> t_2^m
 
 rule Step/switch-null:
   z; (REF.NULL ht) (SWITCH x xe)  ~>  z; TRAP
@@ -390,9 +392,10 @@ rule Step/switch-consumed:
   z; (REF.CONT_ADDR a) (SWITCH x xe)  ~>  z; TRAP
   -- if $continst(z)[a] = eps
 
+;; we don't need switch.addr in bubbling since we translate the tag address immediately
 rule Step/switch-cont:
-  z; val'* val^n (REF.CONT_ADDR a) (SWITCH x xe) instr'*  ~>  $with_cont(z, a, eps); (SUSPENDING tagaddr (SWITCH cont') (VALS val'* HOLE instr'*))
-  -- if $continst(z)[a] = cont
+  z; val'* val^n (REF.CONT_ADDR a) (SWITCH x xe) instr'*  ~>  $with_cont(z, a, eps); (SUSPENDING tagaddr (SWITCH cont') { CONT (VALS val'* HOLE instr'*), ARITY m })
+  -- if $continst(z)[a] = { CONT cont, ARITY n' }
   -- if tagaddr = $tagaddr(z)[xe]
   -- Expand: $type(z, x) ~~ CONT dt
   -- Expand: dt ~~ FUNC t_1* (REF nul dt_1) -> te_1*
@@ -403,36 +406,36 @@ rule Step/switch-cont:
 
 
 rule Step/suspending-label:
-  z; val'* (LABEL_ n `{instr*} (SUSPENDING tagaddr resumption cont)) instr'*  ~>  z; (SUSPENDING tagaddr resumption cont')
+  z; val'* (LABEL_ n `{instr*} (SUSPENDING tagaddr resumption { CONT cont, ARITY m })) instr'*  ~>  z; (SUSPENDING tagaddr resumption { CONT cont', ARITY m })
   -- if cont' = FRAME val'* (LABEL_ n `{instr*}) cont instr'*
 
 rule Step/suspending-frame:
-  z; val'* (FRAME_ n `{frame} (SUSPENDING tagaddr resumption cont)) instr'*  ~>  z; (SUSPENDING tagaddr resumption cont')
+  z; val'* (FRAME_ n `{frame} (SUSPENDING tagaddr resumption { CONT cont, ARITY m })) instr'*  ~>  z; (SUSPENDING tagaddr resumption { CONT cont', ARITY m })
   -- if cont' = FRAME val'* (FRAME_ n `{frame}) cont instr'*
 
 rule Step/suspending-handler:
-  z; val'* (HANDLER_ n `{catch*} (SUSPENDING tagaddr resumption cont)) instr'*  ~>  z; (SUSPENDING tagaddr resumption cont')
+  z; val'* (HANDLER_ n `{catch*} (SUSPENDING tagaddr resumption { CONT cont, ARITY m })) instr'*  ~>  z; (SUSPENDING tagaddr resumption { CONT cont', ARITY m })
   -- if cont' = FRAME val'* (HANDLER_ n `{catch*}) cont instr'*
 
 rule Step/suspending-prompt-suspend:
-  z; (PROMPT `{addrhdl*} (SUSPENDING tagaddr (SUSPEND val^n) cont))  ~>  $add_continst(z, cont); val^n (REF.CONT_ADDR a) (BR l)
+  z; (PROMPT `{addrhdl*} (SUSPENDING tagaddr (SUSPEND val^n) continst))  ~>  $add_continst(z, continst); val^n (REF.CONT_ADDR a) (BR l)
   -- if $gethandlersuspend(addrhdl*, tagaddr) = l
   -- Expand: $as_deftype($taginst(z)[tagaddr].TYPE) ~~ FUNC t_1^n -> t_2*
   -- if a = |$continst(z)|
 
 rule Step/suspending-prompt-suspend-skip:
-  z; val'* (PROMPT `{addrhdl*} (SUSPENDING tagaddr (SUSPEND val*) cont)) instr'*  ~>  z; (SUSPENDING tagaddr (SUSPEND val*) cont')
+  z; val'* (PROMPT `{addrhdl*} (SUSPENDING tagaddr (SUSPEND val*) { CONT cont, ARITY m })) instr'*  ~>  z; (SUSPENDING tagaddr (SUSPEND val*) { CONT cont', ARITY m })
   -- if $gethandlersuspend(addrhdl*, tagaddr) = eps
   -- if cont' = FRAME val'* (PROMPT `{addrhdl*}) cont instr'*
 
 rule Step/suspending-prompt-switch:
-  z; (PROMPT `{addrhdl*} (SUSPENDING tagaddr (SWITCH continst) cont))  ~>  $add_continst(z, cont); (PROMPT `{addrhdl*} (RESUMING cont'))
+  z; (PROMPT `{addrhdl*} (SUSPENDING tagaddr (SWITCH cont) continst))  ~>  $add_continst(z, continst); (PROMPT `{addrhdl*} (RESUMING cont'))
   -- if $gethandlerswitch(addrhdl*, tagaddr)
-  -- if cont' = $contfill(continst, (REF.CONT_ADDR a), eps)
+  -- if cont' = $contfill(cont, (REF.CONT_ADDR a), eps)
   -- if a = |$continst(z)|
 
 rule Step/suspending-prompt-switch-skip:
-  z; val'* (PROMPT `{addrhdl*} (SUSPENDING tagaddr (SWITCH continst) cont)) instr'*  ~>  z; (SUSPENDING tagaddr (SWITCH continst) cont')
+  z; val'* (PROMPT `{addrhdl*} (SUSPENDING tagaddr (SWITCH cont'') { CONT cont, ARITY m })) instr'*  ~>  z; (SUSPENDING tagaddr (SWITCH cont'') { CONT cont', ARITY m })
   -- if ~ $gethandlerswitch(addrhdl*, tagaddr)
   -- if cont' = FRAME val'* (PROMPT `{addrhdl*}) cont instr'*
 
